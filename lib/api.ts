@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
+import { type PostOptions } from '../src/pages/interfaces/post'
 
 const postsDirectory = join(process.cwd(), '_posts')
 
@@ -12,11 +13,6 @@ type Items = {
     [key: string]: string,
 }
 
-type ItemWithDate = Items & {
-    date?: string
-}
-
-
 export function getPostBySlug(slug: string, fields: string[] = []) {
     const realSlug = slug.replace(/\.md$/, '')
     const fullPath = join(postsDirectory, `${realSlug}.md`)
@@ -24,6 +20,8 @@ export function getPostBySlug(slug: string, fields: string[] = []) {
     const { data, content } = matter(fileContents)
 
     const items: Items = {}
+
+    if (fields.length === 0) return {data: data, content}
 
     fields.forEach((field) => {
         if (field === 'slug') {
@@ -38,17 +36,17 @@ export function getPostBySlug(slug: string, fields: string[] = []) {
             items[field] = data[field] as string
         }
     })
-
     return items
 }
 
-export function getAllPosts(fields: string[] = []) {
+export function getAllPosts(fields: string[] = []) : PostOptions[] {
     const slugs = getPostSlugs()
     if (slugs.length === 0) {
         return []
     }
-    const posts : ItemWithDate[] = slugs
-        .map((slug) => getPostBySlug(slug, fields) as ItemWithDate)
+
+    const posts : PostOptions[] = slugs
+        .map((slug) => getPostBySlug(slug, fields) as PostOptions)
         // sort posts by date in descending order
         .sort((post1, post2) => {
             if (post1.date && post2.date) {
