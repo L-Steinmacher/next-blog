@@ -1,6 +1,7 @@
 import { getAllPosts, getPostBySlug } from "lib/api"
 import {  type Post, type PostOptions } from "../interfaces/post"
 import markdownToHtml from "lib/markdownToHtml"
+import PostBody from "componenets/post-body"
 
 type Props = {
     post: PostOptions
@@ -17,7 +18,10 @@ export default function Post ({ post } : Props) {
             <p>{post.date}</p>
             {
                 post.content ? (
-                    <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                    <div className="container px-5 mx-auto">
+
+                        <PostBody content={post.content} />
+                    </div>
                 ) : null
             }
         </div>

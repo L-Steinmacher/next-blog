@@ -7,6 +7,5 @@ export default async function markdownToHtml(markdown: string) {
     .use(remarkParse as Plugin)
     .use(remarkHtml as Plugin)
     .process(markdown)
-  console.log(`result.toString(): ${result.toString()})`)
   return result.toString()
 }
