@@ -1,4 +1,4 @@
-import { getAllPosts } from "lib/api"
+import { getAllPosts } from "lib/blogApi"
 import { type PostOptions } from "../interfaces/post"
 import Link from "next/link"
 
