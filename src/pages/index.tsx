@@ -1,7 +1,5 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
-import Layout from "~/componenets/layout";
 import { api } from "~/utils/api";
 
 export default function Home() {
@@ -9,7 +7,6 @@ export default function Home() {
 
   return (
     <>
-      <Layout>
         <Head>
           <title>Panz Site</title>
           <meta name="description" content="Personal site of Lucas Steinmacher" />
@@ -17,17 +14,15 @@ export default function Home() {
         </Head>
         <main className="flex min-h-screen flex-col items-center  ">
           <div className="container flex flex-col items-center  px-4 py-16 ">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-              welcome
+            <h1 className="text-mega text-orange-400 font-extrabold sm:text-[5rem] tracking-tight ">
+              lucas steinmacher
             </h1>
-            <h1 className="text-mega text-orange-400 font-extrabold sm:text-[5rem] tracking-tight "> welcome 2</h1>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-
               <AuthShowcase />
             </div>
           </div>
         </main>
-      </Layout>
+
     </>
   );
 }

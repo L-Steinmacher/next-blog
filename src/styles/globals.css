@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* globals.css */
+::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #f7f7f7;
+  }
+
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #6b2b6f;
+    background-image: linear-gradient(to bottom, #d68501, #6b2b6f);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #8f4d91;
+    background-image: linear-gradient(to bottom, #d68501 #8f4d91);
+  }

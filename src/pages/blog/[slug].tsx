@@ -19,8 +19,8 @@ export default function Post ({ post,stats } : Props) {
             </details>
             {
                 post.content ? (
-                    <div className="container px-5 mx-auto max-w-2xl ">
-                        <h1 className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-tight md:leading-none mb-12 text-center md:text-left">{post.title}</h1>
+                    <div className="container px-5 mx-auto max-w-2xl min-h-screen ">
+                        <h1 className="text-3xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-tight md:leading-none mb-12 text-center md:text-left">{post.title}</h1>
                          <p>{post.date}</p> <span>{stats.text}</span>
                          <p>Written by: {post.author?.name}</p>
                         <PostBody content={post.content} />

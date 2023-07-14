@@ -1,3 +1,4 @@
+import Footer from "./footer";
 import Nav from "./nav";
 
 type Props = {
@@ -6,9 +7,12 @@ type Props = {
 
 export default function Layout({ children }: Props) {
     return (
-        <div className="container mx-auto">
-            <Nav />
-            {children}
+        <div className="flex flex-col min-h-screen">
+            <div className="flex-grow bg-[#f7f7f7]">
+                <Nav />
+                {children}
+                <Footer />
+            </div>
         </div>
     )
 }

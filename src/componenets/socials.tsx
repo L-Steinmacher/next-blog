@@ -1,15 +1,20 @@
+import { type } from "os"
 
-export default function Socials() {
+type Props = {
+    direction: 'row' | 'column'
+}
+
+export default function Socials({ direction }: Props) {
     return (
-        <div className="flex items-center space-x-2 mx-auto px-4 sm:px-8" >
+        <div className={`flex ${direction === 'column' ? 'flex-col' : 'flex-row'} items-center space-x-2 mx-auto px-4 sm:px-8`}>
             <a
-            className="rounded-lg text-gray-700 hover:bg-yellow-200 dark:text-gray-200
-            dark:hover:bg-yellow-800"
-            target="_blank"
-            rel="me noopener noreferrer"
-            href="https://github.com/L-Steinmacher/next-blog"
-            aria-label="GitHub source"
-            >
+                className="rounded-lg text-gray-700 hover:bg-yellow-200 dark:text-gray-200
+                dark:hover:bg-yellow-800"
+                target="_blank"
+                rel="me noopener noreferrer"
+                href="https://github.com/L-Steinmacher/next-blog"
+                aria-label="GitHub source"
+                >
                 <svg aria-hidden="true" className="h-9 w-9 p-1" fill="currentColor" viewBox="0 0 24 24">
                     <path
                         fill-rule="evenodd"

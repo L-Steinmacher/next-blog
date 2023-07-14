@@ -1,10 +1,10 @@
 
 
-export default function About() {
+
+export default function Contact() {
     return (
         <div className="min-h-screen">
-            <h1 className="" >About</h1>
+            Enter contact shiz here.
         </div>
     );
 }
-

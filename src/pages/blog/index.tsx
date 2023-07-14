@@ -8,7 +8,7 @@ type Props = {
 
 export default function Blog({ allPosts } : Props) {
     return (
-        <div>
+        <div className="min-h-screen">
             <details>
                 <summary>Blog</summary>
                 <pre>{JSON.stringify(allPosts, null, 2)}</pre>
