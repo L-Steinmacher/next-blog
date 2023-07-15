@@ -1,9 +1,10 @@
-import { getAllPosts, getPostBySlug } from "lib/blogApi"
-import {  type Post, type PostOptions } from "../interfaces/post"
-import markdownToHtml from "lib/markdownToHtml"
-import PostBody from "~/componenets/post-body"
-import readingTime, { type ReadTimeResults } from "reading-time"
 import Link from "next/link"
+import {  type Post, type PostOptions } from "../interfaces/post"
+import { getAllPosts, getPostBySlug } from "lib/blogApi"
+import markdownToHtml from "lib/markdownToHtml"
+import PostBody from "~/componenets/postBody"
+import CommentForm from "~/componenets/commentForm"
+import readingTime, { type ReadTimeResults } from "reading-time"
 
 type Props = {
     post: PostOptions
@@ -28,6 +29,7 @@ export default function Post ({ post,stats } : Props) {
                     </div>
                 ) : null
             }
+            <CommentForm />
         </div>
     )
 }
