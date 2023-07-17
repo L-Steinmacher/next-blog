@@ -41,7 +41,7 @@ type Params = {
 }
 
 export const getStaticProps = async ({params}: Params) => {
-    const postData: PostOptions = getPostBySlug(params.slug, [
+    const postData: PostOptions | undefined = await getPostBySlug(params.slug, [
         'title',
         'date',
         'slug',
@@ -49,6 +49,12 @@ export const getStaticProps = async ({params}: Params) => {
         'content',
         'coverImage',
     ])
+
+    if (!postData) {
+        return {
+            notFound: true,
+        }
+    }
 
     const content = await markdownToHtml(postData.content || '')
     const stats = readingTime(postData.content || '')
