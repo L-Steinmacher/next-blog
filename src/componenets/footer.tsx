@@ -41,7 +41,7 @@ export default function Footer() {
             <p>
               made with ☕️ by {" "}
               <span
-                className="hover:text-[#472C4C] relative"
+                className="hover:text-[#472C4C] relative animate-pulse"
                 onMouseEnter={handleHover}
                 onMouseLeave={handleMouseLeave}
               >

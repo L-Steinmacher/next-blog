@@ -12,12 +12,23 @@ export default function Home() {
           <meta name="description" content="Personal site of Lucas Steinmacher" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <main className="flex min-h-screen flex-col items-center  ">
-          <div className="container flex flex-col items-center  px-4 py-16 ">
-            <h1 className="text-mega text-orange-400 font-extrabold sm:text-[5rem] tracking-tight ">
+        <main className="flex min-h-screen flex-col items-center px-4 ">
+          <div className="container flex flex-col items-center  py-16 ">
+            <h1 className="text-mega text-[#d68501] font-extrabold sm:text-[5rem] tracking-tight ">
               lucas steinmacher
             </h1>
+            <div className="flex flex-col items-center gap-4 container">
+              <p className="text-center text-2xl ">
+                Hey there!  Names Lucas, I am a software engineer based in the PNW and I love to build things.
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-center text-2xl ">
+                more text
+              </p>
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
+
               <AuthShowcase />
             </div>
           </div>

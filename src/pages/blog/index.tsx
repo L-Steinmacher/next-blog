@@ -15,23 +15,24 @@ export default function Blog({ allPosts } : Props) {
             </details>
             <ul>
                 {allPosts.map(({ slug, date }) => (
-
-                    <li key={slug}>
-                        {date}
-                        {slug &&
-                            <Link href={`/blog/${slug}`}>
-                                {slug}
-                            </Link>
-                        }
-                    </li>
+                    slug && (
+                        <li key={slug}>
+                            {date}
+                            {slug &&
+                                <Link href={`/blog/${slug}`}>
+                                    {slug}
+                                </Link>
+                            }
+                        </li>
+                    )
                 ))}
             </ul>
         </div>
     )
 }
 
-export const getStaticProps =  () => {
-    const allPosts = getAllPosts([
+export const getStaticProps =  async () => {
+    const allPosts = await getAllPosts([
       'date',
       'slug',
     ])

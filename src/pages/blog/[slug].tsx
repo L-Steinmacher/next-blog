@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {  type Post, type PostOptions } from "../interfaces/post"
-import { getAllPosts, getPostBySlug } from "lib/blogApi"
+import { getPostBySlug, getPostSlugs } from "lib/blogApi"
 import markdownToHtml from "lib/markdownToHtml"
 import PostBody from "~/componenets/postBody"
 import CommentForm from "~/componenets/commentForm"
@@ -11,7 +11,8 @@ type Props = {
     stats: ReadTimeResults
 }
 
-export default function Post ({ post,stats } : Props) {
+export default function Post ({ post, stats } : Props) {
+    // console.log(post)
     return (
         <div>
             <details>
@@ -47,7 +48,6 @@ export const getStaticProps = async ({params}: Params) => {
         'slug',
         'author',
         'content',
-        'coverImage',
     ])
 
     if (!postData) {
@@ -56,7 +56,8 @@ export const getStaticProps = async ({params}: Params) => {
         }
     }
 
-    const content = await markdownToHtml(postData.content || '')
+    const parsedContent = await markdownToHtml(postData.content || '')
+    console.log(postData.content)
     const stats = readingTime(postData.content || '')
 
     return {
@@ -66,24 +67,24 @@ export const getStaticProps = async ({params}: Params) => {
                 date: postData.date,
                 slug: postData.slug,
                 author: postData.author,
-                content,
+                content: parsedContent,
             },
             stats,
         },
     }
 }
-
-export const getStaticPaths = () => {
-    const posts =  getAllPosts(['slug'])
+export async function getStaticPaths() {
+    const slugs = await getPostSlugs();
+    const paths = slugs.map((slug) => {
+      return {
+        params: {
+          slug: slug.replace(/\.md$/, ''), // Remove file extension for each post slug
+        },
+      };
+    });
 
     return {
-        paths: posts.map((post) => {
-            return {
-                params: {
-                    slug: post.slug,
-                },
-            }
-        }),
-        fallback: false,
-    }
-}
+      paths,
+      fallback: false, // Indicates that other routes should 404.
+    };
+  }

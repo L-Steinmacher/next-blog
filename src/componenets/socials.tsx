@@ -6,7 +6,7 @@ type Props = {
 
 export default function Socials({ direction }: Props) {
     return (
-        <div className={`flex ${direction === 'column' ? 'flex-col' : 'flex-row'} items-center space-x-2 mx-auto px-4 sm:px-8`}>
+        <div className={`flex ${direction === 'column' ? 'flex-col' : 'flex-row'} items-center justify-end space-x-2 mx-auto px-4 sm:px-8`}>
             <a
                 className="rounded-lg text-gray-700 hover:bg-yellow-200 dark:text-gray-200
                 dark:hover:bg-yellow-800"
@@ -17,7 +17,7 @@ export default function Socials({ direction }: Props) {
                 >
                 <svg aria-hidden="true" className="h-9 w-9 p-1" fill="currentColor" viewBox="0 0 24 24">
                     <path
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483
                         0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608
                         1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088
@@ -27,7 +27,7 @@ export default function Socials({ direction }: Props) {
                         2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566
                         4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019
                         10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        clip-rule="evenodd"
+                        clipRule="evenodd"
                     />
                 </svg>
             </a>
