@@ -56,12 +56,33 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    comments      Comment[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+    identifier  String
+    token       String   @unique
+    expires     DateTime
 
     @@unique([identifier, token])
 }
+
+model Comment {
+  id          String @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  postSlug    String
+
+  commenter   User? @relation(fields: [commenterId], references: [id])
+  commenterId String?
+
+  clientId    String?
+
+  content     String
+
+  @@index([commenterId, postSlug])
+  @@index([clientId, postSlug])
+  @@index([postSlug, createdAt])
+  @@index([createdAt, commenterId])
+}
+

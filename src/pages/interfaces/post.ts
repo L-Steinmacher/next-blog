@@ -29,8 +29,9 @@ export type PostFrontMatter = {
     excerpt: string,
 }
 
-export type LatestPost = {
-    title: string,
-    date: string,
-    slug: string,
+export type DatabasePost = {
+    title: string;
+    date: string;
+    slug: string;
 }
+

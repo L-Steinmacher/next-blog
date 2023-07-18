@@ -1,7 +1,7 @@
 ---
 title: 'Embracing Change'
 excerpt: 'Imagine a world where generating educational content is as simple as providing a solution and letting an AI-powered language model do the rest. A world where educators and curriculum developers can effortlessly create engaging and thought-provoking problems that challenge and inspire. Yeah I mean sure we kind of live in that world already but now the difference is I’m writing about it.'
-date: '2023-07-12'
+date: '2023-07-18T16:40:08.373Z'
 author:
   name: Lucas Steinmacher
 ---
