@@ -82,8 +82,13 @@ export async function getAllPosts(fields: string[] = []) : Promise<PostOptions[]
         } else {
             return 0;  // both posts are without a date, so order doesn't matter
         }
-
     })
 
     return posts
 }
+
+
+export async function getLatestPost(fields: string[]) {
+    const post = await getAllPosts(fields)
+    return post[0]
+  }

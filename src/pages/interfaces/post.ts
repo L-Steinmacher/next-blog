@@ -28,3 +28,9 @@ export type PostFrontMatter = {
     coverImage: string,
     excerpt: string,
 }
+
+export type LatestPost = {
+    title: string,
+    date: string,
+    slug: string,
+}

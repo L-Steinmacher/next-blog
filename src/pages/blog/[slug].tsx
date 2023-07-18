@@ -85,6 +85,6 @@ export async function getStaticPaths() {
 
     return {
       paths,
-      fallback: false, // Indicates that other routes should 404.
+      fallback: false,
     };
   }

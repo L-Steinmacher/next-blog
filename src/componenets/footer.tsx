@@ -29,9 +29,6 @@ export default function Footer() {
               <li>
                 <Link href="/contact">Contact</Link>
               </li>
-              <li>
-                <Link href="/blog">Blog</Link>
-              </li>
             </ul>
           </div>
           <div className="flex-1">
