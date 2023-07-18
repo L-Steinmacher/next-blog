@@ -5,19 +5,24 @@ import markdownToHtml from "lib/markdownToHtml"
 import PostBody from "~/componenets/postBody"
 import CommentForm from "~/componenets/commentForm"
 import readingTime, { type ReadTimeResults } from "reading-time"
+import { prisma } from "~/server/db"
+import { type Comment } from "@prisma/client"
+
 
 type Props = {
     post: PostOptions
     stats: ReadTimeResults
+    comments: Comment[]
 }
 
-export default function Post ({ post, stats } : Props) {
-    // console.log(post)
+export default function Post ({ post, stats, comments } : Props) {
+    console.log(comments)
     return (
         <div>
             <details>
                 <summary>Post</summary>
                 <pre>{JSON.stringify(post, null, 2)}</pre>
+                <pre>{JSON.stringify(comments, null, 2)}</pre>
             </details>
             {
                 post.content ? (
@@ -31,6 +36,14 @@ export default function Post ({ post, stats } : Props) {
                 ) : null
             }
             <CommentForm />
+            {
+                comments.map((comment) => (
+                    <div key={comment.id}>
+                        <p>{comment.content}</p>
+                        <p>{comment.commenterId}</p>
+                    </div>
+                ))
+            }
         </div>
     )
 }
@@ -40,6 +53,7 @@ type Params = {
         slug: string
     }
 }
+
 
 export const getStaticProps = async ({params}: Params) => {
     const postData: PostOptions | undefined = await getPostBySlug(params.slug, [
@@ -56,8 +70,26 @@ export const getStaticProps = async ({params}: Params) => {
         }
     }
 
+    const comments = await prisma.comment.findMany({
+        where: {
+            postSlug: postData.slug
+        },
+        select: {
+            id: true,
+            content: true,
+            commenter: {
+                select: {
+                    name: true,
+                    id: true,
+                    image: true,
+                }
+            }
+        }
+    })
+
+
+
     const parsedContent = await markdownToHtml(postData.content || '')
-    console.log(postData.content)
     const stats = readingTime(postData.content || '')
 
     return {
@@ -70,6 +102,7 @@ export const getStaticProps = async ({params}: Params) => {
                 content: parsedContent,
             },
             stats,
+            comments,
         },
     }
 }

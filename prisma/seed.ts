@@ -12,6 +12,10 @@ const limit = pLimit(5);
 
 async function seed() {
     console.log("Start seeding... 🌱");
+    console.time(`Cleaning up Database... 🧹`)
+    await prisma.comment.deleteMany({})
+    await prisma.user.deleteMany({})
+    console.timeEnd(`Cleaning up Database... 🧹`)
 
     const indy = await prisma.user.upsert({
         where: { email: "indy@dog.com" },
