@@ -24,7 +24,7 @@ export default function Home({latestPosts}: Props) {
           <div className="container flex flex-col items-start justify-center py-16  ">
             <div className="flex flex-row h-full w-full items-center justify-between">
               <div className="flex flex-col">
-                <h1 className="text-xl text-[#d68501] h-full font-extrabold sm:text-[5rem] tracking-tight leading-none">
+                <h1 className="text-xl text-[#d68401d6] h-full font-extrabold sm:text-[5rem] tracking-tight leading-none">
                   lucas steinmacher
                 </h1>
                 <p className=" text-xl ">

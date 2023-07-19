@@ -35,3 +35,8 @@ export type DatabasePost = {
     slug: string;
 }
 
+export type LatestPost = {
+    slug: string;
+    date: string;
+    title: string;
+  };
