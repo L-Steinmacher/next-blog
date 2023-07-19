@@ -2,12 +2,11 @@ import Link from "next/link"
 import {  type Post, type PostOptions } from "../interfaces/post"
 import { getPostBySlug, getPostSlugs } from "lib/blogApi"
 import markdownToHtml from "lib/markdownToHtml"
-import PostBody from "~/componenets/postBody"
-import CommentForm from "~/componenets/commentForm"
+import PostBody from "~/components/postBody"
 import readingTime, { type ReadTimeResults } from "reading-time"
-import { prisma } from "~/server/db"
 import { type Comment } from "@prisma/client"
-
+import {CommentLayout} from "~/components/commentLayout"
+import { api } from "~/utils/api"
 
 type Props = {
     post: PostOptions
@@ -15,8 +14,13 @@ type Props = {
     comments: Comment[]
 }
 
-export default function Post ({ post, stats, comments } : Props) {
+export default function Post ({ post, stats} : Props) {
+    if (!post.slug) {
+        return null
+    }
+    const comments = api.comments.getCommentsForPost.useQuery({ slug: post.slug }) || null
     console.log(comments)
+
     return (
         <div>
             <details>
@@ -35,15 +39,8 @@ export default function Post ({ post, stats, comments } : Props) {
                     </div>
                 ) : null
             }
-            <CommentForm />
-            {
-                comments.map((comment) => (
-                    <div key={comment.id}>
-                        <p>{comment.content}</p>
-                        <p>{comment.commenterId}</p>
-                    </div>
-                ))
-            }
+            {/* <CommentLayout slug={post.slug} /> */}
+
         </div>
     )
 }
@@ -69,25 +66,7 @@ export const getStaticProps = async ({params}: Params) => {
             notFound: true,
         }
     }
-
-    const comments = await prisma.comment.findMany({
-        where: {
-            postSlug: postData.slug
-        },
-        select: {
-            id: true,
-            content: true,
-            commenter: {
-                select: {
-                    name: true,
-                    id: true,
-                    image: true,
-                }
-            }
-        }
-    })
-
-
+    console.log(typeof params.slug)
 
     const parsedContent = await markdownToHtml(postData.content || '')
     const stats = readingTime(postData.content || '')
@@ -102,10 +81,12 @@ export const getStaticProps = async ({params}: Params) => {
                 content: parsedContent,
             },
             stats,
-            comments,
         },
     }
 }
+
+
+
 export async function getStaticPaths() {
     const slugs = await getPostSlugs();
     const paths = slugs.map((slug) => {

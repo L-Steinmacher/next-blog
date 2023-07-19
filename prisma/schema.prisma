@@ -73,8 +73,8 @@ model Comment {
 
   postSlug    String
 
-  commenter   User? @relation(fields: [commenterId], references: [id])
-  commenterId String?
+  commenter   User @relation(fields: [commenterId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  commenterId String
 
   clientId    String?
 
