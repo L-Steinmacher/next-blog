@@ -26,7 +26,10 @@ export default function Home({latestPosts}: Props) {
               lucas steinmacher
             </h1>
             <p className="text-xl">
-              Hey there! Names Lucas, I am a software engineer based in the PNW.
+              Hey there! Names Lucas, I am a software engineer based in the PNW. <br />
+              I'm excited about <a href="https://www.latent.space/p/ai-engineer" className="hover:text-[#d68401d6] hover:underline">AI Engineering</a>,<br/>
+              Making cool things with Typescrip,<br/>
+              and
             </p>
             <Link className="text-xl hover:underline hover:text-[#d68401d6]" href={"/about"}>
               To learn more about me check out my About page.

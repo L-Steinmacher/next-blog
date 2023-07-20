@@ -170,26 +170,30 @@ export default function Post ({ post, stats } : Props) {
               <h2 id="comments-heading" className="sr-only">
                 Comments
               </h2>
-              {comments?.map((comment) => (
-                <div key={comment.id} className="bg-white shadow-lg rounded-lg p-6 mb-4" role="article">
-                  <div className="flex items-center mb-4">
-                    {comment.commenter.image ? (
-                      <Image
-                        className="w-8 h-8 rounded-full mr-3"
-                        src={comment.commenter.image}
-                        alt={comment.commenter.name || 'Commenter Image'}
-                        width={32}
-                        height={32}
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full mr-3 bg-black" />
-                    )}
-                    <p className="font-bold">{comment.commenter.name}</p>
-                  </div>
-                  <p className="text-gray-700">{comment.content}</p>
-                  <p className="text-gray-500 text-sm mt-2">{comment.createdAt.toISOString()}</p>
-                </div>
-              ))}
+              {comments?.length ? (
+                comments.map((comment) => (
+                    <div key={comment.id} className="bg-white shadow-lg rounded-lg p-6 mb-4" role="article">
+                    <div className="flex items-center mb-4">
+                        {comment.commenter.image ? (
+                        <Image
+                            className="w-8 h-8 rounded-full mr-3"
+                            src={comment.commenter.image}
+                            alt={comment.commenter.name || 'Commenter Image'}
+                            width={32}
+                            height={32}
+                        />
+                        ) : (
+                        <div className="w-8 h-8 rounded-full mr-3 bg-black" />
+                        )}
+                        <p className="font-bold">{comment.commenter.name}</p>
+                    </div>
+                    <p className="text-gray-700">{comment.content}</p>
+                    <p className="text-gray-500 text-sm mt-2">{comment.createdAt.toISOString()}</p>
+                    </div>
+                ))
+                ) : (
+                <p className="text-gray-500 text-center text-xl">Be the first to leave your thoughts!</p>
+                )}
             </div>
           </section>
         </div>
