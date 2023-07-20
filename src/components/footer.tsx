@@ -14,8 +14,8 @@ export default function Footer() {
   };
 
   return (
-    <footer className="py-4 pt-16">
-      <hr className="w-2/3 mx-auto border-b-3 border-gray-500" />
+    <footer className="pb-4 pt-16 w-2/3 mx-auto">
+      <hr className=" w-full mx-auto border-b-3 border-gray-500" />
       <div className="container flex flex-col w-full items-center mx-auto max-w-2xl">
         <div className="flex flex-col sm:flex-row w-full py-6">
           <div className="flex-1 flex sm:justify-center sm:items-center mx-auto ">

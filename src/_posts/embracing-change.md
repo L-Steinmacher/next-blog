@@ -1,18 +1,18 @@
 ---
-title: 'Embracing Change'
-excerpt: 'Imagine a world where generating educational content is as simple as providing a solution and letting an AI-powered language model do the rest. A world where educators and curriculum developers can effortlessly create engaging and thought-provoking problems that challenge and inspire. Yeah I mean sure we kind of live in that world already but now the difference is I’m writing about it.'
-date: '2023-07-18T16:40:08.373Z'
+title: "Embracing Change"
+excerpt: "I had an abrupt introduction into AI as many had in December 2022 with the release of OpenAI's ChatGPT to the general public.  We had been using OpenAI's Whisper for a transcript automation process that we did in house to process client's video's audio files into close captioning files (also just referred to as srt file from their mime type) which we would then use to process transcripts for the clients content..."
+date: "2023-07-18T16:40:08.373Z"
 author:
   name: Lucas Steinmacher
 ---
 
-## Introduction: A Coworker's Experience
-As was chatting with my manager on slack one day, our conversation took an unexpected turn towards how they had created some email outlines for a client based on previous emails that the client had written.  They had used reverse engineered a prompt to use with ChatGPT for this and could generate an email in seconds based on a subject that the client was working on. Of course I was interested in the potential for this of course and asked them their process and the more they talked the more I was interested in this reverse prompt engineering.
-
 ## The Leap of Faith: My Journey with Artificial Intelligence
-I had an abrupt introduction into AI as many had in December 2022 with the release of OpenAI's ChatGPT to the general public.  We had been using OpenAI's Whisper for a transcript automation process that we did in house to process a client's video's audio files into close captioning files (also just referred to as srt file from their mime type) which we would then use to process transcripts for the clients content. After November 30, 2022 of course the scope of which we used AI on a daily basis changed dramatically. We used it to increase our understanding of content that our clients would ship us by running the transcripts of their videos with prompts to outline what was talked about so we could better understand what we were to be working with.
+I had an abrupt introduction into AI as many had in December 2022 with the release of OpenAI's ChatGPT to the general public.  We had been using OpenAI's Whisper for a transcript automation process that we did in house to process client's video's audio files into close captioning files (also just referred to as srt file from their mime type) which we would then use to process transcripts for the clients content. After November 30, 2022 of course the scope of which we used AI on a daily basis changed dramatically. We used it to increase our understanding of content that our clients would ship us by running the transcripts of their videos with prompts to outline what was talked about so we could better understand what we were to be working with.
 
 The release of OpenAI's ChatGPT in December 2022 marked a pivotal moment in my journey with AI, shifting our daily reliance from Whisper to also include ChatGPT for various tasks. This leap into AI technology has fueled my enthusiasm to explore its vast potential and embrace the next phase of my journey.
+
+## Introduction: A Coworker's Experience
+As was chatting with my manager on slack one day, our conversation took an unexpected turn towards how they had created some email outlines for a client based on previous emails that the client had written.  They had used reverse engineered a prompt to use with ChatGPT for this and could generate an email in seconds based on a subject that the client was working on. Of course I was interested in the potential for this of course and asked them their process and the more they talked the more I was interested in this reverse prompt engineering.
 
 ## Give Credit Where Credit Is Due: No One Learns Alone
 First off I'd like to address that my manager who I'll not name for their privacy, lets call them T-Dog, has been a large influence in my learning and has been an amazing mentor to me in many regards who shared [this article](https://couchdeck.com/mastering-reverse-prompt-engineering-using-chatgpt/) with me to help guide me through the stumbles of prompt engineering and software in general.  Secondly I follow rather heavily a writer and developer advocate named [@swyx](https://www.swyx.io/) whom has written about the subject of reverse prompt engineering here. I aspire to be as good of a writer and thinker as both of these individuals, T-Dog and Swyx respectively, and like to shout them out. (I'll ask T-Dog if I can mention them here)

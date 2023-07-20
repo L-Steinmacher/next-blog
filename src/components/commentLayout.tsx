@@ -7,7 +7,6 @@ export function CommentLayout({comments, slug}: {comments: Comment[], slug: stri
   if (!comments) {
       return null
   }
-  console.log(comments, slug)
     return (
         <div>
             {comments.map((comment: Comment) => (

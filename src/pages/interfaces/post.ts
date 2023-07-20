@@ -39,4 +39,5 @@ export type LatestPost = {
     slug: string;
     date: string;
     title: string;
+    excerpt: string;
   };
