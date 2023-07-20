@@ -23,6 +23,7 @@ async function seed() {
         create: {
             email: "indy@dog.com",
             name: "Indy",
+
         },
     });
 

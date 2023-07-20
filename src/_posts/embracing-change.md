@@ -48,7 +48,7 @@ The discovery of reverse prompt engineering has opened my eyes to not only the p
 ![How do you know this wasn't AI generated?](/images/tinfoil-dude.jpeg )
 The magnificence of AI lies in its vast scope, presenting countless opportunities for contribution that go beyond traditional expertise. From harnessing AI as a supplementary tool in various domains to addressing societal issues, the possibilities are boundless. AI acts as an enhancer of human potential, empowering us to enhance our skills and drive substantial transformations. By embracing a mindset of perpetual learning and adaptability, individuals can uncover their unique niches and forge a profound influence. Rest assured, this perspective is purely a human-generated perspective. There's no way that I would use my skills in using a generative AI to help me write this article... pinky swear. 🤞
 
-What am I using if for now? Well debugging mainly and
+What am I using if for now? Well debugging Typescript type errors and finding where I accidentally deleted a `<div>` in my JSX but I don't think that is the end all of the matter. There's so much potential for being a [Rubber Duckie](https://en.wikipedia.org//wiki/Rubber_duck_debugging)
 
 ## Conclusion: Embrace the Journey, Embrace AI and AI Engineering
 Embarking on a career pivot into the world of artificial intelligence has been a transformative experience. From the initial excitement sparked by friends' stories to the challenges faced along the way, the journey has been nothing short of remarkable. As technology continues to advance at an astonishing pace, the importance of embracing change and adopting a mindset of continuous learning becomes increasingly evident.

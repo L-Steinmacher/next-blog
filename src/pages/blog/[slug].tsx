@@ -107,7 +107,7 @@ export default function Post ({ post, stats } : Props) {
                 >
                   {post.title}
                 </h1>
-                <p>{post.date}</p>
+                <p>{post.date?.split("T")[0]}</p>
                 <span>{stats.text}</span>
                 <p>Written by: {post.author?.name}</p>
                 <PostBody content={post.content} />
@@ -136,7 +136,6 @@ export default function Post ({ post, stats } : Props) {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
-
                 {userLoggedIn ? (
                   <>
                     <button
@@ -145,15 +144,14 @@ export default function Post ({ post, stats } : Props) {
                       tabIndex={2}
                       aria-label="Submit comment"
                       onClick={submitComment}
+                      disabled={comment.length < 10}
                     >
                       Submit
                     </button>
-
                   </>
                 ) : (
                   <div>
                     <p className="text-xl font-bold mb-4">You must be logged in to leave a comment.</p>
-
                     <button
                       className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none mt-4"
                       tabIndex={2}

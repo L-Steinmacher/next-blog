@@ -21,7 +21,7 @@
 }
 
 .markdown a {
-  @apply text-blue-500  hover:text-blue-700 hover:underline transition-colors;
+  @apply text-[#d68501] hover:text-[#d68401bb] hover:underline transition-colors;
 }
 
 .markdown img {

@@ -4,13 +4,11 @@ import { type LatestPost } from "./interfaces/post";
 import Link from "next/link";
 import Image from "next/image";
 
-
 type Props = {
   latestPosts: LatestPost[];
 };
 
 export default function Home({latestPosts}: Props) {
-
   return (
     <>
     <Head>
@@ -22,16 +20,16 @@ export default function Home({latestPosts}: Props) {
       <div className="container flex flex-col items-start justify-center py-16">
         <div className="flex flex-col sm:flex-row items-center justify-between">
           <div className="flex flex-col">
-            <h1 className="text-xl text-[#d68401d6] h-full font-extrabold sm:text-[5rem] tracking-tight leading-none">
+            <h1 className="text-xl text-[#d68401bb] h-full font-extrabold sm:text-[5rem] tracking-tight leading-none">
               lucas steinmacher
             </h1>
-            <p className="text-xl">
+            <p className="text-xl pt-4">
               Hey there! Names Lucas, I am a software engineer based in the PNW. <br />
-              I'm excited about <a href="https://www.latent.space/p/ai-engineer" className="hover:text-[#d68401d6] hover:underline">AI Engineering</a>,<br/>
+              I'm excited about <a href="https://www.latent.space/p/ai-engineer" className="hover:text-[#d68401bb] hover:underline">AI Engineering</a>,<br/>
               Making cool things with Typescrip,<br/>
-              and
+              I also write about whatever is on my mind from time to time.
             </p>
-            <Link className="text-xl hover:underline hover:text-[#d68401d6]" href={"/about"}>
+            <Link className="text-xl pt-4 hover:underline hover:text-[#d68401bb]" href={"/about"}>
               To learn more about me check out my About page.
             </Link>
           </div>
@@ -54,10 +52,10 @@ export default function Home({latestPosts}: Props) {
             </p>
             {latestPosts.map(({ slug, date, title }) => (
               <div key={slug} className="w-full">
-                <Link className="text-[#d68501]" href={`/blog/${slug}`}>
+                <Link className="text-[#d68501] hover:text-[#d68401bb] hover:underline transition-colors" href={`/blog/${slug}`}>
                   {title}
                 </Link>
-                <span className="text-xs px-2">{date}</span>
+                <span className="text-xs px-2">{date.split("T")[0]}</span>
               </div>
             ))}
           </div>
