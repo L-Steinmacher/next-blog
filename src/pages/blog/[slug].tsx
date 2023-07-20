@@ -119,8 +119,8 @@ export default function Post ({ post, stats } : Props) {
           <section aria-labelledby="comments-heading" className="pt-16">
             <div className="">
               <form className="flex flex-col items-center" aria-label="Leave a comment">
-                <h2 className="text-2xl font-bold mb-4">
-                  Have an opinion of what I said? Find a typo? Just want to be nice? Feel free to leave a comment!
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  Have an opinion of what I said? Find a typo? Just want to be nice?<br /> Feel free to leave a comment!
                 </h2>
                 <label htmlFor="comment" className="sr-only">
                   Comment
@@ -129,7 +129,7 @@ export default function Post ({ post, stats } : Props) {
                   id="comment"
                   name="comment"
                   rows={4}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 text-gray-700 placeholder-gray-400"
                   placeholder="Leave a comment"
                   aria-label="Comment"
                   tabIndex={1}
@@ -148,7 +148,7 @@ export default function Post ({ post, stats } : Props) {
                     >
                       Submit
                     </button>
-                    {/* Additional UI elements for logged-in users */}
+
                   </>
                 ) : (
                   <div>
