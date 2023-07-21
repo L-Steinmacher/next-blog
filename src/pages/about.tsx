@@ -1,13 +1,21 @@
+import Head from "next/head";
 import Image from "next/image";
 
 export default function About() {
   return (
     <div className="mx-auto max-w-2xl px-6 pt-16">
+      <Head>
+        <title>Experienced Software Engineer & Former Chef | About Me - Lucas (Panz) | Your App Name</title>
+        <meta
+          name="description"
+          content="Meet Lucas (Panz), a skilled software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname 'Panz' and get to know the person behind the code. | Your App Name."
+        />
+      </Head>
       <article>
         <section>
           <div>
-            <div className="flex flex-row w-full items-center  pb-4">
-              <h2 className="mb-12 text-center pr-10 text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
+            <div className="flex flex-row w-full items-center  pb-8">
+              <h2 className=" text-center pr-10 text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               Impatient? TL;DR
             </h2>
             <Image
@@ -19,51 +27,47 @@ export default function About() {
             />
             </div>
             <p>
-              Howdy! I'm Panz... err, Lucas, whatever you feel like calling me.
-              They're interchangeable, so feel free to use either. I'm a
+              Howdy! I'm Lucas but some call me Panz. I'm a
               software engineer based out of the greater Seattle area, and I
-              enjoy building things that make people's lives easier, mainly with
-              TypeScript.
-              <br />
-              <br />
+              love building tools and web apps for peopl,  mainly working with Typescript.
             </p>
           </div>
         </section>
         <section>
           <div className="mt-8">
-            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
+            <h2 className="mb-8 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               About Me
             </h2>
             <p>
-              As mentioned before, I'm a software engineer based out of the
+              I'm a software engineer based out of the
               greater Seattle area. I've been working in the industry for about
-              3 years now, and I've been loving every minute of it.
+              3 years now, working at a few different companies, and I'm currently looking for my next opportunity.
+              I've worked on projects ranging from internal tools built in Javascript or Typescript for video editing, transcript automation using Whisper AI,
+              Django applications for a fintech company and a few other projects in between.
               <br />
               <br />
               Also, as mentioned, I used to work in the service industry as a
               chef, mainly in fine dining, which I feel gives me a unique
               perspective on software and how it affects the clients using it.
-              The service is at the forefront of the process.
-              <br />
-              <br />A little more about me: I grew up in Northern Michigan
-              enjoying the outdoors and all the activities that come with it,
-              such as snowboarding, hiking, and trail running. To this day, I
-              still enjoy staying active by running, hiking, and mixing in some
-              yoga into my routine.
+              Drawing from my background as a former chef in fine dining, I bring a client-centric approachto software engineering.
+              By prioritizing customer needs, building relationships, and suggesting thoughtful solutions,
+              I create products that not only meet but exceed expectations, just as I did in the kitchen.
               <br />
               <br />
-              Even though I don't profesionally cook anymore, I still enjoy
-              bakeing, cooking for loved ones and throwing a BBQ every once in a
-              while. It's how I show my love for the people in my life. I will
-              always be in love with food and the culture that surrounds it.
+              A little more about me: I'm a Northern Michigan native who cherishes the great outdoors.
+              Trail running, hiking, and snowboarding have been lifelong passions of mine.
+              Today, you can find me exploring the scenic trails in and around the Seattle area and the breathtaking Cascades.
               <br />
               <br />
+              Though I no longer pursue a professional career in cooking, my passion for food remains unwavering.
+              I find joy in baking and cooking for loved ones, and occasionally, throwing a BBQ just to get people together.
+              Sharing culinary delights is my way of expressing love and appreciation for the people in my life, and my fascination with food and its culture will forever hold a special place in my heart.
             </p>
           </div>
         </section>
         <section>
           <div className="mt-8">
-            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
+            <h2 className="mb-8 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               Ok, Whats whith the name?
             </h2>
             <p>
