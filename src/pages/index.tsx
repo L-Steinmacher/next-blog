@@ -22,6 +22,7 @@ export default function Home({ latestPosts }: Props) {
         <title>Lucas Steinmacher</title>
         <meta name="description" content="Personal site of Lucas Steinmacher" />
         <link rel="icon" href="favicon.ico" />
+        <meta name="robots" content="index,follow" />
       </Head>
       <main className="mx-auto flex max-w-4xl flex-col items-center px-4">
         <div className="container flex flex-col items-start justify-center py-16">
