@@ -19,7 +19,7 @@ export default function Contact() {
         </div>
         <div className="mt-8">
           <p className="text-lg">
-            If you'd like to get in touch with me, feel free to reach out via
+            If you&apos;d like to get in touch with me, feel free to reach out via
             email at:
             <br /> <br />
             <a

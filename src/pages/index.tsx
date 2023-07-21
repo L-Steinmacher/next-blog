@@ -34,7 +34,7 @@ export default function Home({ latestPosts }: Props) {
               <p className="pt-4 text-lg">
                 Hey there! Names Lucas, a.k.a. Panz. I am a software engineer based in the
                 Greater Seattle area. <br />
-                I'm excited about{' '}
+                I&apos;m excited about{' '}
                 <a
                   href="https://www.latent.space/p/ai-engineer"
                   className="hover:text-[#d68401bb] hover:underline"
@@ -71,7 +71,7 @@ export default function Home({ latestPosts }: Props) {
             <div className="flex flex-col py-8">
               <p className="text-justify text-xl">
                 I write sometimes about things I am working on, and things I am
-                learning. Here's the latest:
+                learning. Here&apos;s the latest:
               </p>
               <div className="mx-auto max-w-2xl w-3/4 py-4">
                 {latestPost ? (

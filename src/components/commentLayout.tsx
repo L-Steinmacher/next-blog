@@ -1,9 +1,6 @@
 import { type Comment } from "@prisma/client"
-import { type GetServerSideProps, type InferGetServerSidePropsType } from "next"
-import { api } from "~/utils/api"
 
-
-export function CommentLayout({comments, slug}: {comments: Comment[], slug: string}) {
+export function CommentLayout({comments}: {comments: Comment[], slug: string}) {
   if (!comments) {
       return null
   }

@@ -27,7 +27,7 @@ export default function About() {
             />
             </div>
             <p>
-              Howdy! I'm Lucas but some call me Panz. I'm a
+              Howdy! I&apos;m Lucas but some call me Panz. I&apos;m a
               software engineer based out of the greater Seattle area, and I
               love building tools and web apps for peopl,  mainly working with Typescript.
             </p>
@@ -39,10 +39,10 @@ export default function About() {
               About Me
             </h2>
             <p>
-              I'm a software engineer based out of the
-              greater Seattle area. I've been working in the industry for about
-              3 years now, working at a few different companies, and I'm currently looking for my next opportunity.
-              I've worked on projects ranging from internal tools built in Javascript or Typescript for video editing, transcript automation using Whisper AI,
+              I&apos;m a software engineer based out of the
+              greater Seattle area. I&apos;ve been working in the industry for about
+              3 years now, working at a few different companies, and I&apos;m currently looking for my next opportunity.
+              I&apos;ve worked on projects ranging from internal tools built in Javascript or Typescript for video editing, transcript automation using Whisper AI,
               Django applications for a fintech company and a few other projects in between.
               <br />
               <br />
@@ -54,7 +54,7 @@ export default function About() {
               I create products that not only meet but exceed expectations, just as I did in the kitchen.
               <br />
               <br />
-              A little more about me: I'm a Northern Michigan native who cherishes the great outdoors.
+              A little more about me: I&apos;m a Northern Michigan native who cherishes the great outdoors.
               Trail running, hiking, and snowboarding have been lifelong passions of mine.
               Today, you can find me exploring the scenic trails in and around the Seattle area and the breathtaking Cascades.
               <br />
@@ -71,13 +71,12 @@ export default function About() {
               Ok, Whats whith the name?
             </h2>
             <p>
-              Why I'm so glad you asked. Panz (pronounced like the plural of the
+              Why I&apos;m so glad you asked. Panz (pronounced like the plural of the
               cooking utensil, pans) was given to me when I was working in fine
               dining as a chef at a restaurant named{' '}
               <a
                 className="text-[#d68501] hover:text-[#d68401bb] hover:underline"
                 href="https://www.seattletimes.com/life/food-drink/seattles-james-beard-award-winning-restaurant-tilth-is-closing-forever/"
-                alt="Tilth restaurant"
                 target="_blank"
                 rel="me noopener noreferrer"
               >
@@ -86,11 +85,10 @@ export default function About() {
               <br /><br />
               They liked to give out nicknames to the senior staff. I was
               told that the name was given to me because of my Germanic last
-              name and the fact that I'm a{' '}
+              name and the fact that I&apos;m a{' '}
               <a
                 className="text-[#d68501] hover:text-[#d68401bb] hover:underline"
                 href="https://en.wiktionary.org/wiki/Panzer"
-                alt="Panzer"
                 target="_blank"
                 rel="me noopener noreferrer"
               >
@@ -100,7 +98,7 @@ export default function About() {
               around, and I just kinda ran with it.
               <br />
               <br />
-              Whatever you call me, just don't overthink it.
+              Whatever you call me, just don&apos;t overthink it.
             </p>
           </div>
         </section>
