@@ -15,11 +15,11 @@ export default function Contact() {
             className="text-[#d68501]  hover:text-[#d68401bb] hover:underline"
             href="mailto:lucaslsteinmacher@gmail.com"
           >
-            lucalsteinmacher@gmail.com
+            lucaslsteinmacher@gmail.com
           </a>
           <br />
           <br />
-          Also my socials are plastered all over above and bellow so feel free
+          Also my socials are plastered all over above and below so feel free
           to check out my stuff there.
         </p>
       </div>

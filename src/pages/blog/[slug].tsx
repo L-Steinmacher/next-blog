@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { NonNullablePostOptions, type Post, type PostOptions } from '../interfaces/post';
+import { type NonNullablePostOptions, type PostOptions } from '../interfaces/post';
 import { getPostBySlug, getPostSlugs } from 'lib/blogApi';
 import markdownToHtml from 'lib/markdownToHtml';
 import PostBody from '~/components/postBody';

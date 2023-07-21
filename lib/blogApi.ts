@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
-import { type DatabasePost, type PostOptions } from '../src/pages/interfaces/post'
+import { type NonNullablePostOptions, type PostOptions } from '../src/pages/interfaces/post'
 import { LRUCache } from 'lru-cache'
 
 const postsDirectory = join(process.cwd(), '/src/_posts')
@@ -96,11 +96,11 @@ export async function getPostsForSeed() {
         return []
     }
 
-    const posts: DatabasePost[] = await Promise.all(
+    const posts = await Promise.all(
         slugs.map(async (slug) => {
             const post = await getPostBySlug(slug, ["title", "slug", "date"])
-            return post as DatabasePost
+            return post
         })
-    )
+    ) as NonNullablePostOptions
     return posts
 }

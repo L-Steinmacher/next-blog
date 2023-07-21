@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import pLimit from 'p-limit';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +7,6 @@ export function typedBoolean<T>(
   ): value is Exclude<T, false | null | undefined | "" | 0> {
     return Boolean(value);
   }
-const limit = pLimit(5);
 
 async function seed() {
     console.log("Start seeding... 🌱");
