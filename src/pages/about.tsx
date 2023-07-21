@@ -82,8 +82,9 @@ export default function About() {
                 rel="me noopener noreferrer"
               >
                 Tilth
-              </a>{' '}
-              where they liked to give out nicknames to the senior staff. I was
+              </a>{' '}.
+              <br /><br />
+              They liked to give out nicknames to the senior staff. I was
               told that the name was given to me because of my Germanic last
               name and the fact that I'm a{' '}
               <a

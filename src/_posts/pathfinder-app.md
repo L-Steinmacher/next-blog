@@ -1,6 +1,6 @@
 ---
 title: "Pathfinder API"
-excerpt: "This wasn't always about hiking but has over time morphed into the project over time. I originally wanted to learn how to make a simple image upload so a user could upload an image, it would be stored in some database, then displayed on the client side. Pretty simple yet I had not worked with anything of this nature since I had started my career so I started to plan it out."
+excerpt: "This wasn't always about hiking but has over time morphed into the project over time. I originally wanted to learn how to make a simple image upload so a user could upload an image, it would be stored in some database, then displayed on the client side. Pretty simple yet I had not worked with anything of this nature since I had started my career so I started to plan it out..."
 date: "2022-06-14T07:00:00.000Z"
 author:
   name: Lucas Steinmacher

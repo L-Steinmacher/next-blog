@@ -12,9 +12,9 @@ export default function Home({ latestPosts }: Props) {
   if (!latestPosts || latestPosts.length === 0) {
     return <p>No posts found!</p>
   }
+
   const latestPost = latestPosts[0] as NonNullablePostOptions;
   const remainingLatestPosts = latestPosts.slice(1);
-
 
   return (
     <>
@@ -32,8 +32,8 @@ export default function Home({ latestPosts }: Props) {
                 lucas steinmacher
               </h1>
               <p className="pt-4 text-lg">
-                Hey there! Names Lucas, I am a software engineer based in the
-                PNW. <br />
+                Hey there! Names Lucas, a.k.a. Panz. I am a software engineer based in the
+                Greater Seattle area. <br />
                 I'm excited about{' '}
                 <a
                   href="https://www.latent.space/p/ai-engineer"
@@ -43,7 +43,8 @@ export default function Home({ latestPosts }: Props) {
                 </a>
                 <br />
                 Making cool things with Typescrip,
-                <br />I also write about whatever is on my mind from time to
+                <br />
+                I also write about whatever is on my mind from time to
                 time.
               </p>
               <Link
