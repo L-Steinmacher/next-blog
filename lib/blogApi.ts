@@ -23,7 +23,7 @@ const LRUOptions = {
 
 const cache = new LRUCache<string, string>(LRUOptions)
 
-export async function getPostBySlug(slug: string, fields: string[] = []) {
+export async function getPostBySlug(slug: string, fields: (keyof PostOptions)[] = []): Promise<PostOptions> {
     const realSlug = slug.replace(/\.md$/, '')
     const fullPath = join(postsDirectory, `${realSlug}.md`)
     let fileContents: string
@@ -42,16 +42,13 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
 
     const { data, content } =  matter(fileContents)
 
-    const items: Items = {}
-    items['slug'] = realSlug
+    const items: PostOptions = {slug: realSlug}
 
     fields.forEach((field) => {
         if (fields.length === 0 || fields.includes(field)) {
             if (field === 'content') {
-                items[field] = content
-            }
-
-            if (typeof data[field] !== 'undefined') {
+                items[field] = content || ""
+            } else if (data[field]) {
                 items[field] = data[field] as string
             }
         }
@@ -59,7 +56,7 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
     return items
 }
 
-export async function getAllPosts(fields: string[] = []) : Promise<PostOptions[]> {
+export async function getAllPosts(fields: (keyof PostOptions)[] = []) : Promise<PostOptions[]> {
     const slugs = await getPostSlugs()
     if (slugs.length === 0) {
         return []
@@ -68,7 +65,7 @@ export async function getAllPosts(fields: string[] = []) : Promise<PostOptions[]
     const posts: PostOptions[] = await Promise.all(
         slugs.map(async (slug) => {
             const post = await getPostBySlug(slug, fields);
-            return post as PostOptions;
+            return post ;
         })
     );
 
@@ -88,7 +85,7 @@ export async function getAllPosts(fields: string[] = []) : Promise<PostOptions[]
 }
 
 
-export async function getLatestPost(fields: string[]) {
+export async function getLatestPost(fields: (keyof PostOptions)[]) {
     const post = await getAllPosts(fields)
     return post[0]
   }

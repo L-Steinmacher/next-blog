@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { type Post, type PostOptions } from '../interfaces/post';
+import { NonNullablePostOptions, type Post, type PostOptions } from '../interfaces/post';
 import { getPostBySlug, getPostSlugs } from 'lib/blogApi';
 import markdownToHtml from 'lib/markdownToHtml';
 import PostBody from '~/components/postBody';
@@ -113,7 +113,13 @@ export default function Post({ post, stats }: Props) {
             </h1>
             <p>{post.date?.split('T')[0]}</p>
             <span>{stats.text}</span>
-            <p>Written by: {post.author?.name}</p>
+            {typeof post.author === 'string' ? (
+                // When post.author is a string (name of the author)
+                <p>Written by: {post.author}</p>
+              ) : (
+                // When post.author is an Author object
+                <p>Written by: {post.author?.name}</p>
+            )}
             <PostBody content={post.content} />
             <Link href="/blog">Back to blogs →</Link>
           </div>
@@ -223,7 +229,7 @@ type Params = {
 };
 
 export const getStaticProps = async ({ params }: Params) => {
-  const postData: PostOptions | undefined = await getPostBySlug(params.slug, [
+  const postData: NonNullablePostOptions = await getPostBySlug(params.slug, [
     'title',
     'date',
     'slug',
@@ -231,11 +237,6 @@ export const getStaticProps = async ({ params }: Params) => {
     'content',
   ]);
 
-  if (!postData) {
-    return {
-      notFound: true,
-    };
-  }
 
   const parsedContent = await markdownToHtml(postData.content || '');
   const stats = readingTime(postData.content || '');

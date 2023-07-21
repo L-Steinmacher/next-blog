@@ -15,7 +15,7 @@ export type PostOptions = {
     date?: string,
     slug?: string,
     content?: string,
-    author?: Author,
+    author?: string | Author,
     coverImage?: string,
     excerpt?: string,
 }
@@ -41,3 +41,5 @@ export type LatestPost = {
     title: string;
     excerpt: string;
   };
+
+export type NonNullablePostOptions = NonNullable<PostOptions>;

@@ -1,12 +1,23 @@
+import Image from "next/image";
+
 export default function About() {
   return (
     <div className="mx-auto max-w-2xl px-6 pt-16">
       <article>
         <section>
           <div>
-            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-6xl md:leading-none lg:text-4xl">
+            <div className="flex flex-row w-full items-center  pb-4">
+              <h2 className="mb-12 text-center pr-10 text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               Impatient? TL;DR
             </h2>
+            <Image
+              src="/images/indy-bst-ever-cropped.jpg"
+              className="rounded-full object-cover"
+              width={120}
+              height={120}
+              alt="Lucas Steinmacher photo"
+            />
+            </div>
             <p>
               Howdy! I'm Panz... err, Lucas, whatever you feel like calling me.
               They're interchangeable, so feel free to use either. I'm a
@@ -20,7 +31,7 @@ export default function About() {
         </section>
         <section>
           <div className="mt-8">
-            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-6xl md:leading-none lg:text-4xl">
+            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               About Me
             </h2>
             <p>
@@ -52,7 +63,7 @@ export default function About() {
         </section>
         <section>
           <div className="mt-8">
-            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-6xl md:leading-none lg:text-4xl">
+            <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               Ok, Whats whith the name?
             </h2>
             <p>
