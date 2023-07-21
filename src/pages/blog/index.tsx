@@ -1,5 +1,5 @@
 import { getAllPosts } from "lib/blogApi"
-import { type PostOptions } from "../interfaces/post"
+import { type PostOptions } from "../../interfaces/post"
 import Link from "next/link"
 import Head from "next/head"
 

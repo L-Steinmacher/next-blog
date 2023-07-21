@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
-import { type NonNullablePostOptions, type PostOptions } from '../src/pages/interfaces/post'
+import { type NonNullablePostOptions, type PostOptions } from '../src/interfaces/post'
 import { LRUCache } from 'lru-cache'
 
 const postsDirectory = join(process.cwd(), '/src/_posts')

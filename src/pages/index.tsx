@@ -1,6 +1,6 @@
 import { getAllPosts } from 'lib/blogApi';
 import Head from 'next/head';
-import { type NonNullablePostOptions } from './interfaces/post';
+import { type NonNullablePostOptions } from '../interfaces/post';
 import Link from 'next/link';
 import Image from 'next/image';
 
