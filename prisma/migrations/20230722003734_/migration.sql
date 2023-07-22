@@ -37,6 +37,7 @@ CREATE TABLE "User" (
     "name" TEXT,
     "email" TEXT,
     "emailVerified" DATETIME,
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
     "image" TEXT
 );
 
@@ -52,10 +53,10 @@ CREATE TABLE "Comment" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "postSlug" TEXT NOT NULL,
-    "commenterId" TEXT,
+    "commenterId" TEXT NOT NULL,
     "clientId" TEXT,
     "content" TEXT NOT NULL,
-    CONSTRAINT "Comment_commenterId_fkey" FOREIGN KEY ("commenterId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "Comment_commenterId_fkey" FOREIGN KEY ("commenterId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex

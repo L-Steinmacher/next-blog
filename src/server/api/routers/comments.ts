@@ -67,6 +67,24 @@ export const commentsRouter = createTRPCRouter({
             });
         }
 
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+        const recentComments = await prisma.comment.findMany({
+        where: {
+            commenterId: input.commenterId,
+            createdAt: {
+            gte: fiveMinutesAgo,
+            },
+        },
+        });
+
+        if (recentComments.length >= 5) {
+            throw new TRPCError({
+                code: "TOO_MANY_REQUESTS",
+                message: "You're doing that too much. Try again in 5 minutes."
+            });
+        }
+
         const comment = await prisma.comment.create({
             data: {
                 content: input.content,

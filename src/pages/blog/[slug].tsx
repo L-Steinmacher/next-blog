@@ -1,8 +1,5 @@
 import Link from 'next/link';
-import {
-  type NonNullablePostOptions,
-  type PostOptions,
-} from '../../interfaces/post';
+import { type NonNullablePostOptions } from '../../interfaces/post';
 import { getPostBySlug, getPostSlugs } from 'lib/blogApi';
 import markdownToHtml from 'lib/markdownToHtml';
 import PostBody from '~/components/postBody';
@@ -13,15 +10,23 @@ import Image from 'next/image';
 import { signIn, useSession } from 'next-auth/react';
 import { type RefObject, useRef, useState } from 'react';
 import Head from 'next/head';
+import { TRPCClientError } from '@trpc/client';
+import { set } from 'date-fns';
 
 type Props = {
-  post: PostOptions;
+  post: NonNullablePostOptions;
   stats: ReadTimeResults;
   comments: Comment[];
 };
 
+interface CustomErrorShape {
+  code: string;
+  message: string;
+}
+
 export default function Post({ post, stats }: Props) {
   const [comment, setComment] = useState<string>('');
+  const [errors, setErrors] = useState<string[]>([]);
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const { data: sessionData } = useSession();
 
@@ -35,6 +40,8 @@ export default function Post({ post, stats }: Props) {
   const utils = api.useContext();
   const allComments = comments || [];
 
+  let tempComment: any;
+
   const addComment = api.comments.createComment.useMutation({
     onMutate({ content, postSlug }) {
       if (!postSlug) {
@@ -45,27 +52,38 @@ export default function Post({ post, stats }: Props) {
         console.error('No session data found');
         return;
       }
-      utils.comments.getCommentsForPost.setData({ slug: postSlug }, [
-        ...allComments,
-        {
-          id: `${Math.random()}`,
-          commenter: {
-            ...sessionData.user,
-            name: sessionData.user.name || null,
-            image: sessionData.user.image || null,
-          },
-          content,
-          postSlug,
-          createdAt: new Date(),
+      tempComment = {
+        id: `${Math.random()}`,
+        commenter: {
+          ...sessionData.user,
+          name: sessionData.user.name || null,
+          image: sessionData.user.image || null,
         },
+        content,
+        postSlug,
+        createdAt: new Date(),
+      };
+    },
+    onSuccess() {
+      if (!post.slug) {
+        console.error('No slug found for post and that aint right');
+        return;
+      }
+      utils.comments.getCommentsForPost.setData({ slug: post.slug }, [
+        ...allComments,
+        tempComment,
       ]);
+    },
+    onError(error) {
+      setErrors(prevErrors => [...prevErrors, error.message]);
     },
   });
 
   function submitComment(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
-    if (comment.length < 10) {
-      alert('Your comment must be at least 10 characters long.');
+    setErrors([]);
+    if (comment.length < 2) {
+      setErrors(['Comment must be at least 2 characters long']);
       return;
     }
     if (!sessionData) {
@@ -95,9 +113,22 @@ export default function Post({ post, stats }: Props) {
             setComment('');
           }
         },
+        onError: error => {
+          if (
+            error instanceof TRPCClientError &&
+            error.shape &&
+            typeof error.shape.code === 'string'
+          ) {
+            const errorShape = error.shape as CustomErrorShape;
+            if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
+              alert("you're doing that too much in five minutes");
+            } else {
+              alert(errorShape.message);
+            }
+          }
+        },
       },
     );
-    setComment('');
   }
 
   return (
@@ -121,7 +152,7 @@ export default function Post({ post, stats }: Props) {
             <div className="container mx-auto min-h-screen max-w-2xl px-5">
               <h1
                 id="post-heading"
-                className="mb-12 text-center text-3xl font-bold leading-tight tracking-tighter md:text-left md:text-6xl md:leading-none lg:text-8xl"
+                className="md:text-6 3xl mb-12 text-center text-3xl font-bold leading-tight tracking-tighter md:text-left md:leading-none lg:text-4xl"
               >
                 {post.title}
               </h1>
@@ -165,6 +196,15 @@ export default function Post({ post, stats }: Props) {
                 value={comment}
                 onChange={e => setComment(e.target.value)}
               />
+              <div className="h-4 block text-xl font-bold">
+                {errors.length
+                  ? errors.map((error, i) => (
+                      <p key={i} className="text-red-500">
+                        {error}
+                      </p>
+                    ))
+                  : null}
+              </div>
               {userLoggedIn ? (
                 <>
                   <button
@@ -173,7 +213,7 @@ export default function Post({ post, stats }: Props) {
                     tabIndex={2}
                     aria-label="Submit comment button"
                     onClick={submitComment}
-                    disabled={comment.length < 10}
+
                   >
                     Submit
                   </button>
@@ -184,7 +224,7 @@ export default function Post({ post, stats }: Props) {
                     You must be logged in to leave a comment.
                   </p>
                   <button
-                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none"
+                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                     tabIndex={2}
                     aria-label="Sign in"
                     onClick={() => void signIn()}
