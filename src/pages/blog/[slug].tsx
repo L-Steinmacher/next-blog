@@ -11,7 +11,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { type RefObject, useRef, useState } from 'react';
 import Head from 'next/head';
 import { TRPCClientError } from '@trpc/client';
-import { set } from 'date-fns';
+
 
 type Props = {
   post: NonNullablePostOptions;
@@ -116,8 +116,7 @@ export default function Post({ post, stats }: Props) {
         onError: error => {
           if (
             error instanceof TRPCClientError &&
-            error.shape &&
-            typeof error.shape.code === 'string'
+            error.shape
           ) {
             const errorShape = error.shape as CustomErrorShape;
             if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
