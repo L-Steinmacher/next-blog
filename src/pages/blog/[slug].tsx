@@ -40,6 +40,9 @@ export default function Post({ post, stats }: Props) {
   const utils = api.useContext();
   const allComments = comments || [];
 
+  // We disable the next line vecause we may or may not be using the tempComment and I haven't
+  // figured out how to make typescript happy with that yet.  ¯\_(ツ)_/¯
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let tempComment: any;
 
   const addComment = api.comments.createComment.useMutation({
@@ -56,8 +59,8 @@ export default function Post({ post, stats }: Props) {
         id: `${Math.random()}`,
         commenter: {
           ...sessionData.user,
-          name: sessionData.user.name || null,
-          image: sessionData.user.image || null,
+          name: sessionData.user.name,
+          image: sessionData.user.image,
         },
         content,
         postSlug,
