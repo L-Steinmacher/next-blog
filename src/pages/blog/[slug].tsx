@@ -13,6 +13,7 @@ import { TRPCClientError } from '@trpc/client';
 import { ReCaptcha } from 'next-recaptcha-v3';
 import { typedBoolean } from '~/utils/miscUtils';
 import {type Commenter } from '~/interfaces/comments';
+import CommentCard from '~/components/commentCard';
 
 type Props = {
   post: NonNullablePostOptions;
@@ -306,36 +307,7 @@ export default function Post({ post, stats }: Props) {
               comments
               .filter((comment) => typedBoolean(comment) )
               .map(comment => (
-                <div
-                  key={comment.id}
-                  className="mx-auto mb-4 max-w-2xl rounded-lg bg-[#fffefe] p-6 shadow-lg"
-                  role="article"
-                >
-                  <div className="mb-4 flex items-center">
-                    {comment.commenter?.image ? (
-                      <Image
-                        className="mr-3 h-8 w-8 rounded-full"
-                        src={comment.commenter?.image}
-                        alt={comment.commenter.name || 'Commenter Image'}
-                        width={32}
-                        height={32}
-                      />
-                    ) : (
-                      <Image
-                        className="mr-3 h-8 w-8 rounded-full"
-                        src="/images/user.png"
-                        alt="User Image"
-                        width={32}
-                        height={32}
-                      />
-                    )}
-                    <p className="font-bold">{comment.commenter?.name}</p>
-                  </div>
-                  <p className="text-gray-700">{comment.content}</p>
-                  <p className="mt-2 text-sm text-gray-500">
-                    {comment.createdAt.toISOString()}
-                  </p>
-                </div>
+               <CommentCard key={comment.id} comment={comment} />
               ))
             ) : (
               <p className="text-center text-xl text-gray-500">
