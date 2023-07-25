@@ -4,29 +4,54 @@ import { getPostBySlug, getPostSlugs } from 'lib/blogApi';
 import markdownToHtml from 'lib/markdownToHtml';
 import PostBody from '~/components/postBody';
 import readingTime, { type ReadTimeResults } from 'reading-time';
-import { type Comment } from '@prisma/client';
 import { api } from '~/utils/api';
 import Image from 'next/image';
 import { signIn, useSession } from 'next-auth/react';
 import { type RefObject, useRef, useState } from 'react';
 import Head from 'next/head';
 import { TRPCClientError } from '@trpc/client';
-
+import { ReCaptcha } from 'next-recaptcha-v3';
+import { typedBoolean } from '~/utils/miscUtils';
 
 type Props = {
   post: NonNullablePostOptions;
   stats: ReadTimeResults;
   comments: Comment[];
 };
-
-interface CustomErrorShape {
+type CustomErrorShape = {
   code: string;
   message: string;
 }
 
+type RecaptchaAPIResponse = {
+  recaptchaJson: {
+    success: boolean;
+    challenge_ts?: string;
+    hostname?: string;
+    score?: number;
+    action?: string;
+    'error-codes'?: string[];
+  };
+}
+
+type Commenter = {
+  id: string;
+  name: string | null;
+  image: string | null;
+};
+
+type Comment = {
+  id: string;
+  content: string;
+  postSlug: string;
+  commenter: Commenter | null;
+  createdAt: Date;
+};
+
 export default function Post({ post, stats }: Props) {
   const [comment, setComment] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
+  const [token, setToken] = useState<string | null>(null);
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const { data: sessionData } = useSession();
 
@@ -39,6 +64,11 @@ export default function Post({ post, stats }: Props) {
 
   const utils = api.useContext();
   const allComments = comments || [];
+
+  function onVerifyCaptcha(token: string) {
+
+    setToken(token);
+  }
 
   // We disable the next line vecause we may or may not be using the tempComment and I haven't
   // figured out how to make typescript happy with that yet.  ¯\_(ツ)_/¯
@@ -82,9 +112,20 @@ export default function Post({ post, stats }: Props) {
     },
   });
 
-  function submitComment(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  async function handleSubmitComment(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
     e.preventDefault();
     setErrors([]);
+    if (!token) {
+      // Here, handle the situation when there's no token.
+      // This could be setting an error message or something similar.
+      console.error('No recaptcha token');
+      return;
+    }
+
+    setToken(null);
+
     if (comment.length < 2) {
       setErrors(['Comment must be at least 2 characters long']);
       return;
@@ -97,6 +138,28 @@ export default function Post({ post, stats }: Props) {
       console.error('No slug found for post');
       return;
     }
+
+    try {
+      const response = await fetch('/api/validateRecaptcha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to validate token');
+      }
+
+      const data = await response.json() as RecaptchaAPIResponse;
+      console.log('Recaptcha validation response:', data);
+
+      if (!data.recaptchaJson.success) {
+        console.error('Recaptcha validation failed:', data);
+        token && setToken(null);
+        return;
+      }
 
     addComment.mutate(
       {
@@ -117,10 +180,7 @@ export default function Post({ post, stats }: Props) {
           }
         },
         onError: error => {
-          if (
-            error instanceof TRPCClientError &&
-            error.shape
-          ) {
+          if (error instanceof TRPCClientError && error.shape) {
             const errorShape = error.shape as CustomErrorShape;
             if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
               alert("you're doing that too much in five minutes");
@@ -130,7 +190,20 @@ export default function Post({ post, stats }: Props) {
           }
         },
       },
-    );
+    )} catch (error) {
+      console.error('Recaptcha validation error:', error);
+      return;
+    }
+  }
+
+  function submitComment(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
+    handleSubmitComment(e).catch((error: Error) => {
+      console.error('* Error submitting comment: ', error);
+
+      setErrors(prevErrors => [...prevErrors, error.message]);
+    });
   }
 
   return (
@@ -187,6 +260,7 @@ export default function Post({ post, stats }: Props) {
               <label htmlFor="comment" className="sr-only">
                 Comment
               </label>
+              <ReCaptcha onValidate={onVerifyCaptcha} action="submit_comment" />
               <textarea
                 id="comment"
                 name="comment"
@@ -198,7 +272,7 @@ export default function Post({ post, stats }: Props) {
                 value={comment}
                 onChange={e => setComment(e.target.value)}
               />
-              <div className="h-4 block text-xl font-bold">
+              <div className="block h-4 text-xl font-bold">
                 {errors.length
                   ? errors.map((error, i) => (
                       <p key={i} className="text-red-500">
@@ -215,7 +289,6 @@ export default function Post({ post, stats }: Props) {
                     tabIndex={2}
                     aria-label="Submit comment button"
                     onClick={submitComment}
-
                   >
                     Submit
                   </button>
@@ -242,17 +315,19 @@ export default function Post({ post, stats }: Props) {
               Comments
             </h2>
             {comments?.length ? (
-              comments.map(comment => (
+              comments
+              .filter((comment) => typedBoolean(comment) )
+              .map(comment => (
                 <div
                   key={comment.id}
                   className="mx-auto mb-4 max-w-2xl rounded-lg bg-white p-6 shadow-lg"
                   role="article"
                 >
                   <div className="mb-4 flex items-center">
-                    {comment.commenter.image ? (
+                    {comment.commenter?.image ? (
                       <Image
                         className="mr-3 h-8 w-8 rounded-full"
-                        src={comment.commenter.image}
+                        src={comment.commenter?.image}
                         alt={comment.commenter.name || 'Commenter Image'}
                         width={32}
                         height={32}
@@ -260,7 +335,7 @@ export default function Post({ post, stats }: Props) {
                     ) : (
                       <div className="mr-3 h-8 w-8 rounded-full bg-black" />
                     )}
-                    <p className="font-bold">{comment.commenter.name}</p>
+                    <p className="font-bold">{comment.commenter?.name}</p>
                   </div>
                   <p className="text-gray-700">{comment.content}</p>
                   <p className="mt-2 text-sm text-gray-500">

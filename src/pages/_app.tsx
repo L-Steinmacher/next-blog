@@ -7,6 +7,8 @@ import Layout from '~/components/layout';
 import Head from 'next/head';
 import { ReCaptchaProvider } from 'next-recaptcha-v3';
 
+const ReCaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
+
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
@@ -17,7 +19,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <title>Lucas Steinmachers Blog | Next.js + NextAuth.js </title>
         <meta name="description" content="Personal site of Lucas Steinmacher" />
       </Head>
-      <ReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY}>
+      <ReCaptchaProvider reCaptchaKey={ReCaptchaKey}>
         <SessionProvider session={session}>
           <Layout>
             <Component {...pageProps} />

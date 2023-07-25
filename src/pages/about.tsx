@@ -5,7 +5,7 @@ export default function About() {
   return (
     <div className="mx-auto max-w-2xl px-6 pt-16">
       <Head>
-        <title>Experienced Software Engineer & Former Chef | About Me - Lucas (Panz) | Your App Name</title>
+        <title>Experienced Software Engineer | About Me - Lucas | Your App Name</title>
         <meta
           name="description"
           content="Meet Lucas (Panz), a skilled software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname 'Panz' and get to know the person behind the code. | Your App Name."

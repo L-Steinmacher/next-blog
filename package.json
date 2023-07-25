@@ -20,6 +20,7 @@
     "insertPragma": false,
     "jsxSingleQuote": false,
     "printWidth": 80,
+    "prisma:seed": "ts-node ./prisma/seed.ts",
     "proseWrap": "always",
     "quoteProps": "as-needed",
     "requirePragma": false,
@@ -67,7 +68,7 @@
     "@faker-js/faker": "^8.0.2",
     "@playwright/test": "^1.36.0",
     "@types/eslint": "^8.37.0",
-    "@types/node": "^18.16.19",
+    "@types/node": "^18.17.0",
     "@types/prettier": "^2.7.2",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
@@ -87,7 +88,7 @@
   },
   "prisma": {
     "schema": "./prisma/schema.prisma",
-    "seed": "tsx ./prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "ct3aMetadata": {
     "initVersion": "7.15.0"

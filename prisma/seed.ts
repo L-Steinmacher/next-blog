@@ -2,12 +2,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export function typedBoolean<T>(
-    value: T
-  ): value is Exclude<T, false | null | undefined | "" | 0> {
-    return Boolean(value);
-  }
-
 async function seed() {
     console.log("Start seeding... 🌱");
     console.time(`Cleaning up Database... 🧹`)
