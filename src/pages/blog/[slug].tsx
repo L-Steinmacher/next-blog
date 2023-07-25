@@ -12,12 +12,14 @@ import Head from 'next/head';
 import { TRPCClientError } from '@trpc/client';
 import { ReCaptcha } from 'next-recaptcha-v3';
 import { typedBoolean } from '~/utils/miscUtils';
+import {type Commenter } from '~/interfaces/comments';
 
 type Props = {
   post: NonNullablePostOptions;
   stats: ReadTimeResults;
-  comments: Comment[];
+  comments: Commenter[];
 };
+
 type CustomErrorShape = {
   code: string;
   message: string;
@@ -33,20 +35,6 @@ type RecaptchaAPIResponse = {
     'error-codes'?: string[];
   };
 }
-
-type Commenter = {
-  id: string;
-  name: string | null;
-  image: string | null;
-};
-
-type Comment = {
-  id: string;
-  content: string;
-  postSlug: string;
-  commenter: Commenter | null;
-  createdAt: Date;
-};
 
 export default function Post({ post, stats }: Props) {
   const [comment, setComment] = useState<string>('');
@@ -265,7 +253,7 @@ export default function Post({ post, stats }: Props) {
                 id="comment"
                 name="comment"
                 rows={6}
-                className="mt-1 block w-full rounded-md border-gray-400 px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
+                className="mt-1 block w-full rounded-md bg-[#fffefe] border-gray-400 px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
                 placeholder="Leave a comment"
                 aria-label="Comment on blog post"
                 tabIndex={1}
@@ -320,7 +308,7 @@ export default function Post({ post, stats }: Props) {
               .map(comment => (
                 <div
                   key={comment.id}
-                  className="mx-auto mb-4 max-w-2xl rounded-lg bg-white p-6 shadow-lg"
+                  className="mx-auto mb-4 max-w-2xl rounded-lg bg-[#fffefe] p-6 shadow-lg"
                   role="article"
                 >
                   <div className="mb-4 flex items-center">
@@ -333,7 +321,13 @@ export default function Post({ post, stats }: Props) {
                         height={32}
                       />
                     ) : (
-                      <div className="mr-3 h-8 w-8 rounded-full bg-black" />
+                      <Image
+                        className="mr-3 h-8 w-8 rounded-full"
+                        src="/images/user.png"
+                        alt="User Image"
+                        width={32}
+                        height={32}
+                      />
                     )}
                     <p className="font-bold">{comment.commenter?.name}</p>
                   </div>
