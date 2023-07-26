@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
-import { type NonNullablePostOptions, type PostOptions } from '../src/interfaces/post'
+import { type PostOptions } from '../src/interfaces/post'
 import { LRUCache } from 'lru-cache'
 
 const postsDirectory = join(process.cwd(), '/src/_posts')
@@ -19,7 +19,7 @@ const LRUOptions = {
 
 const cache = new LRUCache<string, string>(LRUOptions)
 
-export async function getPostBySlug(slug: string, fields: (keyof PostOptions)[] = []): Promise<PostOptions> {
+export async function getPostBySlug<T extends keyof PostOptions>(slug: string, fields: T[]): Promise<Pick<PostOptions, T>> {
     const realSlug = slug.replace(/\.md$/, '')
     const fullPath = join(postsDirectory, `${realSlug}.md`)
     let fileContents: string
@@ -38,7 +38,7 @@ export async function getPostBySlug(slug: string, fields: (keyof PostOptions)[] 
 
     const { data, content } =  matter(fileContents)
 
-    const items: PostOptions = {slug: realSlug}
+    const items: Partial<PostOptions> = {slug: realSlug}
 
     fields.forEach((field) => {
         if (fields.length === 0 || fields.includes(field)) {
@@ -49,44 +49,10 @@ export async function getPostBySlug(slug: string, fields: (keyof PostOptions)[] 
             }
         }
     })
-    return items
+    return items as Pick<PostOptions, T>
 }
 
-export async function getAllPosts(fields: (keyof PostOptions)[] = []) : Promise<PostOptions[]> {
-    const slugs = await getPostSlugs()
-    if (slugs.length === 0) {
-        return []
-    }
-
-    const posts: PostOptions[] = await Promise.all(
-        slugs.map(async (slug) => {
-            const post = await getPostBySlug(slug, fields);
-            return post ;
-        })
-    );
-
-    posts.sort((post1, post2) => {
-        if (post1.date && post2.date) {
-            return post1.date.localeCompare(post2.date) < 0 ? 1 : -1;
-        } else if (post1.date && !post2.date) {
-            return -1;  // place posts with a date before posts without a date
-        } else if (!post1.date && post2.date) {
-            return 1;   // place posts with a date before posts without a date
-        } else {
-            return 0;  // both posts are without a date, so order doesn't matter
-        }
-    })
-
-    return posts
-}
-
-
-export async function getLatestPost(fields: (keyof PostOptions)[]) {
-    const post = await getAllPosts(fields)
-    return post[0]
-  }
-
-export async function getPostsForSeed() {
+export async function getAllPosts <T extends keyof PostOptions> (fields: T[] = []) : Promise<Array<Pick<PostOptions, T>>> {
     const slugs = await getPostSlugs()
     if (slugs.length === 0) {
         return []
@@ -94,9 +60,27 @@ export async function getPostsForSeed() {
 
     const posts = await Promise.all(
         slugs.map(async (slug) => {
-            const post = await getPostBySlug(slug, ["title", "slug", "date"])
-            return post
+            const post = await getPostBySlug(slug, fields);
+            return post ;
         })
-    ) as NonNullablePostOptions
-    return posts
+    );
+
+    if((fields as Array<keyof PostOptions>).includes('date')) {
+        posts.sort((post1, post2) => {
+            const date1 = (post1 as Pick<PostOptions, 'date'>).date;
+            const date2 = (post2 as Pick<PostOptions, 'date'>).date;
+
+            if (date1 && date2) {
+                return date1.localeCompare(date2) < 0 ? 1 : -1;
+            } else if (date1 && !date2) {
+                return -1;  // place posts with a date before posts without a date
+            } else if (!date1 && date2) {
+                return 1;   // place posts with a date before posts without a date
+            } else {
+                return 0;  // both posts are without a date, so order doesn't matter
+            }
+        })
+    }
+
+    return posts as Array<Pick<PostOptions, T>>
 }

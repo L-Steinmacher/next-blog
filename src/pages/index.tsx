@@ -4,8 +4,10 @@ import { type NonNullablePostOptions } from '../interfaces/post';
 import Link from 'next/link';
 import Image from 'next/image';
 
+type PromiseType<T extends Promise<unknown>> = T extends Promise<infer R> ? R : never;
+
 type Props = {
-  latestPosts: NonNullablePostOptions[];
+  latestPosts: PromiseType<ReturnType<typeof getAllPosts>>;
 };
 
 export default function Home({ latestPosts }: Props) {
@@ -21,10 +23,12 @@ export default function Home({ latestPosts }: Props) {
       <Head>
         <title>Lucas Steinmacher</title>
         <meta name="description" content="Personal site of Lucas Steinmacher" />
+        <meta name="keywords" content="Lucas Steinmacher, Panz, Panz3r" />
+        <meta charSet="utf-8" />
         <link rel="icon" href="favicon.ico" />
         <meta name="robots" content="index,follow" />
       </Head>
-      <main className="mx-auto flex max-w-4xl flex-col items-center px-4">
+      <main className="flex flex-col items-center max-w-4xl px-4 mx-auto">
         <div className="container flex flex-col items-start justify-center py-16">
           <div className="flex flex-col items-center justify-between sm:flex-row">
             <div className="flex flex-col gap-2">
@@ -54,11 +58,11 @@ export default function Home({ latestPosts }: Props) {
                 To learn more about me check out my About page.
               </Link>
             </div>
-            <div className="mt-8 flex items-center justify-center sm:mt-0 md:pl-4">
+            <div className="flex items-center justify-center mt-8 sm:mt-0 md:pl-4">
               <div className="min-w-[100px] ">
                 <Image
                   src="/images/Lucas_web.jpg"
-                  className="rounded-full object-cover"
+                  className="object-cover rounded-full"
                   width={120}
                   height={100}
 
@@ -67,13 +71,13 @@ export default function Home({ latestPosts }: Props) {
               </div>
             </div>
           </div>
-          <div className="mx-auto flex w-full flex-col items-start">
+          <div className="flex flex-col items-start w-full mx-auto">
             <div className="flex flex-col py-8">
-              <p className="text-justify text-xl">
+              <p className="text-xl text-justify">
                 I write sometimes about things I am working on, and things I am
                 learning. Here&apos;s the latest:
               </p>
-              <div className="mx-auto max-w-2xl w-3/4 py-4">
+              <div className="w-3/4 max-w-2xl py-4 mx-auto">
                 {latestPost ? (
                   <>
                     <Link
@@ -85,7 +89,7 @@ export default function Home({ latestPosts }: Props) {
                     <span className="px-2 text-xs">
                       {latestPost.date ? latestPost.date.split('T')[0] : ''}
                     </span>
-                    <p className="text-justify text-lg">
+                    <p className="text-lg text-justify">
                       {' '}
                       {latestPost?.excerpt}
                     </p>
@@ -97,7 +101,7 @@ export default function Home({ latestPosts }: Props) {
                     </Link>
                   </>
                 ) : (
-                  <p className="text-justify text-lg">No posts found</p>
+                  <p className="text-lg text-justify">No posts found</p>
                 )}
               </div>
               {remainingLatestPosts.map(({ slug, date, title }) => (
