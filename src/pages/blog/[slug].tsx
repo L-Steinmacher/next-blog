@@ -5,7 +5,6 @@ import markdownToHtml from 'lib/markdownToHtml';
 import PostBody from '~/components/postBody';
 import readingTime, { type ReadTimeResults } from 'reading-time';
 import { api } from '~/utils/api';
-import Image from 'next/image';
 import { signIn, useSession } from 'next-auth/react';
 import { type RefObject, useRef, useState } from 'react';
 import Head from 'next/head';
@@ -14,6 +13,7 @@ import { ReCaptcha } from 'next-recaptcha-v3';
 import { typedBoolean } from '~/utils/miscUtils';
 import {type Commenter } from '~/interfaces/comments';
 import CommentCard from '~/components/commentCard';
+import { useRouter } from 'next/router';
 
 type Props = {
   post: NonNullablePostOptions;
@@ -37,16 +37,17 @@ type RecaptchaAPIResponse = {
   };
 }
 
-export default function Post({ post, stats }: Props) {
+export default function Post({ post, stats }: Props){
   const [comment, setComment] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const { data: sessionData } = useSession();
 
-  if (!post.slug) {
-    return null;
-  }
+  const router = useRouter();
+
+  if (!post.slug)  throw router.push("/404")
+
   const comments =
     api.comments.getCommentsForPost.useQuery({ slug: post.slug }).data || null;
   const userLoggedIn = !!sessionData;
@@ -123,6 +124,7 @@ export default function Post({ post, stats }: Props) {
       console.error('No session data found');
       return;
     }
+
     if (!post.slug) {
       console.error('No slug found for post');
       return;

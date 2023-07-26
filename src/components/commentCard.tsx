@@ -13,10 +13,10 @@ import { type Comment } from "../interfaces/comments";
         className="mx-auto mb-4 max-w-2xl rounded-lg bg-[#fffefe] p-6 shadow-lg"
         role="article"
       >
-        <div className="mb-4 flex items-center">
+        <div className="flex items-center mb-4">
           {comment.commenter?.image ? (
             <Image
-              className="mr-3 h-8 w-8 rounded-full"
+              className="w-8 h-8 mr-3 rounded-full"
               src={comment.commenter?.image}
               alt={comment.commenter.name || 'Commenter Image'}
               width={32}
@@ -24,7 +24,7 @@ import { type Comment } from "../interfaces/comments";
             />
           ) : (
             <Image
-              className="mr-3 h-8 w-8 rounded-full"
+              className="w-8 h-8 mr-3 rounded-full"
               src="/images/user.png"
               alt="User Image"
               width={32}

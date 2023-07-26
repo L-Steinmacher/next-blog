@@ -18,6 +18,8 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <Head>
         <title>Lucas Steinmachers Blog | Next.js + NextAuth.js </title>
         <meta name="description" content="Personal site of Lucas Steinmacher" />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <ReCaptchaProvider reCaptchaKey={ReCaptchaKey}>
         <SessionProvider session={session}>
