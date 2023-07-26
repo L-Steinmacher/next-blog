@@ -56,7 +56,6 @@ export default function Post({ post, stats }: Props){
   const allComments = comments || [];
 
   function onVerifyCaptcha(token: string) {
-
     setToken(token);
   }
 
@@ -67,10 +66,7 @@ export default function Post({ post, stats }: Props){
 
   const addComment = api.comments.createComment.useMutation({
     onMutate({ content, postSlug }) {
-      if (!postSlug) {
-        console.error('No slug found for post');
-        return;
-      }
+
       if (!sessionData) {
         console.error('No session data found');
         return;
@@ -102,7 +98,7 @@ export default function Post({ post, stats }: Props){
     },
   });
 
-  async function handleSubmitComment(
+    function submitComment(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     e.preventDefault();
@@ -125,75 +121,70 @@ export default function Post({ post, stats }: Props){
       return;
     }
 
-    if (!post.slug) {
+    const postSlug = post.slug;
+
+    if (!postSlug) {
       console.error('No slug found for post');
       return;
     }
 
-    try {
-      const response = await fetch('/api/validateRecaptcha', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
+    fetch('/api/validateRecaptcha', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    })
+    .then(response => {
       if (!response.ok) {
         throw new Error('Failed to validate token');
       }
 
-      const data = await response.json() as RecaptchaAPIResponse;
-      console.log('Recaptcha validation response:', data);
+      return response.json();
+    })
+    .then(data => {
+      const recaptchaData = data as RecaptchaAPIResponse;
+      console.log('Recaptcha validation response:', recaptchaData);
 
-      if (!data.recaptchaJson.success) {
-        console.error('Recaptcha validation failed:', data);
+      if (!recaptchaData.recaptchaJson.success) {
+        console.error('Recaptcha validation failed:', recaptchaData);
         token && setToken(null);
         return;
       }
 
-    addComment.mutate(
-      {
-        content: comment,
-        commenterId: sessionData.user.id,
-        postSlug: post.slug,
-      },
-      {
-        onSettled: () => {
-          // Get the last comment element
-          const lastComment = commentContainerRef.current
-            ?.lastElementChild as HTMLElement | null;
-          if (lastComment) {
-            // Scroll to the last comment
-            lastComment.scrollIntoView({ behavior: 'smooth' });
-            // Clear the textarea
-            setComment('');
-          }
+      return addComment.mutate(
+        {
+          content: comment,
+          commenterId: sessionData.user.id,
+          postSlug: postSlug,
         },
-        onError: error => {
-          if (error instanceof TRPCClientError && error.shape) {
-            const errorShape = error.shape as CustomErrorShape;
-            if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
-              alert("you're doing that too much in five minutes");
-            } else {
-              alert(errorShape.message);
+        {
+          onSettled: () => {
+            // Get the last comment element
+            const lastComment = commentContainerRef.current
+              ?.lastElementChild as HTMLElement | null;
+            if (lastComment) {
+              // Scroll to the last comment
+              lastComment.scrollIntoView({ behavior: 'smooth' });
+              // Clear the textarea
+              setComment('');
             }
-          }
+          },
+          onError: error => {
+            if (error instanceof TRPCClientError && error.shape) {
+              const errorShape = error.shape as CustomErrorShape;
+              if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
+                alert("you're doing that too much in five minutes");
+              } else {
+                alert(errorShape.message);
+              }
+            }
+          },
         },
-      },
-    )} catch (error) {
+      );
+    })
+    .catch(error => {
       console.error('Recaptcha validation error:', error);
-      return;
-    }
-  }
-
-  function submitComment(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) {
-    handleSubmitComment(e).catch((error: Error) => {
-      console.error('* Error submitting comment: ', error);
-
-      setErrors(prevErrors => [...prevErrors, error.message]);
     });
   }
 
@@ -215,10 +206,10 @@ export default function Post({ post, stats }: Props){
         </details>
         {post.content ? (
           <section aria-labelledby="post-heading">
-            <div className="container mx-auto min-h-screen max-w-2xl px-5">
+            <div className="container max-w-2xl min-h-screen px-5 mx-auto">
               <h1
                 id="post-heading"
-                className="md:text-6 3xl mb-12 text-center text-3xl font-bold leading-tight tracking-tighter md:text-left md:leading-none lg:text-4xl"
+                className="mb-12 text-3xl font-bold leading-tight tracking-tighter text-center md:text-6 3xl md:text-left md:leading-none lg:text-4xl"
               >
                 {post.title}
               </h1>
@@ -243,7 +234,7 @@ export default function Post({ post, stats }: Props){
               className="flex flex-col items-center"
               aria-label="Leave a comment"
             >
-              <h2 className="mb-4 text-center text-2xl font-bold">
+              <h2 className="mb-4 text-2xl font-bold text-center">
                 Have an opinion of what I said? Find a typo? Just want to be
                 nice?
                 <br /> Feel free to leave a comment!
@@ -276,7 +267,7 @@ export default function Post({ post, stats }: Props){
                 <>
                   <button
                     type="submit"
-                    className="mt-4 inline-flex items-center rounded-md border border-transparent  bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                    className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                     tabIndex={2}
                     aria-label="Submit comment button"
                     onClick={submitComment}
@@ -290,7 +281,7 @@ export default function Post({ post, stats }: Props){
                     You must be logged in to leave a comment.
                   </p>
                   <button
-                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                    className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                     tabIndex={2}
                     aria-label="Sign in"
                     onClick={() => void signIn()}
@@ -312,7 +303,7 @@ export default function Post({ post, stats }: Props){
                <CommentCard key={comment.id} comment={comment} />
               ))
             ) : (
-              <p className="text-center text-xl text-gray-500">
+              <p className="text-xl text-center text-gray-500">
                 Be the first to leave your thoughts!
               </p>
             )}
