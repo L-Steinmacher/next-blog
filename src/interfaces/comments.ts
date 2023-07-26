@@ -8,6 +8,6 @@ export type Comment = {
     id: string;
     content: string;
     postSlug: string;
-    commenter: Commenter | null;
+    commenter: Commenter;
     createdAt: Date;
   };

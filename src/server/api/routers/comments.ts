@@ -42,9 +42,9 @@ export const commentsRouter = createTRPCRouter({
         return comments;
     }),
     createComment: publicProcedure
-    .input(z.object({ commenterId: z.string(), postSlug: z.string(), content: z.string() }))
-    .mutation(async ({input }) => {
-        const isUserLoggedIn = !!input.commenterId;
+    .input(z.object({ postSlug: z.string(), content: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+        const isUserLoggedIn = ctx.session?.user;
         if (!isUserLoggedIn) {
             // render a model for the user to log in
             throw new TRPCError({
@@ -71,7 +71,7 @@ export const commentsRouter = createTRPCRouter({
 
         const recentComments = await prisma.comment.findMany({
         where: {
-            commenterId: input.commenterId,
+            commenterId: isUserLoggedIn.id,
             createdAt: {
             gte: fiveMinutesAgo,
             },
@@ -89,9 +89,45 @@ export const commentsRouter = createTRPCRouter({
             data: {
                 content: input.content,
                 postSlug: input.postSlug,
-                commenterId: input.commenterId,
+                commenterId: isUserLoggedIn.id,
+            },
+            include: {
+                commenter: true,
             },
         });
+        return comment;
+    }),
+    deleteComment: publicProcedure
+    .input(z.object({ commentId: z.string(),  }))
+    .mutation(async ({ ctx, input }) => {
+        const userIsAdmin = ctx.session?.user?.isAdmin;
+        if (!userIsAdmin) {
+            throw new TRPCError({
+                code: "UNAUTHORIZED",
+                message: "You must be an admin to delete comments",
+            });
+        }
+
+        const comment = await prisma.comment.findUnique({
+            where: {
+                id: input.commentId,
+            },
+            select: defaultCommentSelect,
+        });
+
+        if (!comment) {
+            throw new TRPCError({
+                code: "NOT_FOUND",
+                message: `No comment found with id ${input.commentId}`,
+            });
+        }
+
+        await prisma.comment.delete({
+            where: {
+                id: input.commentId,
+            },
+        });
+
         return comment;
     }),
 });

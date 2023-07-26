@@ -11,20 +11,21 @@ import Head from 'next/head';
 import { TRPCClientError } from '@trpc/client';
 import { ReCaptcha } from 'next-recaptcha-v3';
 import { typedBoolean } from '~/utils/miscUtils';
-import {type Commenter } from '~/interfaces/comments';
 import CommentCard from '~/components/commentCard';
 import { useRouter } from 'next/router';
+import { type Comment } from '~/interfaces/comments';
+import { createCaller } from '@trpc/client';
 
 type Props = {
   post: NonNullablePostOptions;
   stats: ReadTimeResults;
-  comments: Commenter[];
+  comments: Comment[];
 };
 
 type CustomErrorShape = {
   code: string;
   message: string;
-}
+};
 
 type RecaptchaAPIResponse = {
   recaptchaJson: {
@@ -35,25 +36,23 @@ type RecaptchaAPIResponse = {
     action?: string;
     'error-codes'?: string[];
   };
-}
+};
 
-export default function Post({ post, stats }: Props){
+export default function Post({ post, stats, comments }: Props) {
+  const router = useRouter();
+  if (!post.slug) throw router.push('/404');
+
   const [comment, setComment] = useState<string>('');
+  const [allComments, setAllComments] = useState<Comment[]>(comments || []);
   const [errors, setErrors] = useState<string[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const { data: sessionData } = useSession();
 
-  const router = useRouter();
-
-  if (!post.slug)  throw router.push("/404")
-
-  const comments =
-    api.comments.getCommentsForPost.useQuery({ slug: post.slug }).data || null;
+  const userIsAdmin = sessionData?.user?.isAdmin;
   const userLoggedIn = !!sessionData;
 
   const utils = api.useContext();
-  const allComments = comments || [];
 
   function onVerifyCaptcha(token: string) {
     setToken(token);
@@ -61,12 +60,11 @@ export default function Post({ post, stats }: Props){
 
   // We disable the next line vecause we may or may not be using the tempComment and I haven't
   // figured out how to make typescript happy with that yet.  ¯\_(ツ)_/¯
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let tempComment: any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+  let tempComment: Comment;
 
   const addComment = api.comments.createComment.useMutation({
     onMutate({ content, postSlug }) {
-
       if (!sessionData) {
         console.error('No session data found');
         return;
@@ -74,33 +72,38 @@ export default function Post({ post, stats }: Props){
       tempComment = {
         id: `${Math.random()}`,
         commenter: {
-          ...sessionData.user,
-          name: sessionData.user.name,
-          image: sessionData.user.image,
+          id: sessionData.user.id,
+          name: sessionData.user.name || null,
+          image: sessionData.user.image || null,
         },
         content,
         postSlug,
         createdAt: new Date(),
       };
+      setAllComments(prevComments => [...prevComments, tempComment]);
     },
-    onSuccess() {
+    onSuccess(data) {
       if (!post.slug) {
         console.error('No slug found for post and that aint right');
         return;
       }
+      const newComment = data;
+      console.log('New comment:', newComment);
+
       utils.comments.getCommentsForPost.setData({ slug: post.slug }, [
         ...allComments,
-        tempComment,
+        newComment,
       ]);
     },
     onError(error) {
       setErrors(prevErrors => [...prevErrors, error.message]);
+      setAllComments(prevComments =>
+        prevComments.filter(comment => comment.id !== tempComment.id),
+      );
     },
   });
 
-    function submitComment(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) {
+  function submitComment(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
     setErrors([]);
     if (!token) {
@@ -135,57 +138,96 @@ export default function Post({ post, stats }: Props){
       },
       body: JSON.stringify({ token }),
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to validate token');
-      }
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to validate token');
+        }
 
-      return response.json();
-    })
-    .then(data => {
-      const recaptchaData = data as RecaptchaAPIResponse;
-      console.log('Recaptcha validation response:', recaptchaData);
+        return response.json();
+      })
+      .then(data => {
+        const recaptchaData = data as RecaptchaAPIResponse;
+        console.log('Recaptcha validation response:', recaptchaData);
 
-      if (!recaptchaData.recaptchaJson.success) {
-        console.error('Recaptcha validation failed:', recaptchaData);
-        token && setToken(null);
+        if (!recaptchaData.recaptchaJson.success) {
+          console.error('Recaptcha validation failed:', recaptchaData);
+          token && setToken(null);
+          return;
+        }
+
+        return addComment.mutate(
+          {
+            content: comment,
+            postSlug: postSlug,
+          },
+          {
+            onSettled: () => {
+              // Get the last comment element
+              const lastComment = commentContainerRef.current
+                ?.lastElementChild as HTMLElement | null;
+              if (lastComment) {
+                // Scroll to the last comment
+                lastComment.scrollIntoView({ behavior: 'smooth' });
+                // Clear the textarea
+                setComment('');
+              }
+            },
+            onError: error => {
+              if (error instanceof TRPCClientError && error.shape) {
+                const errorShape = error.shape as CustomErrorShape;
+                if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
+                  alert("you're doing that too much in five minutes");
+                } else {
+                  alert(errorShape.message);
+                }
+              }
+            },
+          },
+        );
+      })
+      .catch(error => {
+        console.error('Recaptcha validation error:', error);
+      });
+  }
+
+  const deleteComment = api.comments.deleteComment.useMutation({
+    onSuccess: (data, variables) => {
+      if (!post.slug) {
+        console.error('No slug found for post and that aint right');
         return;
       }
-
-      return addComment.mutate(
-        {
-          content: comment,
-          commenterId: sessionData.user.id,
-          postSlug: postSlug,
-        },
-        {
-          onSettled: () => {
-            // Get the last comment element
-            const lastComment = commentContainerRef.current
-              ?.lastElementChild as HTMLElement | null;
-            if (lastComment) {
-              // Scroll to the last comment
-              lastComment.scrollIntoView({ behavior: 'smooth' });
-              // Clear the textarea
-              setComment('');
-            }
-          },
-          onError: error => {
-            if (error instanceof TRPCClientError && error.shape) {
-              const errorShape = error.shape as CustomErrorShape;
-              if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
-                alert("you're doing that too much in five minutes");
-              } else {
-                alert(errorShape.message);
-              }
-            }
-          },
-        },
+      const commentId = variables.commentId;
+      const newComments = allComments.filter(
+        comment => comment.id !== commentId,
       );
-    })
-    .catch(error => {
-      console.error('Recaptcha validation error:', error);
-    });
+      setAllComments(newComments);
+      utils.comments.getCommentsForPost.setData(
+        { slug: post.slug },
+        newComments,
+      );
+    },
+    onError(error) {
+      setErrors(prevErrors => [...prevErrors, error.message]);
+    },
+  });
+
+  function handleDeleteComment(commentId: string) {
+    if (!userIsAdmin) {
+      console.error('User is not an admin');
+      return;
+    }
+    if (!post.slug) {
+      console.error('No slug found for post');
+      return;
+    }
+    return deleteComment.mutate(
+      { commentId },
+      {
+        onSettled: () => {
+          console.log('Comment deleted');
+        },
+      },
+    );
   }
 
   return (
@@ -206,10 +248,10 @@ export default function Post({ post, stats }: Props){
         </details>
         {post.content ? (
           <section aria-labelledby="post-heading">
-            <div className="container max-w-2xl min-h-screen px-5 mx-auto">
+            <div className="container mx-auto min-h-screen max-w-2xl px-5">
               <h1
                 id="post-heading"
-                className="mb-12 text-3xl font-bold leading-tight tracking-tighter text-center md:text-6 3xl md:text-left md:leading-none lg:text-4xl"
+                className="md:text-6 3xl mb-12 text-center text-3xl font-bold leading-tight tracking-tighter md:text-left md:leading-none lg:text-4xl"
               >
                 {post.title}
               </h1>
@@ -234,7 +276,7 @@ export default function Post({ post, stats }: Props){
               className="flex flex-col items-center"
               aria-label="Leave a comment"
             >
-              <h2 className="mb-4 text-2xl font-bold text-center">
+              <h2 className="mb-4 text-center text-2xl font-bold">
                 Have an opinion of what I said? Find a typo? Just want to be
                 nice?
                 <br /> Feel free to leave a comment!
@@ -247,7 +289,7 @@ export default function Post({ post, stats }: Props){
                 id="comment"
                 name="comment"
                 rows={6}
-                className="mt-1 block w-full rounded-md bg-[#fffefe] border-gray-400 px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-400 bg-[#fffefe] px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
                 placeholder="Leave a comment"
                 aria-label="Comment on blog post"
                 tabIndex={1}
@@ -267,7 +309,7 @@ export default function Post({ post, stats }: Props){
                 <>
                   <button
                     type="submit"
-                    className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                     tabIndex={2}
                     aria-label="Submit comment button"
                     onClick={submitComment}
@@ -276,12 +318,14 @@ export default function Post({ post, stats }: Props){
                   </button>
                 </>
               ) : (
-                <div>
-                  <p className="mb-4 text-xl font-bold">
-                    You must be logged in to leave a comment.
-                  </p>
+                <div className="flex flex-col ">
+                  <div className="block h-4">
+                    <p className=" text-xl font-bold ">
+                      You must be logged in to leave a comment.
+                    </p>
+                  </div>
                   <button
-                    className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                    className="mx-auto mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                     tabIndex={2}
                     aria-label="Sign in"
                     onClick={() => void signIn()}
@@ -296,14 +340,29 @@ export default function Post({ post, stats }: Props){
             <h2 id="comments-heading" className="sr-only">
               Comments
             </h2>
-            {comments?.length ? (
-              comments
-              .filter((comment) => typedBoolean(comment) )
-              .map(comment => (
-               <CommentCard key={comment.id} comment={comment} />
-              ))
+            {allComments?.length ? (
+              allComments
+                .filter(comment => typedBoolean(comment))
+                .map(comment => (
+                  <div className="flex flex-row items-center " key={comment.id}>
+                    {userIsAdmin && (
+                      <div>
+                        <button
+                          className="inline-flex items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
+                          onClick={e => {
+                            e.preventDefault();
+                            handleDeleteComment(comment.id);
+                          }}
+                        >
+                          ❌
+                        </button>
+                      </div>
+                    )}
+                    <CommentCard key={comment.id} comment={comment} />
+                  </div>
+                ))
             ) : (
-              <p className="text-xl text-center text-gray-500">
+              <p className="text-center text-xl text-gray-500">
                 Be the first to leave your thoughts!
               </p>
             )}
@@ -320,6 +379,8 @@ type Params = {
   };
 };
 
+const caller = createCaller(appRouter);
+
 export const getStaticProps = async ({ params }: Params) => {
   const postData: NonNullablePostOptions = await getPostBySlug(params.slug, [
     'title',
@@ -331,6 +392,10 @@ export const getStaticProps = async ({ params }: Params) => {
 
   const parsedContent = await markdownToHtml(postData.content || '');
   const stats = readingTime(postData.content || '');
+  if (!postData.slug) throw new Error('No slug found for post');
+  const comments = api.comments.getCommentsForPost.useQuery({
+    slug: postData.slug,
+  });
 
   return {
     props: {
@@ -342,6 +407,7 @@ export const getStaticProps = async ({ params }: Params) => {
         content: parsedContent,
       },
       stats,
+      comments
     },
   };
 };

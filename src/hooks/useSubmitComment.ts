@@ -31,12 +31,13 @@ interface tempComment {
     createdAt: Date;
 }
 
-export function useSubmitComment(sessionData) {
+export function useSubmitComment() {
     const [comment, setComment] = useState<string>('');
     const [errors, setErrors] = useState<string[]>([]);
     const [token, setToken] = useState<string | null>(null);
 
     const [tempComment, setTempComment] = useState<tempComment | null>(null);
+    const { data: sessionData } = useSession();
 
     if (!sessionData || !sessionData.user.name) return null
 
