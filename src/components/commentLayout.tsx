@@ -67,7 +67,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         postSlug,
         createdAt: new Date(),
       };
-      setAllComments(prevComments => [...prevComments, tempComment]);
     },
     onSuccess(data) {
       if (!slug) {
@@ -76,6 +75,7 @@ export function CommentLayout({ slug }: { slug: string }) {
       }
       const newComment = data;
       console.log('New comment:', newComment);
+      setAllComments(prevComments => [...prevComments, newComment]);
 
       utils.comments.getCommentsForPost.setData({ slug }, [
         ...allComments,
