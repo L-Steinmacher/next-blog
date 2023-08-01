@@ -1,9 +1,3 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-
-interface RequestBody {
-    token: string;
-}
-
 interface RecaptchaResponse {
     success: boolean;
     challenge_ts?: string;
@@ -11,7 +5,7 @@ interface RecaptchaResponse {
     "error-codes"?: string[];
 }
 
-export default async function validateToken(token: string): Promise<boolean> {
+export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
     const response = await fetch('/api/validateRecaptcha', {
       method: 'POST',
@@ -21,23 +15,15 @@ export default async function validateToken(token: string): Promise<boolean> {
       body: JSON.stringify({ token }),
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to validate token');
-    }
-
     const data = await response.json() as RecaptchaResponse;
-
-    if (!data.success) {
-      // Token validation failed
-      console.error('Recaptcha validation failed:', data);
-      return false;
-    } else {
-      // Token is valid
-      console.log('Recaptcha validated successfully');
-      return true;
-    }
+    console.log('Recaptcha response:', data);
+    return data
   } catch (error) {
     console.error('Recaptcha validation error:', error);
-    return false;
+    return {
+      success: false,
+      "error-codes": ["validation-error"],
+    };
   }
 }
+

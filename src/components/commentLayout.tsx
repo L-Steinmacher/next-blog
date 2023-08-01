@@ -1,28 +1,14 @@
 import { signIn, useSession } from 'next-auth/react';
 import { ReCaptcha } from 'next-recaptcha-v3';
 import { type RefObject, useRef, useState } from 'react';
-import { api } from '~/utils/api';
+import BadWordsFilter from 'bad-words';
 
+import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
-import { TRPCClientError } from '@trpc/client';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
+import validateToken from '~/utils/validateToken';
 
-type RecaptchaAPIResponse = {
-  recaptchaJson: {
-    success: boolean;
-    challenge_ts?: string;
-    hostname?: string;
-    score?: number;
-    action?: string;
-    'error-codes'?: string[];
-  };
-};
-
-type CustomErrorShape = {
-  code: string;
-  message: string;
-};
 
 export function CommentLayout({ slug }: { slug: string }) {
   const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
@@ -35,6 +21,8 @@ export function CommentLayout({ slug }: { slug: string }) {
   const { data: sessionData } = useSession();
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const utils = api.useContext();
+
+
   if (!commentsData) {
     return null;
   }
@@ -42,65 +30,129 @@ export function CommentLayout({ slug }: { slug: string }) {
     setToken(token);
   }
 
+  const currentUser = sessionData?.user;
   const userIsAdmin = sessionData?.user?.isAdmin;
   const userIsLoggedIn = !!sessionData;
+
+  const filter = new BadWordsFilter({});
 
   // We disable the next line vecause we may or may not be using the tempComment and I haven't
   // figured out how to make typescript happy with that yet.  ¯\_(ツ)_/¯
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   let tempComment: Comment;
 
-  const addComment = api.comments.createComment.useMutation({
-    onMutate({ content, postSlug }) {
-      if (!sessionData) {
-        console.error('No session data found');
-        return;
-      }
-      tempComment = {
-        id: `${Math.random()}`,
-        commenter: {
-          id: sessionData.user.id,
-          name: sessionData.user.name || null,
-          image: sessionData.user.image || null,
+  const createCommentMutation = api.comments.createComment.useMutation();
+
+  // const addComment = ({
+  //   onMutate({ content, postSlug }) {
+  //     if (!sessionData) {
+  //       console.error('No session data found');
+  //       return;
+  //     }
+  //     tempComment = {
+  //       id: `${Math.random()}`,
+  //       commenter: {
+  //         id: sessionData.user.id,
+  //         name: sessionData.user.name || null,
+  //         image: sessionData.user.image || null,
+  //       },
+  //       content,
+  //       postSlug,
+  //       createdAt: new Date(),
+  //     };
+  //   },
+  //   onSuccess(data) {
+  //     if (!slug) {
+  //       console.error('No slug found for post and that aint right');
+  //       return;
+  //     }
+  //     const newComment = data;
+  //     console.log('New comment:', newComment);
+  //     setAllComments(prevComments => [...prevComments, newComment]);
+
+  //     utils.comments.getCommentsForPost.setData({ slug }, [
+  //       ...allComments,
+  //       newComment,
+  //     ]);
+  //   },
+  //   onError(error) {
+  //     setErrors(prevErrors => [...prevErrors, error.message]);
+  //     setAllComments(prevComments =>
+  //       prevComments.filter(comment => comment.id !== tempComment.id),
+  //     );
+  //   },
+  // });
+
+  const addComment = ({
+    content,
+    postSlug,
+  }: {
+    content: string;
+    postSlug: string;
+  }) => {
+    if (!sessionData) {
+      console.error('No session data found');
+      return;
+    }
+    tempComment = {
+      id: `${Math.random()}`,
+      commenter: {
+        id: sessionData.user.id,
+        name: sessionData.user.name || null,
+        image: sessionData.user.image || null,
+      },
+      content,
+      postSlug,
+      createdAt: new Date(),
+    };
+    try {
+      // Call the mutate method on the object returned by useMutation
+      const newComment = createCommentMutation.mutate(
+        {
+          content,
+          postSlug,
+          // token: token || '',
         },
-        content,
-        postSlug,
-        createdAt: new Date(),
-      };
-    },
-    onSuccess(data) {
-      if (!slug) {
-        console.error('No slug found for post and that aint right');
-        return;
-      }
-      const newComment = data;
-      console.log('New comment:', newComment);
-      setAllComments(prevComments => [...prevComments, newComment]);
+        {
+          // Define your callbacks here
+          onSuccess: data => {
+            if (!slug) {
+              console.error('No slug found for post and that aint right');
+              return;
+            }
+            console.log('New comment:', data);
+            setAllComments(prevComments => [...prevComments, data]);
 
-      utils.comments.getCommentsForPost.setData({ slug }, [
-        ...allComments,
-        newComment,
-      ]);
-    },
-    onError(error) {
-      setErrors(prevErrors => [...prevErrors, error.message]);
-      setAllComments(prevComments =>
-        prevComments.filter(comment => comment.id !== tempComment.id),
+            utils.comments.getCommentsForPost.setData({ slug }, [
+              ...allComments,
+              data,
+            ]);
+          },
+          onError: error => {
+            setErrors(prevErrors => [...prevErrors, error.message]);
+            setAllComments(prevComments =>
+              prevComments.filter(comment => comment.id !== tempComment.id),
+            );
+          },
+        },
       );
-    },
-  });
+      return newComment;
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
 
-  function submitComment(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.preventDefault();
+
+
+  function submitComment() {
     setErrors([]);
     if (!token) {
       // Here, handle the situation when there's no token.
       // This could be setting an error message or something similar.
       console.error('No recaptcha token');
+      setErrors(['No recaptcha token']);
       return;
     }
-
-    setToken(null);
 
     if (comment.length < 2) {
       setErrors(['Comment must be at least 2 characters long']);
@@ -110,7 +162,7 @@ export function CommentLayout({ slug }: { slug: string }) {
       console.error('No session data found');
       return;
     }
-
+    const filteredComment = filter.clean(comment);
     const postSlug = slug;
 
     if (!postSlug) {
@@ -118,59 +170,24 @@ export function CommentLayout({ slug }: { slug: string }) {
       return;
     }
 
-    fetch('/api/validateRecaptcha', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to validate token');
-        }
-
-        return response.json();
-      })
+    validateToken(token)
       .then(data => {
-        const recaptchaData = data as RecaptchaAPIResponse;
-        console.log('Recaptcha validation response:', recaptchaData);
-
-        if (!recaptchaData.recaptchaJson.success) {
+        const recaptchaData = data;
+        if (!recaptchaData.success) {
           console.error('Recaptcha validation failed:', recaptchaData);
           token && setToken(null);
           return;
         }
 
-        return addComment.mutate(
-          {
-            content: comment,
-            postSlug: postSlug,
-          },
-          {
-            onSettled: () => {
-              // Get the last comment element
-              const lastComment = commentContainerRef.current
-                ?.lastElementChild as HTMLElement | null;
-              if (lastComment) {
-                // Scroll to the last comment
-                lastComment.scrollIntoView({ behavior: 'smooth' });
-                // Clear the textarea
-                setComment('');
-              }
-            },
-            onError: error => {
-              if (error instanceof TRPCClientError && error.shape) {
-                const errorShape = error.shape as CustomErrorShape;
-                if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
-                  alert("you're doing that too much in five minutes");
-                } else {
-                  alert(errorShape.message);
-                }
-              }
-            },
-          },
-        );
+        addComment({ content: filteredComment, postSlug });
+        return addComment({ content: filteredComment, postSlug })
+      })
+      .then(() => {
+        const lastComment = commentContainerRef.current?.lastChild as HTMLElement | null;
+        if (lastComment) {
+          lastComment.scrollIntoView({ behavior: 'smooth' });
+        }
+        setComment('');
       })
       .catch(error => {
         console.error('Recaptcha validation error:', error);
@@ -221,6 +238,10 @@ export function CommentLayout({ slug }: { slug: string }) {
           <form
             className="flex flex-col items-center"
             aria-label="Leave a comment"
+            onSubmit={e => {
+              e.preventDefault();
+              submitComment();
+            }}
           >
             <h2 className="mb-4 text-center text-2xl font-bold">
               Have an opinion of what I said? Find a typo? Just want to be nice?
@@ -257,7 +278,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                   className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                   tabIndex={2}
                   aria-label="Submit comment button"
-                  onClick={submitComment}
+
                 >
                   Submit
                 </button>
@@ -290,7 +311,7 @@ export function CommentLayout({ slug }: { slug: string }) {
               .filter(comment => typedBoolean(comment))
               .map(comment => (
                 <div className="flex flex-row items-center " key={comment.id}>
-                  {userIsAdmin && (
+                  {userIsAdmin || currentUser && (
                     <div>
                       <button
                         className="inline-flex items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
