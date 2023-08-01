@@ -1,26 +1,29 @@
-import { type NextApiRequest, type NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 interface RequestBody {
-   token: string;
+  token: string;
 }
 
 interface RecaptchaAPIResponse {
-    success: boolean;
-    challenge_ts?: string;
-    hostname?: string;
-    'error-codes'?: string[];
+  success: boolean;
+  challenge_ts?: string;
+  hostname?: string;
+  'error-codes'?: string[];
+}
+
+const validateRecaptcha = async (
+  req: NextApiRequest,
+  res: NextApiResponse,
+) => {
+  const SECRET_KEY = process.env.GOOGLE_RECATPTCHA_SECRET_KEY;
+
+  if (!SECRET_KEY) {
+    res.status(500).json({ message: "Server error: No secret key provided" });
+    return;
   }
 
-const validateRecaptcha =  (
-    req: NextApiRequest,
-    res: NextApiResponse,
-     ) => {
-    const SECRET_KEY = process.env.GOOGLE_RECATPTCHA_SECRET_KEY;
-
-    if (!SECRET_KEY) throw new Error("No secret key provided")
-
-    const { token  } = req.body as RequestBody;
-    console.log(`recaptchaResponse: ${token}`)
+  const { token  } = req.body as RequestBody;
+  console.log(`recaptchaResponse: ${token}`)
 
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${token}`;
 
@@ -29,19 +32,15 @@ const validateRecaptcha =  (
       return recaptchaRes.json();
     })
     .then((recaptchaJson: RecaptchaAPIResponse) => {
-      if (recaptchaJson.success) {
-        console.log(res)
-        res.status(200).json({ success: true });
-      } else {
-        res.status(400).json({ success: false, errors: recaptchaJson['error-codes'] });
-      }
+      res.status(200).json({recaptchaJson });
     })
     .catch((error: Error) => {
-      res.status(500).json(error.message);
+      res.status(400).json(error.message);
     })
     .finally(() => {
       res.end();
     });
   };
+
 
   export default validateRecaptcha;

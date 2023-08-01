@@ -1,14 +1,21 @@
 import { signIn, useSession } from 'next-auth/react';
 import { ReCaptcha } from 'next-recaptcha-v3';
 import { type RefObject, useRef, useState } from 'react';
+import { api } from '~/utils/api';
 import BadWordsFilter from 'bad-words';
 
-import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
 import validateToken from '~/utils/validateToken';
+import { TRPCClientError } from '@trpc/client';
 
+type CustomErrorShape = {
+  code: string;
+  message: string;
+};
+
+const PUBLIC_RECAPTCHA_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
 
 export function CommentLayout({ slug }: { slug: string }) {
   const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
@@ -22,19 +29,15 @@ export function CommentLayout({ slug }: { slug: string }) {
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const utils = api.useContext();
 
-
-  if (!commentsData) {
-    return null;
-  }
   function onVerifyCaptcha(token: string) {
     setToken(token);
   }
 
   const currentUser = sessionData?.user;
-  const userIsAdmin = sessionData?.user?.isAdmin;
+  const userIsAdmin = currentUser?.isAdmin;
   const userIsLoggedIn = !!sessionData;
 
-  const filter = new BadWordsFilter({});
+  const filter = new BadWordsFilter();
 
   // We disable the next line vecause we may or may not be using the tempComment and I haven't
   // figured out how to make typescript happy with that yet.  ¯\_(ツ)_/¯
@@ -42,46 +45,6 @@ export function CommentLayout({ slug }: { slug: string }) {
   let tempComment: Comment;
 
   const createCommentMutation = api.comments.createComment.useMutation();
-
-  // const addComment = ({
-  //   onMutate({ content, postSlug }) {
-  //     if (!sessionData) {
-  //       console.error('No session data found');
-  //       return;
-  //     }
-  //     tempComment = {
-  //       id: `${Math.random()}`,
-  //       commenter: {
-  //         id: sessionData.user.id,
-  //         name: sessionData.user.name || null,
-  //         image: sessionData.user.image || null,
-  //       },
-  //       content,
-  //       postSlug,
-  //       createdAt: new Date(),
-  //     };
-  //   },
-  //   onSuccess(data) {
-  //     if (!slug) {
-  //       console.error('No slug found for post and that aint right');
-  //       return;
-  //     }
-  //     const newComment = data;
-  //     console.log('New comment:', newComment);
-  //     setAllComments(prevComments => [...prevComments, newComment]);
-
-  //     utils.comments.getCommentsForPost.setData({ slug }, [
-  //       ...allComments,
-  //       newComment,
-  //     ]);
-  //   },
-  //   onError(error) {
-  //     setErrors(prevErrors => [...prevErrors, error.message]);
-  //     setAllComments(prevComments =>
-  //       prevComments.filter(comment => comment.id !== tempComment.id),
-  //     );
-  //   },
-  // });
 
   const addComment = ({
     content,
@@ -111,7 +74,7 @@ export function CommentLayout({ slug }: { slug: string }) {
         {
           content,
           postSlug,
-          // token: token || '',
+          token: token || '',
         },
         {
           // Define your callbacks here
@@ -142,22 +105,18 @@ export function CommentLayout({ slug }: { slug: string }) {
     }
   };
 
-
-
   function submitComment() {
     setErrors([]);
     if (!token) {
-      // Here, handle the situation when there's no token.
-      // This could be setting an error message or something similar.
-      console.error('No recaptcha token');
-      setErrors(['No recaptcha token']);
-      return;
+        setErrors(['Recaptcha validation failed, no token found']);
+        return;
     }
 
     if (comment.length < 2) {
       setErrors(['Comment must be at least 2 characters long']);
       return;
     }
+
     if (!sessionData) {
       console.error('No session data found');
       return;
@@ -171,26 +130,37 @@ export function CommentLayout({ slug }: { slug: string }) {
     }
 
     validateToken(token)
-      .then(data => {
-        const recaptchaData = data;
-        if (!recaptchaData.success) {
-          console.error('Recaptcha validation failed:', recaptchaData);
-          token && setToken(null);
-          return;
-        }
+      .then(isValid => {
+        if (isValid) {
+          addComment({
+            content: filteredComment,
+            postSlug: postSlug,
+          });
 
-        addComment({ content: filteredComment, postSlug });
-        return addComment({ content: filteredComment, postSlug })
-      })
-      .then(() => {
-        const lastComment = commentContainerRef.current?.lastChild as HTMLElement | null;
-        if (lastComment) {
-          lastComment.scrollIntoView({ behavior: 'smooth' });
+          // Get the last comment element
+          const lastComment = commentContainerRef.current
+            ?.lastElementChild as HTMLElement | null;
+          if (lastComment) {
+            // Scroll to the last comment
+            lastComment.scrollIntoView({ behavior: 'smooth' });
+            // Clear the textarea
+            setComment('');
+          }
+        } else {
+          console.error('Recaptcha validation failed');
         }
-        setComment('');
       })
       .catch(error => {
-        console.error('Recaptcha validation error:', error);
+        console.error('Error:', error);
+        // On error
+        if (error instanceof TRPCClientError && error.shape) {
+          const errorShape = error.shape as CustomErrorShape;
+          if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
+            alert("you're doing that too much in five minutes");
+          } else {
+            alert(errorShape.message);
+          }
+        }
       });
   }
 
@@ -278,7 +248,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                   className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                   tabIndex={2}
                   aria-label="Submit comment button"
-
                 >
                   Submit
                 </button>
@@ -311,7 +280,8 @@ export function CommentLayout({ slug }: { slug: string }) {
               .filter(comment => typedBoolean(comment))
               .map(comment => (
                 <div className="flex flex-row items-center " key={comment.id}>
-                  {userIsAdmin || currentUser && (
+                  {(userIsAdmin ||
+                    comment.commenter.id === currentUser?.id) && (
                     <div>
                       <button
                         className="inline-flex items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
