@@ -15,8 +15,6 @@ type CustomErrorShape = {
   message: string;
 };
 
-const PUBLIC_RECAPTCHA_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
-
 export function CommentLayout({ slug }: { slug: string }) {
   const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
     slug,

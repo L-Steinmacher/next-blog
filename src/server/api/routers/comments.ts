@@ -68,7 +68,13 @@ export const commentsRouter = createTRPCRouter({
                     message: "Comment must have a post slug",
                 });
             }
-
+            const tokenIsValid = await validateToken(input.token);
+            if (!tokenIsValid) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message: "Invalid token",
+                });
+            }
 
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
