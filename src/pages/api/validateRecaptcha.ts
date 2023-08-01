@@ -11,7 +11,7 @@ interface RecaptchaAPIResponse {
   'error-codes'?: string[];
 }
 
-const validateRecaptcha = async (
+const validateRecaptcha =  (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
@@ -32,15 +32,19 @@ const validateRecaptcha = async (
       return recaptchaRes.json();
     })
     .then((recaptchaJson: RecaptchaAPIResponse) => {
-      res.status(200).json({recaptchaJson });
+      if (recaptchaJson.success) {
+        console.log(res)
+        res.status(200).json({ success: true });
+      } else {
+        res.status(400).json({ success: false, errors: recaptchaJson['error-codes'] });
+      }
     })
     .catch((error: Error) => {
-      res.status(400).json(error.message);
+      res.status(500).json(error.message);
     })
     .finally(() => {
       res.end();
     });
   };
 
-
-  export default validateRecaptcha;
+export default validateRecaptcha;

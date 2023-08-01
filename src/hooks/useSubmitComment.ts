@@ -113,6 +113,7 @@ export function useSubmitComment() {
                 {
                     content,
                     postSlug,
+                    token,
                 },
                 {
                     onSettled,
