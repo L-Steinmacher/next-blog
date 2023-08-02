@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getSession, useSession } from 'next-auth/react';
-import { GetServerSidePropsContext, InferGetServerSidePropsType, NextPage } from 'next';
+import { type GetServerSidePropsContext, type InferGetServerSidePropsType, type NextPage } from 'next';
 
 const AdminRoute: NextPage<
 InferGetServerSidePropsType<typeof getServerSideProps>

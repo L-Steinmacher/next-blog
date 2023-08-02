@@ -112,8 +112,8 @@ export function useSubmitComment() {
             addComment.mutate(
                 {
                     content,
-                    commenterId,
                     postSlug,
+                    token,
                 },
                 {
                     onSettled,
