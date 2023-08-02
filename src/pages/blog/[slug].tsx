@@ -37,7 +37,7 @@ export default function Post({ post, stats }: Props) {
         </details>
         {post.content ? (
           <section aria-labelledby="post-heading">
-            <div className="container mx-auto min-h-screen max-w-2xl px-5">
+            <div className="container mx-auto min-h-full max-w-2xl px-5">
               <h1
                 id="post-heading"
                 className="md:text-6 3xl mb-12 text-center text-3xl font-bold leading-tight tracking-tighter md:text-left md:leading-none lg:text-4xl"
