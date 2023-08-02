@@ -23,6 +23,16 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
+    POSTGRES_USER: z.string(),
+    POSTGRES_PASSWORD: z.string(),
+    POSTGRES_HOST: z.string(),
+    POSTGRES_DATABASE: z.string(),
+    POSTGRES_URL: z.string(),
+    POSTGRES_URL_NON_POOLING: z.string(),
+    POSTGRES_PRISMA_URL: z.string(),
+    NX_DAEMON: z.string().optional(),
+    // VERCEL: z.string().optional(),
+    VERCEL_ENV: z.string().optional(),
   },
 
   /**
@@ -45,6 +55,16 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+    POSTGRES_USER: process.env.POSTGRES_USER,
+    POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
+    POSTGRES_HOST: process.env.POSTGRES_HOST,
+    POSTGRES_DATABASE: process.env.POSTGRES_DATABASE,
+    POSTGRES_URL: process.env.POSTGRES_URL,
+    POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
+    POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+    NX_DAEMON: process.env.NX_DAEMON,
+    // VERCEL: process.env.VERCEL,
+    VERCEL_ENV: process.env.VERCEL_ENV,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
