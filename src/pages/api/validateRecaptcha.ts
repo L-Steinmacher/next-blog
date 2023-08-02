@@ -21,7 +21,6 @@ const validateRecaptcha =  (
     res.status(500).json({ message: "Server error: No secret key provided" });
     return;
   }
-  console.log(`******************************req.body: ${JSON.stringify(req.body)}`)
 
   const { token  } = req.body as RequestBody;
   console.log(`recaptchaResponse: ${token}`)

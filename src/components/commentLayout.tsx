@@ -13,6 +13,13 @@ import BadWordsFilter from 'bad-words';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
+import validateToken from '~/utils/validateToken';
+import { TRPCClientError } from '@trpc/client';
+
+type CustomErrorShape = {
+  code: string;
+  message: string;
+};
 
 export function CommentLayout({ slug }: { slug: string }) {
   const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
@@ -193,7 +200,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         setToken(token);
         void submitComment();
       });
-      setSubmitting(false);
     }
   }, [submitting, executeRecaptcha, submitComment]);
 
