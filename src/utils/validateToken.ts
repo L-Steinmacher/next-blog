@@ -5,9 +5,10 @@ interface RecaptchaResponse {
     "error-codes"?: string[];
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
-    const response = await fetch('/api/validateRecaptcha', {
+    const response = await fetch(`${BASE_URL}/api/validateRecaptcha`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
