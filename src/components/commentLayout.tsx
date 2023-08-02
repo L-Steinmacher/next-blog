@@ -1,6 +1,12 @@
 import { signIn, useSession } from 'next-auth/react';
-import { ReCaptcha } from 'next-recaptcha-v3';
-import { type RefObject, useRef, useState } from 'react';
+import { useReCaptcha } from 'next-recaptcha-v3';
+import {
+  type RefObject,
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import { api } from '~/utils/api';
 import BadWordsFilter from 'bad-words';
 
@@ -20,6 +26,7 @@ export function CommentLayout({ slug }: { slug: string }) {
     slug,
   });
   const [token, setToken] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [comment, setComment] = useState<string>('');
   const [allComments, setAllComments] = useState<Comment[]>(commentsData || []);
   const [errors, setErrors] = useState<string[]>([]);
@@ -27,87 +34,86 @@ export function CommentLayout({ slug }: { slug: string }) {
   const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const utils = api.useContext();
 
-  function onVerifyCaptcha(token: string) {
-    setToken(token);
-  }
-
+  const { executeRecaptcha } = useReCaptcha();
   const currentUser = sessionData?.user;
   const userIsAdmin = currentUser?.isAdmin;
   const userIsLoggedIn = !!sessionData;
 
-  const filter = new BadWordsFilter();
-
   // We disable the next line vecause we may or may not be using the tempComment and I haven't
   // figured out how to make typescript happy with that yet.  ¯\_(ツ)_/¯
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  let tempComment: Comment;
 
   const createCommentMutation = api.comments.createComment.useMutation();
 
-  const addComment = ({
-    content,
-    postSlug,
-  }: {
-    content: string;
-    postSlug: string;
-  }) => {
-    if (!sessionData) {
-      console.error('No session data found');
-      return;
-    }
-    tempComment = {
-      id: `${Math.random()}`,
-      commenter: {
-        id: sessionData.user.id,
-        name: sessionData.user.name || null,
-        image: sessionData.user.image || null,
-      },
+  const submitComment = useCallback(() => {
+    const filter = new BadWordsFilter();
+    let tempComment: Comment;
+
+    const addComment = ({
       content,
       postSlug,
-      createdAt: new Date(),
-    };
-    try {
-      // Call the mutate method on the object returned by useMutation
-      const newComment = createCommentMutation.mutate(
-        {
-          content,
-          postSlug,
-          token: token || '',
-        },
-        {
-          // Define your callbacks here
-          onSuccess: data => {
-            if (!slug) {
-              console.error('No slug found for post and that aint right');
-              return;
-            }
-            console.log('New comment:', data);
-            setAllComments(prevComments => [...prevComments, data]);
-
-            utils.comments.getCommentsForPost.setData({ slug }, [
-              ...allComments,
-              data,
-            ]);
-          },
-          onError: error => {
-            setErrors(prevErrors => [...prevErrors, error.message]);
-            setAllComments(prevComments =>
-              prevComments.filter(comment => comment.id !== tempComment.id),
-            );
-          },
-        },
-      );
-      return newComment;
-    } catch (error) {
-      console.error('Error adding comment:', error);
-    }
-  };
-
-  function submitComment() {
-    setErrors([]);
-    if (!token) {
-        setErrors(['Recaptcha validation failed, no token found']);
+    }: {
+      content: string;
+      postSlug: string;
+    }) => {
+      if (!sessionData) {
+        console.error('No session data found');
         return;
+      }
+      tempComment = {
+        id: `${Math.random()}`,
+        commenter: {
+          id: sessionData.user.id,
+          name: sessionData.user.name || null,
+          image: sessionData.user.image || null,
+        },
+        content,
+        postSlug,
+        createdAt: new Date(),
+      };
+
+      try {
+        // Call the mutate method on the object returned by useMutation
+        const newComment = createCommentMutation.mutate(
+          {
+            content,
+            postSlug,
+            token: token || '',
+          },
+          {
+            // Define your callbacks here
+            onSuccess: data => {
+              if (!slug) {
+                console.error('No slug found for post and that aint right');
+                return;
+              }
+              console.log('New comment:', data);
+              setAllComments(prevComments => [...prevComments, data]);
+
+              utils.comments.getCommentsForPost.setData({ slug }, [
+                ...allComments,
+                data,
+              ]);
+            },
+            onError: error => {
+              setErrors(prevErrors => [...prevErrors, error.message]);
+              setAllComments(prevComments =>
+                prevComments.filter(comment => comment.id !== tempComment.id),
+              );
+            },
+          },
+        );
+        return newComment;
+      } catch (error) {
+        console.error('Error adding comment:', error);
+      }
+    };
+
+    setErrors([]);
+
+    if (!token) {
+      console.error('No token found');
+      return;
     }
 
     if (comment.length < 2) {
@@ -127,40 +133,29 @@ export function CommentLayout({ slug }: { slug: string }) {
       return;
     }
 
-    validateToken(token)
-      .then(isValid => {
-        if (isValid) {
-          addComment({
-            content: filteredComment,
-            postSlug: postSlug,
-          });
+    addComment({
+      content: filteredComment,
+      postSlug: postSlug,
+    });
 
-          // Get the last comment element
-          const lastComment = commentContainerRef.current
-            ?.lastElementChild as HTMLElement | null;
-          if (lastComment) {
-            // Scroll to the last comment
-            lastComment.scrollIntoView({ behavior: 'smooth' });
-            // Clear the textarea
-            setComment('');
-          }
-        } else {
-          console.error('Recaptcha validation failed');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        // On error
-        if (error instanceof TRPCClientError && error.shape) {
-          const errorShape = error.shape as CustomErrorShape;
-          if (errorShape && errorShape.code === 'TOO_MANY_REQUESTS') {
-            alert("you're doing that too much in five minutes");
-          } else {
-            alert(errorShape.message);
-          }
-        }
-      });
-  }
+    // Get the last comment element
+    const lastComment = commentContainerRef.current
+      ?.lastElementChild as HTMLElement | null;
+    if (lastComment) {
+      // Scroll to the last comment
+      lastComment.scrollIntoView({ behavior: 'smooth' });
+      // Clear the textarea
+      setComment('');
+    }
+  }, [
+    allComments,
+    comment,
+    createCommentMutation,
+    sessionData,
+    slug,
+    token,
+    utils.comments.getCommentsForPost,
+  ]);
 
   const deleteComment = api.comments.deleteComment.useMutation({
     onSuccess: (data, variables) => {
@@ -199,6 +194,15 @@ export function CommentLayout({ slug }: { slug: string }) {
     );
   }
 
+  useEffect(() => {
+    if (submitting) {
+      void executeRecaptcha('comment').then((token: string) => {
+        setToken(token);
+        void submitComment();
+      });
+    }
+  }, [submitting, executeRecaptcha, submitComment]);
+
   return (
     <div>
       <section aria-labelledby="comments-heading" className="pt-16">
@@ -208,7 +212,7 @@ export function CommentLayout({ slug }: { slug: string }) {
             aria-label="Leave a comment"
             onSubmit={e => {
               e.preventDefault();
-              submitComment();
+              setSubmitting(true);
             }}
           >
             <h2 className="mb-4 text-center text-2xl font-bold">
@@ -218,7 +222,6 @@ export function CommentLayout({ slug }: { slug: string }) {
             <label htmlFor="comment" className="sr-only">
               Comment
             </label>
-            <ReCaptcha onValidate={onVerifyCaptcha} action="submit_comment" />
             <textarea
               id="comment"
               name="comment"
