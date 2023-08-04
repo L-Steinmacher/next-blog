@@ -1,6 +1,12 @@
 import { signIn, useSession } from 'next-auth/react';
 import BadWordsFilter from 'bad-words';
-import { type RefObject, useRef, useState, useCallback, useEffect } from 'react';
+import {
+    type RefObject,
+    useRef,
+    useState,
+    useCallback,
+    useEffect,
+} from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import { api } from '~/utils/api';
@@ -54,8 +60,8 @@ export function CommentLayout({ slug }: { slug: string }) {
                 return;
             }
             if (!token) {
-              console.error('No token found');
-              return;
+                console.error('No token found');
+                return;
             }
 
             tempComment = {
@@ -148,17 +154,24 @@ export function CommentLayout({ slug }: { slug: string }) {
             // Clear the textarea
             setComment('');
         }
-
-    }, [allComments, comment, createCommentMutation, sessionData, slug, token, utils.comments.getCommentsForPost]);
+    }, [
+        allComments,
+        comment,
+        createCommentMutation,
+        sessionData,
+        slug,
+        token,
+        utils.comments.getCommentsForPost,
+    ]);
 
     useEffect(() => {
-      if (gotime) {
-        submitComment();
-        setGotime(false);
-        setSubmitting(false);
-      } else {
-        return;
-      }
+        if (gotime) {
+            submitComment();
+            setGotime(false);
+            setSubmitting(false);
+        } else {
+            return;
+        }
     }, [gotime, submitComment]);
 
     const deleteComment = api.comments.deleteComment.useMutation({
@@ -192,14 +205,14 @@ export function CommentLayout({ slug }: { slug: string }) {
             { commentId },
             {
                 onSettled: () => {
-                console.log('Comment deleted');
+                    console.log('Comment deleted');
                 },
             },
         );
     }
 
     if (!RECAPTCHA_SITE_KEY) {
-      return <div>Error: reCAPTCHA site key not found!</div>;
+        return <div>Error: reCAPTCHA site key not found!</div>;
     }
 
     return (
@@ -234,15 +247,15 @@ export function CommentLayout({ slug }: { slug: string }) {
                             onChange={e => setComment(e.target.value)}
                         />
                         {submitting && (
-                          <>
-                            <ReCAPTCHA
-                                sitekey={RECAPTCHA_SITE_KEY}
-                                onChange={(tkn: string | null) => {
-                                  setToken(tkn)
-                                  setGotime(true)
-                                  }}
-                            />
-                          </>
+                            <>
+                                <ReCAPTCHA
+                                    sitekey={RECAPTCHA_SITE_KEY}
+                                    onChange={(tkn: string | null) => {
+                                        setToken(tkn);
+                                        setGotime(true);
+                                    }}
+                                />
+                            </>
                         )}
                         <div className="block h-4 text-xl font-bold">
                             {errors.length

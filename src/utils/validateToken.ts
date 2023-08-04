@@ -1,10 +1,10 @@
 interface RecaptchaResponse {
-    success: boolean;
-    challenge_ts?: string;
-    hostname?: string;
-    "error-codes"?: string[];
+  success: boolean;
+  challenge_ts?: string;
+  hostname?: string;
+  "error-codes"?: string[];
 }
-const BASE_URL = process.env.NEXTAUTH_URL ;
+const BASE_URL = process.env.NEXTAUTH_URL;
 
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
