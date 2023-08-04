@@ -4,10 +4,12 @@ interface RecaptchaResponse {
     hostname?: string;
     "error-codes"?: string[];
 }
+const BASE_URL = process.env.NEXTAUTH_URL ;
 
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
-    const response = await fetch('/api/validateRecaptcha', {
+    const url = BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${url}/api/validateRecaptcha`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
