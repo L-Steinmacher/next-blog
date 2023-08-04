@@ -23,8 +23,6 @@ const validateRecaptcha = async (
   }
 
   const { token } = req.body as RequestBody;
-  console.log(`###################### ValidateToken: ${token}`);
-
   const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${token}`;
 
   try {

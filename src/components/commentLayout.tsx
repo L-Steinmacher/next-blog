@@ -7,7 +7,6 @@ import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
-import { set } from 'date-fns';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
 
@@ -137,6 +136,7 @@ export function CommentLayout({ slug }: { slug: string }) {
         addComment({
             content: filteredComment,
             postSlug: postSlug,
+            token: token || '',
         });
 
         // Get the last comment element
@@ -149,15 +149,16 @@ export function CommentLayout({ slug }: { slug: string }) {
             setComment('');
         }
 
-    }, [allComments, comment, createCommentMutation, sessionData, slug, utils.comments.getCommentsForPost]);
+    }, [allComments, comment, createCommentMutation, sessionData, slug, token, utils.comments.getCommentsForPost]);
 
     useEffect(() => {
-      if (!gotime) {
+      if (gotime) {
+        submitComment();
+        setGotime(false);
+        setSubmitting(false);
+      } else {
         return;
       }
-      submitComment();
-      setGotime(false);
-      setSubmitting(false);
     }, [gotime, submitComment]);
 
     const deleteComment = api.comments.deleteComment.useMutation({
@@ -191,7 +192,7 @@ export function CommentLayout({ slug }: { slug: string }) {
             { commentId },
             {
                 onSettled: () => {
-                alert('Comment deleted')
+                console.log('Comment deleted');
                 },
             },
         );

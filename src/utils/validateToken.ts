@@ -9,7 +9,6 @@ const BASE_URL = process.env.NEXTAUTH_URL ;
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
     const url = BASE_URL || 'http://localhost:3000';
-    console.log(`token = ${token}`)
     const response = await fetch(`${url}/api/validateRecaptcha`, {
       method: 'POST',
       headers: {

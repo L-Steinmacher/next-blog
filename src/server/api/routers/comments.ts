@@ -47,7 +47,6 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const {postSlug, content, token} = input;
-            console.log(`###################### token: ${token}`);
 
             const recaptchaResponse = await validateToken(token);
             console.log(`###################### recaptchaResponse: ${JSON.stringify(recaptchaResponse)}`);
