@@ -46,6 +46,19 @@ export const commentsRouter = createTRPCRouter({
     createComment: publicProcedure
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
+            const {postSlug, content, token} = input;
+            console.log(`###################### token: ${token}`);
+
+            const recaptchaResponse = await validateToken(token);
+            console.log(`###################### recaptchaResponse: ${JSON.stringify(recaptchaResponse)}`);
+
+            if (!recaptchaResponse.success) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Recaptcha validation failed",
+                });
+            }
+
             const isUserLoggedIn = ctx.session?.user;
             if (!isUserLoggedIn) {
                 // render a model for the user to log in
@@ -55,26 +68,20 @@ export const commentsRouter = createTRPCRouter({
                 });
             }
             // if content is not a string or is empty
-            if (!input.content || typeof input.content !== "string") {
+            if (!input.content || typeof content !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "Comment must have content",
                 });
             }
             // if slug is not a string or is empty
-            if (!input.postSlug || typeof input.postSlug !== "string") {
+            if (!input.postSlug || typeof postSlug !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "Comment must have a post slug",
                 });
             }
-            const tokenIsValid = await validateToken(input.token);
-            if (!tokenIsValid) {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "Invalid token",
-                });
-            }
+
 
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
@@ -96,8 +103,8 @@ export const commentsRouter = createTRPCRouter({
 
             const comment = await prisma.comment.create({
                 data: {
-                    content: input.content,
-                    postSlug: input.postSlug,
+                    content: content,
+                    postSlug: postSlug,
                     commenterId: isUserLoggedIn.id,
                 },
                 include: {
@@ -109,6 +116,7 @@ export const commentsRouter = createTRPCRouter({
     deleteComment: publicProcedure
         .input(z.object({ commentId: z.string(), }))
         .mutation(async ({ ctx, input }) => {
+            const { commentId } = input;
             const userIsAdmin = ctx.session?.user?.isAdmin;
             if (!userIsAdmin) {
                 throw new TRPCError({
@@ -119,7 +127,7 @@ export const commentsRouter = createTRPCRouter({
 
             const comment = await prisma.comment.findUnique({
                 where: {
-                    id: input.commentId,
+                    id: commentId,
                 },
                 select: defaultCommentSelect,
             });
@@ -127,13 +135,13 @@ export const commentsRouter = createTRPCRouter({
             if (!comment) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
-                    message: `No comment found with id ${input.commentId}`,
+                    message: `No comment found with id ${commentId}`,
                 });
             }
 
             await prisma.comment.delete({
                 where: {
-                    id: input.commentId,
+                    id: commentId,
                 },
             });
 
