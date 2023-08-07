@@ -4,7 +4,7 @@ interface RecaptchaResponse {
   hostname?: string;
   "error-codes"?: string[];
 }
-const BASE_URL = process.env.NEXTAUTH_URL;
+const BASE_URL = process.env.BASE_URL;
 
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {

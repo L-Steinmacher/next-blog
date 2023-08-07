@@ -165,13 +165,12 @@ export function CommentLayout({ slug }: { slug: string }) {
     ]);
 
     useEffect(() => {
-        if (gotime) {
-            submitComment();
-            setGotime(false);
-            setSubmitting(false);
-        } else {
-            return;
+        if (!gotime) {
+            return
         }
+        submitComment();
+        setGotime(false);
+        setSubmitting(false);
     }, [gotime, submitComment]);
 
     const deleteComment = api.comments.deleteComment.useMutation({
