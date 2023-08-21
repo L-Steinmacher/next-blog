@@ -42,6 +42,13 @@ export function CommentLayout({ slug }: { slug: string }) {
 
     const createCommentMutation = api.comments.createComment.useMutation();
 
+    useEffect(() => {
+        if (!commentsData) {
+            return;
+        }
+        setAllComments(commentsData);
+    }, [commentsData]);
+
     const submitComment = useCallback(() => {
         const filter = new BadWordsFilter();
         let tempComment: Comment;
@@ -267,6 +274,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                   ))
                                 : null}
                         </div>
+                        <div className='flex flex-col items-center'>
                         {userIsLoggedIn ? (
                             <>
                                 <button
@@ -296,6 +304,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 </button>
                             </div>
                         )}
+                        </div>
                     </form>
                 </div>
                 <div className="mt-16 " ref={commentContainerRef}>
@@ -307,15 +316,15 @@ export function CommentLayout({ slug }: { slug: string }) {
                             .filter(comment => typedBoolean(comment))
                             .map(comment => (
                                 <div
-                                    className="flex flex-row items-center "
+                                    className="flex flex-row items-center relative"
                                     key={comment.id}
                                 >
                                     {(userIsAdmin ||
                                         comment.commenter.id ===
                                             currentUser?.id) && (
-                                        <div>
+                                        <div className='absolute right-0 -mr-14 '>
                                             <button
-                                                className="inline-flex items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
+                                                className="items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
                                                 onClick={e => {
                                                     e.preventDefault();
                                                     handleDeleteComment(
