@@ -29,7 +29,7 @@ export default function About() {
             <p>
               Howdy! I&apos;m Lucas but some call me Panz. I&apos;m a
               software engineer based out of the greater Seattle area, and I
-              love building tools and web apps for peopl,  mainly working with Typescript.
+              love building tools and web apps for people,  mainly working with Typescript.
             </p>
           </div>
         </section>
@@ -85,7 +85,7 @@ export default function About() {
               <br /><br />
               They liked to give out nicknames to the senior staff. I was
               told that the name was given to me because of my Germanic last
-              name and the fact that I&apos;m a{' '}
+              name and, as I was told, I&apos;m a{' '}
               <a
                 className="text-[#d68501] hover:text-[#d68401bb] hover:underline"
                 href="https://en.wiktionary.org/wiki/Panzer"
