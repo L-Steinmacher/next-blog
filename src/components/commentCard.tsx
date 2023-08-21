@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { type Comment } from "../interfaces/comments";
+import { formatRelativeTime } from "~/utils/miscUtils";
 
   interface CommentCardProps {
     comment: Comment;
@@ -8,6 +9,8 @@ import { type Comment } from "../interfaces/comments";
   // Create the CommentCard component
   const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
     const commenterImage = comment.commenter?.image || "/images/user.png";
+    const createdAt = comment.createdAt.toISOString()
+    const displayTime = formatRelativeTime(createdAt)
 
     return (
       <div
@@ -27,7 +30,7 @@ import { type Comment } from "../interfaces/comments";
         </div>
         <p className="text-gray-700">{comment.content}</p>
         <p className="mt-2 text-sm text-gray-500">
-          {comment.createdAt.toISOString()}
+          Created: {displayTime}
         </p>
       </div>
     );
