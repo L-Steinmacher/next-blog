@@ -11,7 +11,7 @@ export default function Contact() {
         />
         <link rel="icon" href="favicon.ico" />
       </Head>
-      <div className="mx-auto max-w-2xl px-6 pt-16">
+      <div className="mx-auto max-w-2xl px-6 pt-16 ">
         <div>
           <h2 className="mb-12 text-center text-xl font-bold leading-tight tracking-tighter md:text-left md:text-6xl md:leading-none lg:text-4xl">
             Contact

@@ -4,7 +4,7 @@ type Props = {
 
 export default function Socials({ direction }: Props) {
     return (
-        <div className={`flex ${direction === 'column' ? 'flex-col' : 'flex-row'} items-center justify-end space-x-2 mx-auto px-4 sm:px-8`}>
+        <div className={`flex ${direction === 'column' ? 'flex-col' : 'flex-row'} items-center justify-end  mx-auto px-4 sm:px-8  `}>
             <a
                 className="rounded-lg text-gray-700 hover:bg-yellow-200 dark:text-gray-200
                 dark:hover:bg-yellow-800"

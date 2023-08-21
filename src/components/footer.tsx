@@ -19,8 +19,8 @@ export default function Footer() {
       <div className="container flex flex-col w-full items-center mx-auto max-w-2xl">
         <div className="flex flex-col sm:flex-row w-full py-6">
           <div className="flex-1 flex sm:justify-center sm:items-center mx-auto ">
-            <ul className="flex flex-col space-y-2  ">
-              <li>
+            <ul className="flex flex-col space-y-2 text-center  ">
+              <li >
                 <Link href="/">Home</Link>
               </li>
               <li>
