@@ -13,7 +13,7 @@ InferGetServerSidePropsType<typeof getServerSideProps>
   useEffect(() => {
     async function checkAdmin() {
       const session = await getSession();
-      if (!session?.user || session.user?.role !== 'ADMIN') {
+      if (!session?.user || session.user?.isAdmin) {
         await router.replace('/'); // Redirect to the login page if not authenticated or not an admin
       }
     }
@@ -21,7 +21,7 @@ InferGetServerSidePropsType<typeof getServerSideProps>
   }, [session, router]);
 
   console.log(JSON.stringify(session, null, 2));
-  if (!session?.user || session.user.role !== 'ADMIN') {
+  if (!session?.user || session.user.isAdmin) {
     return <div>Redirecting...</div>; // Show a loading message while redirecting
   }
 
@@ -41,7 +41,7 @@ export async function getServerSideProps(
   ) {
     const { req, res } = context;
     const isAdmin = req
-      ? (await getSession({ req }))?.user?.role === 'ADMIN'
+      ? (await getSession({ req }))?.user?.isAdmin
       : false;
 
     if (!isAdmin) {

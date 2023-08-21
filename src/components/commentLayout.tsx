@@ -166,12 +166,14 @@ export function CommentLayout({ slug }: { slug: string }) {
 
     useEffect(() => {
         if (!gotime) {
-            return
+            return;
         }
         submitComment();
         setGotime(false);
         setSubmitting(false);
-    }, [gotime, submitComment]);
+        // linkter wants submitComment in dep array but that causes issues.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gotime]);
 
     const deleteComment = api.comments.deleteComment.useMutation({
         onSuccess: (data, variables) => {
