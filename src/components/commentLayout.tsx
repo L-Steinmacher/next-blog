@@ -49,19 +49,8 @@ export function CommentLayout({ slug }: { slug: string }) {
         setAllComments(commentsData);
     }, [commentsData]);
 
-    const submitComment = useCallback(() => {
-        const filter = new BadWordsFilter();
-        let tempComment: Comment;
-
-        const addComment = ({
-            content,
-            postSlug,
-            token,
-        }: {
-            content: string;
-            postSlug: string;
-            token?: string;
-        }) => {
+    const addComment = useCallback(
+        ({ content, postSlug, token }: { content: string; postSlug: string; token?: string }) => {
             if (!sessionData) {
                 console.error('No session data found');
                 return;
@@ -71,7 +60,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                 return;
             }
 
-            tempComment = {
+            const tempComment = {
                 id: `${Math.random()}`,
                 commenter: {
                     id: sessionData.user.id,
@@ -93,40 +82,35 @@ export function CommentLayout({ slug }: { slug: string }) {
                     {
                         onSuccess: data => {
                             if (!slug) {
-                                console.error(
-                                    'No slug found for post and that aint right',
-                                );
-                                return;
+                                throw new Error('No slug found for post');
                             }
-                            setAllComments(prevComments => [
-                                ...prevComments,
+                            setAllComments(prevComments => [...prevComments, data]);
+
+                            utils.comments.getCommentsForPost.setData({ slug }, [
+                                ...allComments,
                                 data,
                             ]);
-
-                            utils.comments.getCommentsForPost.setData(
-                                { slug },
-                                [...allComments, data],
-                            );
                         },
                         onError: error => {
-                            setErrors(prevErrors => [
-                                ...prevErrors,
-                                error.message,
-                            ]);
+                            setErrors(prevErrors => [...prevErrors, error.message]);
                             setAllComments(prevComments =>
                                 prevComments.filter(
                                     comment => comment.id !== tempComment.id,
                                 ),
                             );
                         },
-                    },
+                    }
                 );
                 return newComment;
             } catch (error) {
                 console.error('Error adding comment:', error);
             }
-        };
+        },
+        [sessionData, createCommentMutation, slug, utils.comments.getCommentsForPost, allComments]
+    );
 
+    const submitComment = useCallback(() => {
+        const filter = new BadWordsFilter();
         setErrors([]);
 
         if (comment.length < 2) {
@@ -161,15 +145,7 @@ export function CommentLayout({ slug }: { slug: string }) {
             // Clear the textarea
             setComment('');
         }
-    }, [
-        allComments,
-        comment,
-        createCommentMutation,
-        sessionData,
-        slug,
-        token,
-        utils.comments.getCommentsForPost,
-    ]);
+    }, [addComment, comment, sessionData, slug, token]);
 
     useEffect(() => {
         if (!gotime) {
@@ -274,36 +250,36 @@ export function CommentLayout({ slug }: { slug: string }) {
                                   ))
                                 : null}
                         </div>
-                        <div className='flex flex-col items-center'>
-                        {userIsLoggedIn ? (
-                            <>
-                                <button
-                                    type="submit"
-                                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
-                                    tabIndex={2}
-                                    aria-label="Submit comment button"
-                                >
-                                    Submit
-                                </button>
-                            </>
-                        ) : (
-                            <div className="flex flex-col ">
-                                <div className="block h-4">
-                                    <p className=" text-xl font-bold ">
-                                        You must be logged in to leave a
-                                        comment.
-                                    </p>
+                        <div className="flex flex-col items-center">
+                            {userIsLoggedIn ? (
+                                <>
+                                    <button
+                                        type="submit"
+                                        className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        tabIndex={2}
+                                        aria-label="Submit comment button"
+                                    >
+                                        Submit
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="flex flex-col ">
+                                    <div className="block h-4">
+                                        <p className=" text-xl font-bold ">
+                                            You must be logged in to leave a
+                                            comment.
+                                        </p>
+                                    </div>
+                                    <button
+                                        className="mx-auto mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        tabIndex={2}
+                                        aria-label="Sign in"
+                                        onClick={() => void signIn()}
+                                    >
+                                        Sign in
+                                    </button>
                                 </div>
-                                <button
-                                    className="mx-auto mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
-                                    tabIndex={2}
-                                    aria-label="Sign in"
-                                    onClick={() => void signIn()}
-                                >
-                                    Sign in
-                                </button>
-                            </div>
-                        )}
+                            )}
                         </div>
                     </form>
                 </div>
@@ -316,13 +292,13 @@ export function CommentLayout({ slug }: { slug: string }) {
                             .filter(comment => typedBoolean(comment))
                             .map(comment => (
                                 <div
-                                    className="flex flex-row items-center relative"
+                                    className="relative flex flex-row items-center"
                                     key={comment.id}
                                 >
                                     {(userIsAdmin ||
                                         comment.commenter.id ===
                                             currentUser?.id) && (
-                                        <div className='absolute right-0 -mr-14 '>
+                                        <div className="absolute right-0 -mr-14 ">
                                             <button
                                                 className="items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
                                                 onClick={e => {
