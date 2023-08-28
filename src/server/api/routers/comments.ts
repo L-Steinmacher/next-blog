@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
     createTRPCRouter,
     publicProcedure,
-
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import validateToken from "~/utils/validateToken";
@@ -47,10 +46,7 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
-
             const recaptchaResponse = await validateToken(token);
-            console.log(`###################### recaptchaResponse: ${JSON.stringify(recaptchaResponse)}`);
-
             if (!recaptchaResponse.success) {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
@@ -81,9 +77,7 @@ export const commentsRouter = createTRPCRouter({
                 });
             }
 
-
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-
             const recentComments = await prisma.comment.findMany({
                 where: {
                     commenterId: isUserLoggedIn.id,
@@ -144,6 +138,6 @@ export const commentsRouter = createTRPCRouter({
                 },
             });
 
-            return comment;
+            return { success: true };
         }),
 });

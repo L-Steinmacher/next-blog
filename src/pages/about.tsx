@@ -19,7 +19,7 @@ export default function About() {
               Impatient? TL;DR
             </h2>
             <Image
-              src="/images/indy-bst-ever-cropped.jpg"
+              src="/images/Indy_bst_ever_cropped.jpg"
               className="rounded-full object-cover"
               width={120}
               height={120}
