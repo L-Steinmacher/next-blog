@@ -1,38 +1,69 @@
 .markdown {
-  @apply text-lg leading-relaxed;
+    @apply text-lg leading-relaxed;
 }
 
 .markdown p {
-  @apply my-6 w-full text-justify;
+    @apply my-6 w-full text-justify;
 }
 
 .markdown ul,
 .markdown ol,
 .markdown blockquote {
-  @apply my-6;
+    @apply my-6;
 }
 
 .markdown h2 {
-  @apply text-2xl mt-12 mb-4 leading-snug;
+    @apply mb-4 mt-12 text-2xl leading-snug;
 }
 
 .markdown h3 {
-  @apply text-xl mt-8 mb-4 leading-snug;
+    @apply mb-4 mt-8 text-xl leading-snug;
 }
 
 .markdown a {
-  @apply text-[#d68501] hover:text-[#d68401bb] hover:underline transition-colors;
+    @apply text-[#d68501] transition-colors hover:text-[#d68401bb] hover:underline;
 }
 
 .markdown img {
-  @apply w-full h-auto max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl align-middle justify-center mx-auto my-6;
+    @apply mx-auto my-6 h-auto w-full max-w-full justify-center align-middle sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl;
 }
 
 .markdown li {
-  @apply list-disc list-inside mb-1
+    @apply mb-1 list-inside list-disc;
 }
 
 .markdown li > ul,
 .markdown li > ol {
-  @apply pl-4;
+    @apply pl-4;
 }
+
+/* Styling for block quotes */
+.markdown blockquote {
+    @apply border-l-2 border-gray-400 bg-gray-100 p-2 italic;
+}
+
+.markdown blockquote p {
+    @apply mb-0;
+}
+
+.markdown pre {
+    --base00: #f3f3f3; /* editor background */
+    --base01: #e0e0e0; /* unused (currently) */
+    --base02: #d6d6d6; /* unused (currently) */
+    --base03: #989fb1; /* code comments */
+    --base04: #969896; /* unused (currently) */
+    --base05: #2e3039; /* fallback font color */
+    --base06: #282a2e; /* unused (currently) */
+    --base07: #1d1f21; /* unused (currently) */
+    --base08: #0c969b; /* variable references */
+    --base09: #aa0982; /* numbers */
+    --base0A: #994cc3; /* keywords */
+    --base0B: #c96765; /* strings */
+    --base0C: #aa0982; /* escape characters in strings */
+    --base0D: #4876d6; /* function calls */
+    --base0E: #994cc3; /* operators */
+    --base0F: #d3423e; /* "Embedded" (whatever that means) */
+
+    @apply my-6 overflow-x-auto rounded-md bg-[--base00] p-4;
+}
+

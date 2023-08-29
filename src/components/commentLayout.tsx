@@ -123,16 +123,14 @@ export function CommentLayout({ slug }: { slug: string }) {
             return;
         }
         const filteredComment = filter.clean(comment);
-        const postSlug = slug;
 
-        if (!postSlug) {
-            console.error('No slug found for post');
-            return;
+        if (!slug) {
+            throw new Error('No slug found for post! HTF did that happen?');
         }
 
         addComment({
             content: filteredComment,
-            postSlug: postSlug,
+            postSlug: slug,
             token: token || '',
         });
 

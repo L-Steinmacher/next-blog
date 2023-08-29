@@ -21,7 +21,7 @@ export default function Blog({ allPosts } : Props) {
                 <pre>{JSON.stringify(allPosts, null, 2)}</pre>
             </details>
             <h2 className="text-2xl font-bold">Blog Posts</h2>
-            <p className="py-8 text-lg"> Wait!  How did you find this? I didn&apos;t add it to the nav! You must be pretty clever. ;)</p>
+            <p className="py-8 text-xl">Hey!  You made it to the blog list! Thanks for checking this out!</p>
             <ul>
                 {allPosts.map(({ slug, date }) => (
                     slug && (
