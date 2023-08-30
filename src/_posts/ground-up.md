@@ -18,7 +18,20 @@ In the waning weeks of June 2023, a simple yet compelling idea took root: breath
 
  The company that I previously worked for, Skilled Recordings, used Next.js for the majority of their applications that they produced, so I decided to go down that direction. I decided to use the T3 stack for its “simplicity, modularity, and type safety across the full stack”. I had also come across the packages Gray Matter and Unified for parsing Markdown into HTML that I wanted to use. After installing everything, after about 3 hours I had my Markdown parser setup and blog posts ready to go. I was using Tailwind, of course, for styling, TRPC for my API, and Next Auth with Discord to authorize my users. All said and done, a pretty quick start to get a prototype up of the project and no major bugs to try and work around!
 
- > The Markdown is simply rendered in a div using dangerouslySetInnerHTML and styles are applied from a css module
+> The Markdown is parsed using unified and remark
+``` ts line-numbers=true
+import remarkHtml from 'remark-html'
+import remarkParse from 'remark-parse/lib'
+import { type Plugin, unified } from 'unified'
+
+export default async function markdownToHtml(markdown: string) {
+  const result = await unified()
+    .use(remarkParse as Plugin)
+    .use(remarkHtml as Plugin)
+    .process(markdown)
+  return result.toString()
+```
+ > Then the Markdown is simply rendered in a div using dangerouslySetInnerHTML and styles are applied from a css module
 
 ```typescript
 import markdownStyles from './markdown-styles.module.css';
@@ -38,20 +51,6 @@ export default function PostBody({ content }: Props) {
   );
 }
 ```
-> the markdown is parsed using unified and remark
-``` ts line-numbers=true
-import remarkHtml from 'remark-html'
-import remarkParse from 'remark-parse/lib'
-import { type Plugin, unified } from 'unified'
-
-export default async function markdownToHtml(markdown: string) {
-  const result = await unified()
-    .use(remarkParse as Plugin)
-    .use(remarkHtml as Plugin)
-    .process(markdown)
-  return result.toString()
-```
-
 
 ## The Comment Conundrum
 
