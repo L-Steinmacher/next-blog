@@ -110,25 +110,25 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ commentId: z.string(), }))
         .mutation(async ({ ctx, input }) => {
             const { commentId } = input;
-            const userIsAdmin = ctx.session?.user?.isAdmin;
-            if (!userIsAdmin) {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "You must be an admin to delete comments",
-                });
-            }
-
             const comment = await prisma.comment.findUnique({
                 where: {
                     id: commentId,
                 },
                 select: defaultCommentSelect,
             });
-
             if (!comment) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: `No comment found with id ${commentId}`,
+                });
+            }
+
+            const userIsAdmin = ctx.session?.user?.isAdmin;
+            const isUserLoggedIn = ctx.session?.user.id === comment?.commenter.id;
+            if (!userIsAdmin || !isUserLoggedIn) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message: "You are not authorized to delete this comment!!!",
                 });
             }
 

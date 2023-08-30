@@ -13,6 +13,7 @@ import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
+// import { type Session } from 'next-auth';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
 
@@ -60,18 +61,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                 return;
             }
 
-            const tempComment = {
-                id: `${Math.random()}`,
-                commenter: {
-                    id: sessionData.user.id,
-                    name: sessionData.user.name || null,
-                    image: sessionData.user.image || null,
-                },
-                content,
-                postSlug,
-                createdAt: new Date(),
-            };
-
             try {
                 const newComment = createCommentMutation.mutate(
                     {
@@ -93,11 +82,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                         },
                         onError: error => {
                             setErrors(prevErrors => [...prevErrors, error.message]);
-                            setAllComments(prevComments =>
-                                prevComments.filter(
-                                    comment => comment.id !== tempComment.id,
-                                ),
-                            );
                         },
                     }
                 );
@@ -158,10 +142,6 @@ export function CommentLayout({ slug }: { slug: string }) {
 
     const deleteComment = api.comments.deleteComment.useMutation({
         onSuccess: (data, variables) => {
-            if (!slug) {
-                console.error('No slug found for post and that aint right');
-                return;
-            }
             const commentId = variables.commentId;
             const newComments = allComments.filter(
                 comment => comment.id !== commentId,
@@ -175,14 +155,6 @@ export function CommentLayout({ slug }: { slug: string }) {
     });
 
     function handleDeleteComment(commentId: string) {
-        if (!userIsAdmin) {
-            console.error('User is not an admin');
-            return;
-        }
-        if (!slug) {
-            console.error('No slug found for post');
-            return;
-        }
         return deleteComment.mutate(
             { commentId },
             {
@@ -296,7 +268,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     {(userIsAdmin ||
                                         comment.commenter.id ===
                                             currentUser?.id) && (
-                                        <div className="absolute right-0 -mr-14 ">
+                                        <div className="absolute right-0 sm:-mr-14 mb-20 ">
                                             <button
                                                 className="items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
                                                 onClick={e => {
