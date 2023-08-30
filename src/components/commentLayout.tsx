@@ -44,18 +44,11 @@ export function CommentLayout({ slug }: { slug: string }) {
     const createCommentMutation = api.comments.createComment.useMutation();
 
     useEffect(() => {
-        if (!commentsData) {
-            return;
-        }
-        setAllComments(commentsData);
+        return setAllComments(commentsData || []);
     }, [commentsData]);
 
     const addComment = useCallback(
         ({ content, postSlug, token }: { content: string; postSlug: string; token?: string }) => {
-            if (!sessionData) {
-                console.error('No session data found');
-                return;
-            }
             if (!token) {
                 console.error('No token found');
                 return;
@@ -90,7 +83,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                 console.error('Error adding comment:', error);
             }
         },
-        [sessionData, createCommentMutation, slug, utils.comments.getCommentsForPost, allComments]
+        [createCommentMutation, slug, utils.comments.getCommentsForPost, allComments]
     );
 
     const submitComment = useCallback(() => {
@@ -102,15 +95,7 @@ export function CommentLayout({ slug }: { slug: string }) {
             return;
         }
 
-        if (!sessionData) {
-            console.error('User must be logged in to leave a comment.');
-            return;
-        }
         const filteredComment = filter.clean(comment);
-
-        if (!slug) {
-            throw new Error('No slug found for post! HTF did that happen?');
-        }
 
         addComment({
             content: filteredComment,
@@ -127,7 +112,7 @@ export function CommentLayout({ slug }: { slug: string }) {
             // Clear the textarea
             setComment('');
         }
-    }, [addComment, comment, sessionData, slug, token]);
+    }, [addComment, comment, slug, token]);
 
     useEffect(() => {
         if (!gotime) {

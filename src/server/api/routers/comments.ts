@@ -73,7 +73,7 @@ export const commentsRouter = createTRPCRouter({
             if (!input.postSlug || typeof postSlug !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
-                    message: "Comment must have a post slug",
+                    message: "Comment must have a post slug. Actually HTF did you get here?",
                 });
             }
 
