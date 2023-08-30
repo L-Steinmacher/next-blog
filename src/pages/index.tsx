@@ -23,7 +23,7 @@ export default function Home({ latestPosts }: Props) {
       <Head>
         <title>Lucas Steinmacher</title>
         <meta name="description" content="Personal site of Lucas Steinmacher" />
-        <meta name="keywords" content="Lucas Steinmacher, Panz, Panz3r" />
+        <meta name="keywords" content="Lucas Steinmacher, Panz, Panzer" />
         <meta charSet="utf-8" />
         <link rel="icon" href="favicon.ico" />
         <meta name="robots" content="index,follow" />
@@ -46,7 +46,7 @@ export default function Home({ latestPosts }: Props) {
                   AI Engineering
                 </a>
                 <br />
-                Making cool things with Typescrip,
+                Making cool things with Typescript,
                 <br />
                 I also write about whatever is on my mind from time to
                 time.
