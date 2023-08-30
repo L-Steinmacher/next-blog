@@ -1,7 +1,7 @@
 # Personal blog of Panz!
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`. What that means quickly is:
-* Next.js
+* Next
 * TRPC
 * Prisma,
 * Next auth,

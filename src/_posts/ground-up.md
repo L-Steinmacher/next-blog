@@ -51,6 +51,32 @@ export default function PostBody({ content }: Props) {
   );
 }
 ```
+> Then finally I fetch the postData content in the [slug].tsx page and parse it in getStaticProps then render it in the PostBody component.
+```ts
+export const getStaticProps = async ({ params }: Params) => {
+  const postData = await getPostBySlug(params.slug);
+  const parsedContent = await markdownToHtml(postData.content || '');
+
+  return {
+    props: {
+      post: {
+        content: parsedContent,
+      },
+    },
+  };
+};
+
+export default function Post({ post, stats }: Props) {
+  // [slug].ts logic here...
+  return (
+    <>
+    // XML here
+      <PostBody content={post.content} />
+    // the rest of the XML
+    <>
+  )
+}
+```
 
 ## The Comment Conundrum
 
