@@ -22,7 +22,7 @@ export default function Home({ latestPosts }: Props) {
     <>
       <Head>
         <title>Lucas Steinmacher</title>
-        <meta name="description" content="Personal site of Lucas Steinmacher" />
+        <meta name="description" content="Explore articles by Lucas Steinmacher, a Seattle-based software engineer, covering various topics in technology and development."/>
         <meta name="keywords" content="Lucas Steinmacher, Panz, Panzer" />
         <meta charSet="utf-8" />
         <link rel="icon" href="favicon.ico" />

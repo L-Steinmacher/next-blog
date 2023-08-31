@@ -13,10 +13,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
     return (
         <>
             <Head>
-                <title>Lucas Steinmachers Blog | Next.js + NextAuth.js </title>
+                <title>Lucas Steinmacher - Software Engineering Blog</title>
                 <meta
                     name="description"
-                    content="Personal site of Lucas Steinmacher"
+                    content="Explore articles by Lucas Steinmacher, a Seattle-based software engineer, covering various topics in technology and development."
                 />
                 <meta charSet="utf-8" />
                 <meta
