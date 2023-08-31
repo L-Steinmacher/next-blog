@@ -43,7 +43,15 @@ export function CommentLayout({ slug }: { slug: string }) {
     const createCommentMutation = api.comments.createComment.useMutation();
 
     const addComment = useCallback(
-        ({ content, postSlug, token }: { content: string; postSlug: string; token?: string }) => {
+        ({
+            content,
+            postSlug,
+            token,
+        }: {
+            content: string;
+            postSlug: string;
+            token?: string;
+        }) => {
             if (!token) {
                 console.error('No token found');
                 return;
@@ -58,32 +66,39 @@ export function CommentLayout({ slug }: { slug: string }) {
                     },
                     {
                         onSuccess: data => {
-                            if (!slug) {
-                                throw new Error('No slug found for post');
-                            }
-                            setAllComments(prevComments => [...prevComments, data]);
-
-                            utils.comments.getCommentsForPost.setData({ slug }, [
-                                ...allComments,
+                            setAllComments(prevComments => [
+                                ...prevComments,
                                 data,
                             ]);
+                            utils.comments.getCommentsForPost.setData(
+                                { slug },
+                                [...allComments, data],
+                            );
                         },
                         onError: error => {
-                            setErrors(prevErrors => [...prevErrors, error.message]);
+                            setErrors(prevErrors => [
+                                ...prevErrors,
+                                error.message,
+                            ]);
                         },
-                    }
+                    },
                 );
                 return newComment;
             } catch (error) {
                 console.error('Error adding comment:', error);
             }
         },
-        [createCommentMutation, slug, utils.comments.getCommentsForPost, allComments]
+        [
+            createCommentMutation,
+            slug,
+            utils.comments.getCommentsForPost,
+            allComments,
+        ],
     );
 
     const submitComment = useCallback(() => {
-        const filter = new BadWordsFilter();
         setErrors([]);
+        const filter = new BadWordsFilter();
 
         if (comment.length < 2) {
             setErrors(['Comment must be at least 2 characters long']);
@@ -97,13 +112,10 @@ export function CommentLayout({ slug }: { slug: string }) {
             token: token || '',
         });
 
-        // Get the last comment element
         const lastComment = commentContainerRef.current
             ?.lastElementChild as HTMLElement | null;
         if (lastComment) {
-            // Scroll to the last comment
             lastComment.scrollIntoView({ behavior: 'smooth' });
-            // Clear the textarea
             setComment('');
         }
         setGotime(false);
@@ -248,7 +260,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     {(userIsAdmin ||
                                         comment.commenter.id ===
                                             currentUser?.id) && (
-                                        <div className="absolute right-0 sm:-mr-14 mb-20 ">
+                                        <div className="absolute right-0 mb-20 sm:-mr-14 ">
                                             <button
                                                 className="items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
                                                 onClick={e => {
