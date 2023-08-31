@@ -35,17 +35,12 @@ export function CommentLayout({ slug }: { slug: string }) {
 
     const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
 
-    const utils = api.useContext();
-
     const currentUser = sessionData?.user;
     const userIsAdmin = currentUser?.isAdmin;
     const userIsLoggedIn = !!sessionData;
 
+    const utils = api.useContext();
     const createCommentMutation = api.comments.createComment.useMutation();
-
-    useEffect(() => {
-        return setAllComments(commentsData || []);
-    }, [commentsData]);
 
     const addComment = useCallback(
         ({ content, postSlug, token }: { content: string; postSlug: string; token?: string }) => {
@@ -96,7 +91,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         }
 
         const filteredComment = filter.clean(comment);
-
         addComment({
             content: filteredComment,
             postSlug: slug,
@@ -112,15 +106,16 @@ export function CommentLayout({ slug }: { slug: string }) {
             // Clear the textarea
             setComment('');
         }
+        setGotime(false);
+        setSubmitting(false);
     }, [addComment, comment, slug, token]);
 
+    // First we wait for the recaptcha token to be set, only then will the boolean gotime to be true
     useEffect(() => {
         if (!gotime) {
             return;
         }
         submitComment();
-        setGotime(false);
-        setSubmitting(false);
         // linkter wants submitComment in dep array but that causes issues.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gotime]);
