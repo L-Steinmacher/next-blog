@@ -8,7 +8,7 @@ import {
 import { prisma } from "~/server/db";
 import validateToken from "~/utils/validateToken";
 
-const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
+export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
     content: true,
     postSlug: true,
@@ -55,21 +55,21 @@ export const commentsRouter = createTRPCRouter({
             }
 
             const isUserLoggedIn = ctx.session?.user;
+
             if (!isUserLoggedIn) {
-                // render a model for the user to log in
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You must be logged in to comment",
                 });
             }
-            // if content is not a string or is empty
+
             if (!input.content || typeof content !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "Comment must have content",
                 });
             }
-            // if slug is not a string or is empty
+
             if (!input.postSlug || typeof postSlug !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
@@ -136,8 +136,6 @@ export const commentsRouter = createTRPCRouter({
 
                 return { success: true };
             } else {
-                console.log("userIsAdmin", userIsAdmin);
-                console.log("isOwnComment", isOwnComment);
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You are not authorized to delete this comment!!!",
