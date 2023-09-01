@@ -124,20 +124,25 @@ export const commentsRouter = createTRPCRouter({
             }
 
             const userIsAdmin = ctx.session?.user?.isAdmin;
-            const isUserLoggedIn = ctx.session?.user.id === comment?.commenter.id;
-            if (!userIsAdmin || !isUserLoggedIn) {
+            const loggedInUserId = ctx.session?.user?.id;
+            const commentAuthorId = comment.commenter.id;
+            const isOwnComment = loggedInUserId === commentAuthorId;
+            if (userIsAdmin || isOwnComment) {
+                await prisma.comment.delete({
+                    where: {
+                        id: commentId,
+                    },
+                });
+
+                return { success: true };
+            } else {
+                console.log("userIsAdmin", userIsAdmin);
+                console.log("isOwnComment", isOwnComment);
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You are not authorized to delete this comment!!!",
                 });
             }
 
-            await prisma.comment.delete({
-                where: {
-                    id: commentId,
-                },
-            });
-
-            return { success: true };
         }),
 });
