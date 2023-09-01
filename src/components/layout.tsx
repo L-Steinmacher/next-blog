@@ -6,17 +6,21 @@ type Props = {
     children: React.ReactNode;
 };
 
+
 export default function Layout({ children }: Props) {
+    const isProd = process.env.NODE_ENV === 'production';
     return (
-        <body>
+        <>
             <div className="mx-auto flex min-h-screen flex-col justify-between bg-[#f7f7f7]">
                 <Nav />
                 <div className="mx-auto w-4/5 max-w-4xl flex-grow items-center md:w-2/3">
                     {children}
-                    <Analytics />
+                    {isProd && (
+                        <Analytics />
+                        )}
                 </div>
                 <Footer />
             </div>
-        </body>
+        </>
     );
 }

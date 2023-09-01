@@ -20,7 +20,6 @@ InferGetServerSidePropsType<typeof getServerSideProps>
     void checkAdmin();
   }, [session, router]);
 
-  console.log(JSON.stringify(session, null, 2));
   if (!session?.user || session.user.isAdmin) {
     return <div>Redirecting...</div>; // Show a loading message while redirecting
   }

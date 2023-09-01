@@ -18,7 +18,6 @@ export default async function validateToken(token: string): Promise<RecaptchaRes
     });
 
     const data = await response.json() as RecaptchaResponse;
-    console.log('Recaptcha response:', data);
     return data
   } catch (error) {
     console.error('Recaptcha validation error:', error);
