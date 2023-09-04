@@ -16,7 +16,7 @@ ${commentContent}
 ===
 Please translate the above content to Spanish. Use relative terms and slang so that it is fermiliar to native speakers
 `.trim()
-            return ""
+            return langchainCall(spanishTranslationPrompt)
         case "german":
             const germanTranslationPrompt = `
 CONTENT:
@@ -24,7 +24,7 @@ ${commentContent}
 ===
 Please translate the above content to German. Use relative terms and slang so that it is fermiliar to native speakers
 `.trim()
-            return ""
+            return langchainCall(germanTranslationPrompt)
         case "bruh":
             const bruhTranslationPrompt = `
             CONTENT:
@@ -35,7 +35,7 @@ Use sentence openers like, "So like" "Totally" and others that you feel are appr
 Every once on a while mention a guy named Chad and how sweet you think he is or what you think Chad would think about a point in the CONTENT.
 MAX character count: ${commentContent.length * 2}
 `.trim()
-            return ""
+            return langchainCall(bruhTranslationPrompt)
         case "intellegizer":
             if (!postContent) throw new Error("intellegizer case requires postContent")
             const intellegizerTranslationPrompt = `
@@ -47,13 +47,13 @@ ${postContent}
 ===
 Please elaborate on the text by adding fillers and attempting to make the text sound more intellegent based on the POST. Make one or two spelling errors and be sure to include one sentence that factually incorrect to the CONTENT. max characters 1000
 `.trim()
-            return ""
+            return langchainCall(intellegizerTranslationPrompt)
         default:
             return "Something went wrong."
     }
 }
 
-async function langchainCall(promptString: string, content: string): Promise<string> {
+function langchainCall(content: string): Promise<string> {
     const openAIApiKey = process.env.OPENAI_KEY;
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
         "You are a helpful assistant that translates a comment into another language or format as instructed."
