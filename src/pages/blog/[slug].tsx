@@ -22,7 +22,7 @@ export default function Post({ post, stats }: Props) {
   return (
     <>
       <Head>
-        <title>{post.title} - Lucas Steinmacher </title>
+        <title>{post?.title} - Lucas Steinmacher </title>
         <meta
           name="description"
           content={post.excerpt || 'A Blog Post by Lucas Steinmacher'}

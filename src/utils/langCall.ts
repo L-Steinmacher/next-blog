@@ -6,8 +6,9 @@ import {
 import { ChatOpenAI } from 'langchain/chat_models'
 import { CallbackManager } from 'langchain/dist/callbacks'
 import { ConversationChain } from 'langchain/chains'
+import { type ChainValues } from 'langchain/dist/schema'
 
-export function LangCall(commentContent: string, caseType: string, postContent?: string): string {
+export async function LangCall(commentContent: string, caseType: string, postContent?: string): string {
     switch (caseType) {
         case "spanish":
             const spanishTranslationPrompt = `
@@ -16,7 +17,10 @@ ${commentContent}
 ===
 Please translate the above content to Spanish. Use relative terms and slang so that it is fermiliar to native speakers
 `.trim()
-            return langchainCall(spanishTranslationPrompt)
+            const res = await langchainCall(spanishTranslationPrompt)
+            console.log(res)
+
+
         case "german":
             const germanTranslationPrompt = `
 CONTENT:
@@ -24,7 +28,8 @@ ${commentContent}
 ===
 Please translate the above content to German. Use relative terms and slang so that it is fermiliar to native speakers
 `.trim()
-            return langchainCall(germanTranslationPrompt)
+            return await langchainCall(germanTranslationPrompt)
+
         case "bruh":
             const bruhTranslationPrompt = `
             CONTENT:
@@ -35,7 +40,8 @@ Use sentence openers like, "So like" "Totally" and others that you feel are appr
 Every once on a while mention a guy named Chad and how sweet you think he is or what you think Chad would think about a point in the CONTENT.
 MAX character count: ${commentContent.length * 2}
 `.trim()
-            return langchainCall(bruhTranslationPrompt)
+            return await langchainCall(bruhTranslationPrompt)
+
         case "intellegizer":
             if (!postContent) throw new Error("intellegizer case requires postContent")
             const intellegizerTranslationPrompt = `
@@ -47,13 +53,14 @@ ${postContent}
 ===
 Please elaborate on the text by adding fillers and attempting to make the text sound more intellegent based on the POST. Make one or two spelling errors and be sure to include one sentence that factually incorrect to the CONTENT. max characters 1000
 `.trim()
-            return langchainCall(intellegizerTranslationPrompt)
+            return await langchainCall(intellegizerTranslationPrompt)
+
         default:
             return "Something went wrong."
     }
 }
 
-function langchainCall(content: string): Promise<string> {
+async function langchainCall(content: string): Promise<ChainValues>{
     const openAIApiKey = process.env.OPENAI_KEY;
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
         "You are a helpful assistant that translates a comment into another language or format as instructed."
@@ -70,10 +77,10 @@ function langchainCall(content: string): Promise<string> {
                 console.log(`handleLLMStart`)
             },
           handleLLMError: async err => {
-            console.log(`handleLLMError`, err)
+                console.log(`handleLLMError`, err)
           },
           handleLLMEnd: () => {
-            console.log(`handleLLMEnd`)
+                console.log(`handleLLMEnd`)
           },
         }),
       })
@@ -84,5 +91,15 @@ function langchainCall(content: string): Promise<string> {
       })
 
       const formattedComment = await chain.call({input: content})
+        console.log(formattedComment)
       return formattedComment;
 }
+
+function go() {
+    const commentContent = "This is a comment"
+    const caseType = "spanish"
+    const res = LangCall(commentContent, caseType)
+    console.log(res)
+}
+
+go()
