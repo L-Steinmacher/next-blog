@@ -42,6 +42,12 @@ export function CommentLayout({ slug }: { slug: string }) {
     const utils = api.useContext();
     const createCommentMutation = api.comments.createComment.useMutation();
 
+    useEffect(() => {
+        if (commentsData) {
+            setAllComments(commentsData);
+        }
+    }  , [commentsData]);
+
     const addComment = useCallback(
         ({
             content,
