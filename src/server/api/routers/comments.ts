@@ -6,6 +6,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
+import { sendEmail } from "~/utils/sendEmail";
 import validateToken from "~/utils/validateToken";
 
 const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
@@ -21,6 +22,8 @@ const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     },
     createdAt: true,
 });
+
+const admin_email = process.env.ADMIN_EMAIL || "";
 
 export const commentsRouter = createTRPCRouter({
     getCommentsForPost: publicProcedure
@@ -104,7 +107,21 @@ export const commentsRouter = createTRPCRouter({
                     commenter: true,
                 },
             });
-            return comment;
+            if (!comment) {
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong creating your comment",
+                });
+            } else {
+                const res = await sendEmail({
+                    to: admin_email,
+                    subject: `New Comment on ${postSlug}`,
+                    html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
+                    text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
+                });
+                console.log("################################   res", res);
+                return comment;
+            }
         }),
     deleteComment: publicProcedure
         .input(z.object({ commentId: z.string(), }))
