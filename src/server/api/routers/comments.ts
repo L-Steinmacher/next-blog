@@ -49,12 +49,17 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
-            const recaptchaResponse = await validateToken(token);
-            if (!recaptchaResponse.success) {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "Recaptcha validation failed",
-                });
+            const isDev = process.env.VERCEL_ENV === "development";
+            if (isDev) {
+                console.log("Recaptcha validation skipped in development");
+            } else {
+                const recaptchaResponse = await validateToken(token);
+                if (!recaptchaResponse.success) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Recaptcha validation failed",
+                    });
+                }
             }
 
             const isUserLoggedIn = ctx.session?.user;
@@ -119,11 +124,13 @@ export const commentsRouter = createTRPCRouter({
                     html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
                     text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
                 })
-                .then((res) => {
-                    console.log("Email sent successfully", res);
-                }).catch((err) => {
-                    console.error("Error sending email", err);
-                });
+                    .then((res) => {
+                        console.log("######################################")
+                        console.log("Email sent successfully", res);
+                        console.log("######################################")
+                    }).catch((err) => {
+                        console.error("Error sending email", err);
+                    });
 
                 return comment;
             }

@@ -13,9 +13,11 @@ import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
+import { set } from 'date-fns';
 // import { type Session } from 'next-auth';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
+const isDev = process.env.VERCEL_ENV = 'development';
 
 export function CommentLayout({ slug }: { slug: string }) {
     const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
@@ -42,6 +44,7 @@ export function CommentLayout({ slug }: { slug: string }) {
     const utils = api.useContext();
     const createCommentMutation = api.comments.createComment.useMutation();
 
+
     useEffect(() => {
         if (commentsData) {
             setAllComments(commentsData);
@@ -58,17 +61,18 @@ export function CommentLayout({ slug }: { slug: string }) {
             postSlug: string;
             token?: string;
         }) => {
-            if (!token) {
+            if (!token && !isDev) {
                 console.error('No token found');
                 return;
+            } else if (isDev) {
+                console.log('No token found, using dev token');
             }
-
             try {
                 const newComment = createCommentMutation.mutate(
                     {
                         content,
                         postSlug,
-                        token,
+                        token: token || 'devToken',
                     },
                     {
                         onSuccess: data => {
@@ -200,13 +204,29 @@ export function CommentLayout({ slug }: { slug: string }) {
                         />
                         {submitting && (
                             <>
-                                <ReCAPTCHA
-                                    sitekey={RECAPTCHA_SITE_KEY}
-                                    onChange={(tkn: string | null) => {
-                                        setToken(tkn);
+                            {isDev ?
+                                // render a fake recaptcha in dev mode
+                                <button
+                                    type="submit"
+                                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                    tabIndex={2}
+                                    aria-label="Submit comment button"
+                                    onClick={e => {
+                                        e.preventDefault();
                                         setGotime(true);
                                     }}
-                                />
+                                >
+                                    Go Time!
+                                </button>
+                                :
+                                <ReCAPTCHA
+                                sitekey={RECAPTCHA_SITE_KEY}
+                                onChange={(tkn: string | null) => {
+                                    setToken(tkn);
+                                    setGotime(true);
+                                }}
+                            />
+                            }
                             </>
                         )}
                         <div className="block h-4 text-xl font-bold">
