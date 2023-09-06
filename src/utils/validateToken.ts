@@ -9,7 +9,7 @@ const BASE_URL = process.env.BASE_URL;
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
     const url = BASE_URL || 'http://localhost:3000';
-    const isDev = process.env.VERCEL_ENV === 'development';
+    const isDev = url === 'http://localhost:3000';
     if (isDev) {
       console.log('Recaptcha validation skipped in development');
       return {

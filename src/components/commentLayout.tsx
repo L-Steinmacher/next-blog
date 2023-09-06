@@ -167,10 +167,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         );
     }
 
-    if (!RECAPTCHA_SITE_KEY) {
-        return <div>Error: reCAPTCHA site key not found!</div>;
-    }
-
     return (
         <div>
             <section aria-labelledby="comments-heading" className="pt-16">
@@ -204,7 +200,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                         />
                         {submitting && (
                             <>
-                            {isDev ?
+                            {!RECAPTCHA_SITE_KEY  ?
                                 // render a fake recaptcha in dev mode
                                 <button
                                     type="submit"
