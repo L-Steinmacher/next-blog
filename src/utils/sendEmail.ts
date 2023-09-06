@@ -26,6 +26,10 @@ export async function sendEmail(email: {
     text: string
 }) {
     const from = 'Panz <panz@steinmacher.dev>'
+    const body = {
+        from,
+        ...email,
+    }
     const resendAPIKey = process.env.RESEND_API_KEY
     if (!resendAPIKey) {
         console.error(`RESEND_API_KEY not set and we're not in mocks mode.`)
@@ -42,8 +46,7 @@ export async function sendEmail(email: {
     const res = await fetch('https://api.resend.io/emails', {
         method: 'POST',
         body: JSON.stringify({
-            from,
-            ...email,
+            body
         }),
         headers: {
             Authorization: `Bearer ${resendAPIKey}`,
