@@ -23,6 +23,8 @@ const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     createdAt: true,
 });
 
+const admin_email = process.env.ADMIN_EMAIL || "";
+
 export const commentsRouter = createTRPCRouter({
     getCommentsForPost: publicProcedure
         .input(z.object({ slug: z.string() }))
@@ -112,12 +114,12 @@ export const commentsRouter = createTRPCRouter({
                 });
             } else {
                 const res = await sendEmail({
-                    to: "lucaslsteinmacher@gmail.com",
+                    to: admin_email,
                     subject: `New Comment on ${postSlug}`,
                     html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
                     text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
                 });
-                console.log("################################   res", res?.body);
+                console.log("################################   res", res);
                 return comment;
             }
         }),
