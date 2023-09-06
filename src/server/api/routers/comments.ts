@@ -113,16 +113,18 @@ export const commentsRouter = createTRPCRouter({
                     message: "Something went wrong creating your comment",
                 });
             } else {
-                const res = await sendEmail({
+                sendEmail({
                     to: admin_email,
                     subject: `New Comment on ${postSlug}`,
                     html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
                     text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
+                })
+                .then((res) => {
+                    console.log("Email sent successfully", res);
+                }).catch((err) => {
+                    console.error("Error sending email", err);
                 });
-                console.log("################################   res", res);
-                if (res.status === "error") {
-                    console.error("Error sending email", res.error);
-                }
+
                 return comment;
             }
         }),
