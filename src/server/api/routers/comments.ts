@@ -120,6 +120,9 @@ export const commentsRouter = createTRPCRouter({
                     text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
                 });
                 console.log("################################   res", res);
+                if (res.status === "error") {
+                    console.error("Error sending email", res.error);
+                }
                 return comment;
             }
         }),
