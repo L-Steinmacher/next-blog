@@ -1,3 +1,4 @@
+import { Resend } from "resend"
 import { z } from "zod"
 
 const resendErrorSchema = z.union([
@@ -43,42 +44,62 @@ export async function sendEmail(email: {
             data: { id: 'mocked' },
         } as const
     }
-    const res = await fetch('https://api.resend.io/emails', {
-        method: 'POST',
-        body: JSON.stringify({
-            body
-        }),
-        headers: {
-            Authorization: `Bearer ${resendAPIKey}`,
-            'Content-Type': 'application/json',
-        },
-    })
-    console.log('resend response in sendEmail', res)
-    const data: unknown = await res.json();
-    const parsedData = resendSuccessSchema.safeParse(data)
+    const resend = new Resend(resendAPIKey)
+    try {
+        const data = await resend.emails.send(body);
+        return {
+            status: 'success',
+            data: data,
+        } as const
+    } catch (error) {
+        console.error(`Error sending email:`, error)
+        return {
+            status: 'error',
+            error: {
+                name: 'UnknownError',
+                message: 'Unknown Error',
+                statusCode: 500,
+                cause: error,
+            } as ResendError,
+        } as const
+    }
+    // const res = await fetch('https://api.resend.io/emails', {
+    //     method: 'POST',
+    //     body: JSON.stringify({
+    //         body
+    //     }),
+    //     headers: {
+    //         Authorization: `Bearer ${resendAPIKey}`,
+    //         'Content-Type': 'application/json',
+    //     },
+    // })
+    // console.log('resend response in sendEmail', res)
+    // const data: unknown = await res.json();
+    // const parsedData = resendSuccessSchema.safeParse(data)
 
-	if (res.ok && parsedData.success) {
-		return {
-			status: 'success',
-			data: parsedData,
-		} as const
-	} else {
-		const parseResult = resendErrorSchema.safeParse(data)
-		if (parseResult.success) {
-			return {
-				status: 'error',
-				error: parseResult.data,
-			} as const
-		} else {
-			return {
-				status: 'error',
-				error: {
-					name: 'UnknownError',
-					message: 'Unknown Error',
-					statusCode: 500,
-					cause: data,
-				} satisfies ResendError,
-			} as const
-		}
-	}
+    // if (res.ok && parsedData.success) {
+    //     return {
+    //         status: 'success',
+    //         data: parsedData,
+    //     } as const
+    // } else {
+    //     const parseResult = resendErrorSchema.safeParse(data)
+    //     if (parseResult.success) {
+    //         return {
+    //             status: 'error',
+    //             error: parseResult.data,
+    //         } as const
+    //     } else {
+    //         return {
+    //             status: 'error',
+    //             error: {
+    //                 name: 'UnknownError',
+    //                 message: 'Unknown Error',
+    //                 statusCode: 500,
+    //                 cause: data,
+    //             } satisfies ResendError,
+    //         } as const
+    //     }
+    // }
 }
+
