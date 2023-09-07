@@ -15,7 +15,8 @@ import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
-const isDev = process.env.VERCEL_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development';
+
 
 export function CommentLayout({ slug }: { slug: string }) {
     const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
@@ -59,10 +60,12 @@ export function CommentLayout({ slug }: { slug: string }) {
             postSlug: string;
             token?: string;
         }) => {
+            console.log("isDev", isDev)
+            console.log(process.env.VERCEL_ENV)
             if (!token && !isDev) {
                 console.error('No token found');
                 return;
-            } else if (isDev) {
+            } else if (!token && isDev) {
                 console.log('No token found, using dev token');
             }
             try {
