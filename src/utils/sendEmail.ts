@@ -25,7 +25,7 @@ export async function sendEmail(email: {
     html: string
     text: string
 }) {
-    const from = 'Panz <panz@steinmacher.dev>'
+    const from = 'info@steinmacher.dev'
     const body = {
         from,
         ...email,
@@ -53,6 +53,7 @@ export async function sendEmail(email: {
             'Content-Type': 'application/json',
         },
     })
+    console.log('resend response in sendEmail', res)
     const data: unknown = await res.json();
     const parsedData = resendSuccessSchema.safeParse(data)
 
