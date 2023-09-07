@@ -6,6 +6,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
+import { sendEmail } from "~/utils/sendEmail";
 import validateToken from "~/utils/validateToken";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
@@ -21,6 +22,8 @@ export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     },
     createdAt: true,
 });
+
+const admin_email = process.env.ADMIN_EMAIL || "";
 
 export const commentsRouter = createTRPCRouter({
     getCommentsForPost: publicProcedure
@@ -46,12 +49,17 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
-            const recaptchaResponse = await validateToken(token);
-            if (!recaptchaResponse.success) {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "Recaptcha validation failed",
-                });
+            const isDev = process.env.NEXTAUTH_URL === "http://localhost:3000";
+            if (isDev) {
+                console.log("Recaptcha validation skipped in development");
+            } else {
+                const recaptchaResponse = await validateToken(token);
+                if (!recaptchaResponse.success) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Recaptcha validation failed",
+                    });
+                }
             }
 
             const isUserLoggedIn = ctx.session?.user;
@@ -104,7 +112,22 @@ export const commentsRouter = createTRPCRouter({
                     commenter: true,
                 },
             });
-            return comment;
+            if (!comment) {
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong creating your comment",
+                });
+            } else {
+                const res = await sendEmail({
+                    to: admin_email,
+                    subject: `New Comment on ${postSlug}`,
+                    html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
+                    text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
+                })
+                console.log("res in create comment", res);
+
+                return comment;
+            }
         }),
     deleteComment: publicProcedure
         .input(z.object({ commentId: z.string(), }))
