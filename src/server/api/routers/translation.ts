@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { LangCall } from "~/utils/langCall";
+import { LangCall } from "~/pages/api/langCall";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
@@ -48,7 +48,12 @@ const translationRouter = createTRPCRouter({
                 });
             }
 
-            const newCommentContent = LangCall(comment.content, caseType, postContent);
+            let newCommentContent: string;
+            if (caseType === "intellegizer") {
+               newCommentContent = await LangCall(comment.content, caseType, postContent);
+            } else {
+                newCommentContent = await LangCall(comment.content, caseType);
+            }
 
             const updatedComment = await prisma.comment.update({
                 where: {

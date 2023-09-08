@@ -1,14 +1,12 @@
 import {
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate
+    PromptTemplate,
 } from 'langchain/dist/prompts'
-import { ChatOpenAI } from 'langchain/chat_models'
+import { ChatOpenAI } from 'langchain/chat_models/openai'
 import { CallbackManager } from 'langchain/dist/callbacks'
-import { ConversationChain } from 'langchain/chains'
-import { type ChainValues } from 'langchain/dist/schema'
+import { RunnableSequence } from 'langchain/dist/schema/runnable'
+import { StringOutputParser } from 'langchain/dist/schema/output_parser'
 
-export async function LangCall(commentContent: string, caseType: string, postContent?: string): string {
+export async function LangCall(commentContent: string, caseType: string, postContent?: string): Promise<string> {
     switch (caseType) {
         case "spanish":
             const spanishTranslationPrompt = `
@@ -60,39 +58,33 @@ Please elaborate on the text by adding fillers and attempting to make the text s
     }
 }
 
-async function langchainCall(content: string): Promise<ChainValues>{
+async function langchainCall(content: string): Promise<string> {
     const openAIApiKey = process.env.OPENAI_KEY;
-    const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-        "You are a helpful assistant that translates a comment into another language or format as instructed."
+    const promptTemplate = PromptTemplate.fromTemplate(
+        "You are a helpful assistant that translates a comment into another language or format as instructed. {input}"
     )
-    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate("{input}")
-    const prompt = ChatPromptTemplate.fromPromptMessages([systemMessagePrompt, humanMessagePrompt])
 
     const llm = new ChatOpenAI({
-        modelName: "gpt-4",
+        modelName: "gpt-3.5-turbo",
         openAIApiKey,
         streaming: true,
         callbackManager: CallbackManager.fromHandlers({
             handleLLMStart: () => {
                 console.log(`handleLLMStart`)
             },
-          handleLLMError: async err => {
+            handleLLMError: (err) => {
                 console.log(`handleLLMError`, err)
-          },
-          handleLLMEnd: () => {
+            },
+            handleLLMEnd: () => {
                 console.log(`handleLLMEnd`)
-          },
+            },
         }),
-      })
+    })
 
-      const chain = new ConversationChain({
-        llm,
-        prompt,
-      })
-
-      const formattedComment = await chain.call({input: content})
-        console.log(formattedComment)
-      return formattedComment;
+    const outputParser = new StringOutputParser();
+    const chain = RunnableSequence.from([promptTemplate, llm, outputParser]);
+    const result = await chain.invoke({ input: content });
+    return result;
 }
 
 function go() {
