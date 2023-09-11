@@ -49,7 +49,7 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
-            const isDev = process.env.NEXTAUTH_URL === "http://localhost:3000";
+            const isDev = process.env.NODE_ENV === "development";
             if (isDev) {
                 console.log("Recaptcha validation skipped in development");
             } else {
@@ -118,13 +118,15 @@ export const commentsRouter = createTRPCRouter({
                     message: "Something went wrong creating your comment",
                 });
             } else {
-                const res = await sendEmail({
-                    to: admin_email,
-                    subject: `New Comment on ${postSlug}`,
-                    html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
-                    text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
-                })
-                console.log("res in create comment", res);
+                if (!isDev) {
+                    const res = await sendEmail({
+                        to: admin_email,
+                        subject: `New Comment on ${postSlug}`,
+                        html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
+                        text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
+                    })
+                    console.log("sendEmail res", res);
+                }
 
                 return comment;
             }
