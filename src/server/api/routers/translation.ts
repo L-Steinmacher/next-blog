@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { LangCall } from "~/pages/api/langCall";
+import { LangCall } from "~/utils/langCall";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
@@ -19,7 +19,7 @@ export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     createdAt: true,
 });
 
-const translationRouter = createTRPCRouter({
+export const translationRouter = createTRPCRouter({
     translateComment: publicProcedure
         .input(z.object({ commentId: z.string(), caseType: z.string(), postContent: z.string().optional() }))
         .mutation(async ({ ctx, input }) => {

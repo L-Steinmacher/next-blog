@@ -1,10 +1,11 @@
-import {
-    PromptTemplate,
-} from 'langchain/dist/prompts'
+import { PromptTemplate } from 'langchain/prompts'
 import { ChatOpenAI } from 'langchain/chat_models/openai'
-import { CallbackManager } from 'langchain/dist/callbacks'
-import { RunnableSequence } from 'langchain/dist/schema/runnable'
-import { StringOutputParser } from 'langchain/dist/schema/output_parser'
+import { CallbackManager } from 'langchain/callbacks'
+import { RunnableSequence } from 'langchain/schema/runnable'
+import { StringOutputParser } from 'langchain/schema/output_parser'
+import { env } from '~/env.mjs'
+
+const openAIApiKey = env.OPENAI_API_KEY;
 
 export async function LangCall(commentContent: string, caseType: string, postContent?: string): Promise<string> {
     switch (caseType) {
@@ -17,7 +18,7 @@ Please translate the above content to Spanish. Use relative terms and slang so t
 `.trim()
             const res = await langchainCall(spanishTranslationPrompt)
             console.log(res)
-
+            return res
 
         case "german":
             const germanTranslationPrompt = `
@@ -54,12 +55,14 @@ Please elaborate on the text by adding fillers and attempting to make the text s
             return await langchainCall(intellegizerTranslationPrompt)
 
         default:
-            return "Something went wrong."
+            return "Something went wrong in switch case."
     }
 }
 
 async function langchainCall(content: string): Promise<string> {
-    const openAIApiKey = process.env.OPENAI_KEY;
+    console.log(openAIApiKey)
+    if (!openAIApiKey) throw new Error("No OpenAI API key found in env")
+
     const promptTemplate = PromptTemplate.fromTemplate(
         "You are a helpful assistant that translates a comment into another language or format as instructed. {input}"
     )
@@ -87,11 +90,11 @@ async function langchainCall(content: string): Promise<string> {
     return result;
 }
 
-function go() {
+async function go() {
     const commentContent = "This is a comment"
     const caseType = "spanish"
-    const res = LangCall(commentContent, caseType)
+    const res = await LangCall(commentContent, caseType)
     console.log(res)
 }
 
-go()
+await go()

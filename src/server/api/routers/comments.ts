@@ -49,7 +49,7 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
-            const isDev = process.env.NEXTAUTH_URL === "http://localhost:3000";
+            const isDev = process.env.NODE_ENV === "development";
             if (isDev) {
                 console.log("Recaptcha validation skipped in development");
             } else {

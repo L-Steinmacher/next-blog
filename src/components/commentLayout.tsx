@@ -59,13 +59,11 @@ export function CommentLayout({ slug }: { slug: string }) {
             postSlug: string;
             token?: string;
         }) => {
-            console.log("isDev", isDev)
-            console.log(process.env.VERCEL_ENV)
             if (!token && !isDev) {
-                console.error('No token found');
+                console.error('No token found!');
                 return;
             } else if (!token && isDev) {
-                console.log('No token found, using dev token');
+                console.log('In Dev enviroment, using dev token!');
             }
             try {
                 const newComment = createCommentMutation.mutate(
@@ -179,7 +177,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                             setSubmitting(true);
                         }}
                     >
-                        <h2 className="mb-4 text-center text-2xl font-bold">
+                        <h2 className="mb-4 text-2xl font-bold text-center">
                             Have an opinion of what I said? Find a typo? Just
                             want to be nice?
                             <br /> Feel free to leave a comment!
@@ -201,10 +199,10 @@ export function CommentLayout({ slug }: { slug: string }) {
                         {submitting && (
                             <>
                             {!RECAPTCHA_SITE_KEY  ?
-                                // render a fake recaptcha in dev mode
+                                // style this button to look like a recaptcha checkbox
                                 <button
                                     type="submit"
-                                    className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                    className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                                     tabIndex={2}
                                     aria-label="Submit comment button"
                                     onClick={e => {
@@ -239,7 +237,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 <>
                                     <button
                                         type="submit"
-                                        className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                                         tabIndex={2}
                                         aria-label="Submit comment button"
                                     >
@@ -249,13 +247,13 @@ export function CommentLayout({ slug }: { slug: string }) {
                             ) : (
                                 <div className="flex flex-col ">
                                     <div className="block h-4">
-                                        <p className=" text-xl font-bold ">
+                                        <p className="text-xl font-bold ">
                                             You must be logged in to leave a
                                             comment.
                                         </p>
                                     </div>
                                     <button
-                                        className="mx-auto mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        className="inline-flex items-center px-4 py-2 mx-auto mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                                         tabIndex={2}
                                         aria-label="Sign in"
                                         onClick={() => void signIn()}
@@ -284,7 +282,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                             currentUser?.id) && (
                                         <div className="absolute right-0 mb-20 sm:-mr-14 ">
                                             <button
-                                                className="items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
+                                                className="items-center px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-none shadow-slate-400 hover:bg-red-200 focus:outline-none"
                                                 onClick={e => {
                                                     e.preventDefault();
                                                     handleDeleteComment(
@@ -303,7 +301,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 </div>
                             ))
                     ) : (
-                        <p className="text-center text-xl text-gray-500">
+                        <p className="text-xl text-center text-gray-500">
                             Be the first to leave your thoughts!
                         </p>
                     )}
