@@ -2,13 +2,14 @@ import { api } from "~/utils/api";
 
 export default function CommentEditModal({ commentId }: { commentId: string}) {
     const utils = api.useContext();
-
-    function handleTranslate() {
-    const translateComment = api.translations.translateComment.useMutation({
+    const translateMutation = api.translations.translateComment.useMutation({
             async onSuccess() {
                 await utils.comments.invalidate();
             },
         });
+
+    function handleTranslate() {
+        translateMutation.mutate({ commentId, caseType: "spanish"});
     }
 
     return (
