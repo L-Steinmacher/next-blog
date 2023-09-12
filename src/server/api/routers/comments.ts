@@ -45,6 +45,24 @@ export const commentsRouter = createTRPCRouter({
             }
             return comments;
         }),
+    getCommentData: publicProcedure
+        .input(z.object({ commentId: z.string() }))
+        .query(async ({ input }) => {
+            const { commentId } = input;
+            const comment = await prisma.comment.findUnique({
+                where: {
+                    id: commentId,
+                },
+                select: defaultCommentSelect,
+            });
+            if (!comment) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: `No comment found with id ${commentId}`,
+                });
+            }
+            return comment;
+        }),
     createComment: publicProcedure
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {

@@ -13,10 +13,10 @@ import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
+import CommentEditModal from './commentEditModal';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
 const isDev = process.env.NODE_ENV === 'development';
-
 
 export function CommentLayout({ slug }: { slug: string }) {
     const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
@@ -297,6 +297,9 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     <CommentCard
                                         key={comment.id}
                                         comment={comment}
+                                    />
+                                    <CommentEditModal
+                                        commentId={comment.id}
                                     />
                                 </div>
                             ))

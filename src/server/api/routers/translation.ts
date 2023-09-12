@@ -4,6 +4,9 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { LangCall } from "~/utils/langCall";
+import { getPostBySlug } from "lib/blogApi";
+import { type NonNullablePostOptions } from "~/interfaces/post";
+import markdownToHtml from "lib/markdownToHtml";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
@@ -21,9 +24,9 @@ export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
 
 export const translationRouter = createTRPCRouter({
     translateComment: publicProcedure
-        .input(z.object({ commentId: z.string(), caseType: z.string(), postContent: z.string().optional() }))
+        .input(z.object({ commentId: z.string(), caseType: z.string() }))
         .mutation(async ({ ctx, input }) => {
-            const { commentId, caseType, postContent } = input;
+            const { commentId, caseType } = input;
 
             const comment = await prisma.comment.findUnique({
                 where: {
@@ -47,10 +50,40 @@ export const translationRouter = createTRPCRouter({
                     message: "You are not the original commenter",
                 });
             }
+            const curLangTokens = await prisma.user.findUnique({
+                where: {
+                    id: loggedInUserId,
+                },
+                select: {
+                    langToken: true,
+                },
+            });
+            if (!curLangTokens )  {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "No tokens found!",
+                });
+            }
+            if (curLangTokens.langToken <= 0) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "You don't have enough tokens",
+                });
+            }
+
+            curLangTokens.langToken -= 1;
 
             let newCommentContent: string;
             if (caseType === "intellegizer") {
-               newCommentContent = await LangCall(comment.content, caseType, postContent);
+                const postData: NonNullablePostOptions = await getPostBySlug(comment.postSlug, ["content"]);
+                if (!postData) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "No post found!",
+                    });
+                }
+                const contentString = await  markdownToHtml(postData.content || "");
+                newCommentContent = await LangCall(comment.content, caseType, contentString);
             } else {
                 newCommentContent = await LangCall(comment.content, caseType);
             }
@@ -61,6 +94,17 @@ export const translationRouter = createTRPCRouter({
                 },
                 data: {
                     content: newCommentContent,
+                },
+            });
+            // update the tokens of the user
+            await prisma.user.update({
+                where: {
+                    id: loggedInUserId,
+                },
+                data: {
+                        langToken: {
+                        decrement: 1,
+                    },
                 },
             });
 
