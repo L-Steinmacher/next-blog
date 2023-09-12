@@ -47,7 +47,7 @@ export function CommentLayout({ slug }: { slug: string }) {
         if (commentsData) {
             setAllComments(commentsData);
         }
-    }  , [commentsData]);
+    }, [commentsData]);
 
     const addComment = useCallback(
         ({
@@ -198,29 +198,48 @@ export function CommentLayout({ slug }: { slug: string }) {
                         />
                         {submitting && (
                             <>
-                            {!RECAPTCHA_SITE_KEY  ?
-                                // style this button to look like a recaptcha checkbox
-                                <button
-                                    type="submit"
-                                    className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
-                                    tabIndex={2}
-                                    aria-label="Submit comment button"
-                                    onClick={e => {
-                                        e.preventDefault();
-                                        setGotime(true);
-                                    }}
-                                >
-                                    Go Time!
-                                </button>
-                                :
-                                <ReCAPTCHA
-                                sitekey={RECAPTCHA_SITE_KEY}
-                                onChange={(tkn: string | null) => {
-                                    setToken(tkn);
-                                    setGotime(true);
-                                }}
-                            />
-                            }
+
+                                {!RECAPTCHA_SITE_KEY ? (
+                                    // render a fake recaptcha in dev mode
+                                    <div className="relative  ">
+                                        <button
+                                            type="submit"
+                                            className="absolute top-0 items-center flex space-x-2 rounded-md border border-gray-300 bg-white p-2 hover:bg-gray-100 focus:border-blue-300 focus:outline-none"
+                                            tabIndex={2}
+                                            aria-label="Submit comment button"
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                setGotime(true);
+                                            }}
+                                        >
+                                            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300">
+                                                <svg
+                                                    className="h-4 w-4 text-green-500"
+                                                    fill="none"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path d="M5.293 10.293a1 1 0 011.414 0L12 15.586l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z" />
+                                                </svg>
+                                            </div>
+                                            <span className="text-gray-700">
+                                                Not a robot
+                                            </span>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <ReCAPTCHA
+                                        sitekey={RECAPTCHA_SITE_KEY}
+                                        onChange={(tkn: string | null) => {
+                                            setToken(tkn);
+                                            setGotime(true);
+                                        }}
+                                    />
+                                )}
+
                             </>
                         )}
                         <div className="block h-4 text-xl font-bold">
