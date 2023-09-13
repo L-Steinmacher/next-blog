@@ -14,7 +14,6 @@ export default function CommentEditModal({ commentId }: { commentId: string}) {
 
     return (
         <>
-
                 <button
                     className=""
                     type="submit"

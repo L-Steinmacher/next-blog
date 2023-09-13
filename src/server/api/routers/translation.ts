@@ -24,7 +24,7 @@ export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
 
 export const translationRouter = createTRPCRouter({
     translateComment: publicProcedure
-        .input(z.object({ commentId: z.string(), caseType: z.string() }))
+        .input(z.object({ commentId: z.string(), caseType: z.enum(["spanish", "german", "bruh", "intellegizer"]) }))
         .mutation(async ({ ctx, input }) => {
             const { commentId, caseType } = input;
 
