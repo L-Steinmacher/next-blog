@@ -212,22 +212,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                                 setGotime(true);
                                             }}
                                         >
-                                            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300">
-                                                <svg
-                                                    className="h-4 w-4 text-green-500"
-                                                    fill="none"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path d="M5.293 10.293a1 1 0 011.414 0L12 15.586l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z" />
-                                                </svg>
-                                            </div>
-                                            <span className="text-gray-700">
-                                                Not a robot
-                                            </span>
+✅
                                         </button>
                                     </div>
                                 ) : (

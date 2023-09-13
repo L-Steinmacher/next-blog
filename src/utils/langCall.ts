@@ -89,12 +89,3 @@ async function langchainCall(content: string): Promise<string> {
     const result = await chain.invoke({ input: content });
     return result;
 }
-
-async function go() {
-    const commentContent = "This is a comment"
-    const caseType = "spanish"
-    const res = await LangCall(commentContent, caseType)
-    console.log(res)
-}
-
-await go()
