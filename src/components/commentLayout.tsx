@@ -198,7 +198,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                         />
                         {submitting && (
                             <>
-
                                 {!RECAPTCHA_SITE_KEY ? (
                                     // render a fake recaptcha in dev mode
                                     <div className="relative  ">
@@ -224,7 +223,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                                         }}
                                     />
                                 )}
-
                             </>
                         )}
                         <div className="block h-4 text-xl font-bold">
@@ -301,9 +299,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     <CommentCard
                                         key={comment.id}
                                         comment={comment}
-                                    />
-                                    <CommentEditModal
-                                        commentId={comment.id}
                                     />
                                 </div>
                             ))
