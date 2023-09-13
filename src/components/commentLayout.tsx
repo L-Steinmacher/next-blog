@@ -212,7 +212,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                                 setGotime(true);
                                             }}
                                         >
-✅
+                                            ✅
                                         </button>
                                     </div>
                                 ) : (
