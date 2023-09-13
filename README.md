@@ -5,12 +5,13 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `npm creat
 The complete(?) stack is:
 * Next
 * TRPC
-* Prisma,
+* Prisma
 * Next auth
 * Typescript
 * Tailwind
 * Resend email
 * Unified/Remark (Markdown parser)
 * Zod
+* Bad-Words(so we can watch our f****** language)
 
 This is very much a work in progress so bear that in mind and please feel free to fork, clone, leave comments for suggestions!
