@@ -1,8 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '~/utils/api';
 
 export default function CommentEditModal({ commentId }: { commentId: string }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const modalRef = useRef<HTMLDialogElement>(null);
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -11,20 +19,27 @@ export default function CommentEditModal({ commentId }: { commentId: string }) {
             }
         };
 
+        const handleOutsideClick = (e: MouseEvent) => {
+            // Check if the click is outside the modal
+            if (
+                isModalOpen &&
+                modalRef.current &&
+                !modalRef.current.contains(e.target as Node)
+            ) {
+                closeModal();
+            }
+        };
+
         window.addEventListener('keydown', handleKeyDown);
+        if (isModalOpen) {
+            document.addEventListener('click', handleOutsideClick);
+        }
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('click', handleOutsideClick);
         };
     }, []);
-
-    const openModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
 
     const utils = api.useContext();
     const translateMutation = api.translations.translateComment.useMutation({
@@ -35,13 +50,19 @@ export default function CommentEditModal({ commentId }: { commentId: string }) {
 
     function handleTranslate() {
         translateMutation.mutate({ commentId, caseType: 'spanish' });
+        closeModal();
     }
 
     return (
         <>
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center w-full  z-50 bg-opacity-50 backdrop-blur-sm backdrop-brightness-75 ">
-                    <dialog id="comment-edit-modal" open className='bg-white p-6 rounded-lg h-40 w-1/2'>
+                <div className="fixed inset-0 z-50 flex w-full items-center  justify-center bg-opacity-50 backdrop-blur-sm backdrop-brightness-75 ">
+                    <dialog
+                        id="comment-edit-modal"
+                        open
+                        className="h-40 w-1/2 rounded-lg bg-white p-6"
+                        ref={modalRef}
+                    >
                         <button
                             className=""
                             type="submit"
