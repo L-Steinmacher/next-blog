@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
     createTRPCRouter,
+    protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
@@ -63,7 +64,7 @@ export const commentsRouter = createTRPCRouter({
             }
             return comment;
         }),
-    createComment: publicProcedure
+    createComment: protectedProcedure
         .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
@@ -149,7 +150,42 @@ export const commentsRouter = createTRPCRouter({
                 return comment;
             }
         }),
-    deleteComment: publicProcedure
+    updateComment: protectedProcedure
+        .input(z.object({ commentId: z.string(), content: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const { commentId, content } = input;
+            const comment = await prisma.comment.findUnique({
+                where: {
+                    id: commentId,
+                },
+                select: defaultCommentSelect,
+            });
+            if (!comment) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: `No comment found with id ${commentId}`,
+                });
+            }
+
+            const isOwnComment = ctx.session?.user?.id === comment.commenter.id;
+            if (!isOwnComment) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message: "You are not authorized to update this comment!!!",
+                });
+            }
+            const updatedComment = await prisma.comment.update({
+                where: {
+                    id: commentId,
+                },
+                data: {
+                    content: content,
+                },
+                select: defaultCommentSelect,
+            });
+            return updatedComment;
+        }),
+    deleteComment: protectedProcedure
         .input(z.object({ commentId: z.string(), }))
         .mutation(async ({ ctx, input }) => {
             const { commentId } = input;
