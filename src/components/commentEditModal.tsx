@@ -11,7 +11,9 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
     const user = sessionData?.user;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [commentContent, setCommentContent] = useState<string>(comment?.content);
+    const [commentContent, setCommentContent] = useState<string>(
+        comment?.content,
+    );
 
     const modalRef = useRef<HTMLDialogElement>(null);
     const openModal = () => {
@@ -24,7 +26,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
 
     useEffect(() => {
         if (!commentContent) {
-            setCommentContent(comment?.content );
+            setCommentContent(comment?.content);
         }
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -85,8 +87,8 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                 <div className="fixed inset-0 z-50 flex w-full items-center  justify-center bg-opacity-50 backdrop-blur-sm backdrop-brightness-75  ">
                     <dialog
                         id="comment-edit-modal"
-                        open
-                        className="md:h-1/2 h-fit md:w-1/2 w-5/6 rounded-lg bg-white p-6"
+                        open={isModalOpen}
+                        className={`h-fit w-5/6 rounded-lg bg-white p-6 md:h-1/2 md:w-1/2  `}
                         ref={modalRef}
                     >
                         <div>
@@ -105,16 +107,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                 ></textarea>
                             </form>
                         </div>
-                        <div className="flex items-center justify-between md:flex-row flex-col ">
-                            <button
-                                className=""
-                                type="submit"
-                                onClick={() => {
-                                    handleUpdate();
-                                }}
-                            >
-                                update
-                            </button>
+                        <div className="flex flex-col items-center justify-between md:flex-row ">
                             <button
                                 className="disabled:cursor-not-allowed disabled:line-through disabled:opacity-50"
                                 type="submit"
@@ -131,16 +124,27 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                             >
                                 translate
                             </button>
-                            <CommentDeleteButton commentId={commentId} />
-                            <button
-                                className=""
-                                type="submit"
-                                onClick={() => {
-                                    closeModal();
-                                }}
-                            >
-                                cancel
-                            </button>
+                            <div className="flex items-center justify-between">
+                                <button
+                                    className="px-2"
+                                    type="submit"
+                                    onClick={() => {
+                                        handleUpdate();
+                                    }}
+                                >
+                                    update
+                                </button>
+                                <CommentDeleteButton commentId={commentId} />
+                                <button
+                                    className="px-4 rounded-md border border-transparent bg-none  py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-yellow-100 focus:outline-none"
+                                    type="submit"
+                                    onClick={() => {
+                                        closeModal();
+                                    }}
+                                >
+                                    cancel
+                                </button>
+                            </div>
                         </div>
                     </dialog>
                 </div>

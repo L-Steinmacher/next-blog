@@ -136,31 +136,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gotime]);
 
-    // const deleteComment = api.comments.deleteComment.useMutation({
-    //     onSuccess: async (data, variables) => {
-    //         const commentId = variables.commentId;
-    //         const newComments = allComments.filter(
-    //             comment => comment.id !== commentId,
-    //         );
-    //         setAllComments(newComments);
-    //         await utils.comments.invalidate();
-    //     },
-    //     onError(error) {
-    //         setErrors(prevErrors => [...prevErrors, error.message]);
-    //     },
-    // });
-
-    // function handleDeleteComment(commentId: string) {
-    //     return deleteComment.mutate(
-    //         { commentId },
-    //         {
-    //             onSettled: () => {
-    //                 console.log('Comment deleted');
-    //             },
-    //         },
-    //     );
-    // }
-
     return (
         <div>
             <section aria-labelledby="comments-heading" className="pt-16">
@@ -173,7 +148,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                             setSubmitting(true);
                         }}
                     >
-                        <h2 className="mb-4 text-2xl font-bold text-center">
+                        <h2 className="mb-4 text-center text-2xl font-bold">
                             Have an opinion of what I said? Find a typo? Just
                             want to be nice?
                             <br /> Feel free to leave a comment!
@@ -181,17 +156,24 @@ export function CommentLayout({ slug }: { slug: string }) {
                         <label htmlFor="comment" className="sr-only">
                             Comment
                         </label>
-                        <textarea
-                            id="comment"
-                            name="comment"
-                            rows={6}
-                            className="mt-1 block w-full rounded-md border-gray-400 bg-[#fffefe] px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
-                            placeholder="Leave a comment"
-                            aria-label="Comment on blog post"
-                            tabIndex={1}
-                            value={comment}
-                            onChange={e => setComment(e.target.value)}
-                        />
+                        <div className="relative w-full ">
+                            <textarea
+                                id="comment"
+                                name="comment"
+                                rows={6}
+                                className="mt-1 block w-full rounded-md border-gray-400 bg-[#fffefe] px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
+                                placeholder="Feel free to leave a comment between 2 and 500 characters long."
+                                aria-label="Comment on blog post"
+                                tabIndex={1}
+                                value={comment}
+                                onChange={e => setComment(e.target.value)}
+                            />
+                            {comment.length ? (
+                                <p className="absolute bottom-0 right-0 mb-2 mr-3 text-sm text-gray-500">
+                                    {comment.length} / 500
+                                </p>
+                            ) : null}
+                        </div>
                         {submitting && (
                             <>
                                 {!RECAPTCHA_SITE_KEY ? (
@@ -199,7 +181,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     <div className="relative  ">
                                         <button
                                             type="submit"
-                                            className="absolute top-0 items-center flex space-x-2 rounded-md border border-gray-300 bg-white p-2 hover:bg-gray-100 focus:border-blue-300 focus:outline-none"
+                                            className="absolute top-0 flex items-center space-x-2 rounded-md border border-gray-300 bg-white p-2 hover:bg-gray-100 focus:border-blue-300 focus:outline-none"
                                             tabIndex={2}
                                             aria-label="Submit comment button"
                                             onClick={e => {
@@ -235,7 +217,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 <>
                                     <button
                                         type="submit"
-                                        className="inline-flex items-center px-4 py-2 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                                         tabIndex={2}
                                         aria-label="Submit comment button"
                                     >
@@ -251,7 +233,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                         </p>
                                     </div>
                                     <button
-                                        className="inline-flex items-center px-4 py-2 mx-auto mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        className="mx-auto mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                                         tabIndex={2}
                                         aria-label="Sign in"
                                         onClick={() => void signIn()}
@@ -275,23 +257,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     className="relative flex flex-row items-center"
                                     key={comment.id}
                                 >
-                                    {/* {(userIsAdmin ||
-                                        comment.commenter.id ===
-                                            currentUser?.id) && (
-                                        <div className="absolute right-0 mb-20 sm:-mr-14 ">
-                                            <button
-                                                className="items-center px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-none shadow-slate-400 hover:bg-red-200 focus:outline-none"
-                                                onClick={e => {
-                                                    e.preventDefault();
-                                                    handleDeleteComment(
-                                                        comment.id,
-                                                    );
-                                                }}
-                                            >
-                                                ❌
-                                            </button>
-                                        </div>
-                                    )} */}
                                     <CommentCard
                                         key={comment.id}
                                         comment={comment}
@@ -299,7 +264,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 </div>
                             ))
                     ) : (
-                        <p className="text-xl text-center text-gray-500">
+                        <p className="text-center text-xl text-gray-500">
                             Be the first to leave your thoughts!
                         </p>
                     )}

@@ -25,7 +25,7 @@ export default function CommentDeleteButton({
     return (
         <>
             <button
-                className="items-center rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
+                className="items-center  rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium text-white shadow-sm shadow-slate-400 hover:bg-red-200 focus:outline-none"
                 onClick={e => {
                     e.preventDefault();
                     handleDeleteComment(commentId);
