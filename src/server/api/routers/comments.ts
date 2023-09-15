@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import BadWordsFilter from "bad-words";
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -154,6 +155,8 @@ export const commentsRouter = createTRPCRouter({
         .input(z.object({ commentId: z.string(), content: z.string().min(2, "length must be over 2 characters").max(1000, "length must be under 1000 characters") }))
         .mutation(async ({ ctx, input }) => {
             const { commentId, content } = input;
+            const filter = new BadWordsFilter();
+            const cleanedContent = filter.clean(content);
             const comment = await prisma.comment.findUnique({
                 where: {
                     id: commentId,
@@ -179,7 +182,7 @@ export const commentsRouter = createTRPCRouter({
                     id: commentId,
                 },
                 data: {
-                    content: content,
+                    content: cleanedContent,
                 },
                 select: defaultCommentSelect,
             });
