@@ -151,7 +151,7 @@ export const commentsRouter = createTRPCRouter({
             }
         }),
     updateComment: protectedProcedure
-        .input(z.object({ commentId: z.string(), content: z.string() }))
+        .input(z.object({ commentId: z.string(), content: z.string().min(2, "length must be over 2 characters").max(1000, "length must be under 1000 characters") }))
         .mutation(async ({ ctx, input }) => {
             const { commentId, content } = input;
             const comment = await prisma.comment.findUnique({
