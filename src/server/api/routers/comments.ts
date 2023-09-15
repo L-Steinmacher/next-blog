@@ -66,7 +66,7 @@ export const commentsRouter = createTRPCRouter({
             return comment;
         }),
     createComment: protectedProcedure
-        .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
+        .input(z.object({ postSlug: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy."), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
             const isDev = process.env.NODE_ENV === "development";
@@ -124,7 +124,7 @@ export const commentsRouter = createTRPCRouter({
 
             const comment = await prisma.comment.create({
                 data: {
-                    content: content,
+                    content: content.trim(),
                     postSlug: postSlug,
                     commenterId: isUserLoggedIn.id,
                 },
@@ -152,11 +152,11 @@ export const commentsRouter = createTRPCRouter({
             }
         }),
     updateComment: protectedProcedure
-        .input(z.object({ commentId: z.string(), content: z.string().min(2, "length must be over 2 characters").max(1000, "length must be under 1000 characters") }))
+        .input(z.object({ commentId: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy.") }))
         .mutation(async ({ ctx, input }) => {
             const { commentId, content } = input;
             const filter = new BadWordsFilter();
-            const cleanedContent = filter.clean(content);
+            const cleanedContent = filter.clean(content.trim());
             const comment = await prisma.comment.findUnique({
                 where: {
                     id: commentId,

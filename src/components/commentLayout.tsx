@@ -80,6 +80,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                             );
                         },
                         onError: error => {
+                            console.error('Error adding comment:', error);
                             setErrors(prevErrors => [
                                 ...prevErrors,
                                 error.message,
@@ -101,33 +102,34 @@ export function CommentLayout({ slug }: { slug: string }) {
     );
 
     const submitComment = useCallback(() => {
+
         setErrors([]);
         const filter = new BadWordsFilter();
 
-        if (comment.length < 2) {
-            setErrors(['Comment must be at least 2 characters long']);
-            return;
-        }
 
         const filteredComment = filter.clean(comment);
+        console.log(gotime, submitting)
         addComment({
             content: filteredComment,
             postSlug: slug,
             token: token || '',
         });
-
-        const lastComment = commentContainerRef.current
+        if (!errors) {
+            const lastComment = commentContainerRef.current
             ?.lastElementChild as HTMLElement | null;
-        if (lastComment) {
-            lastComment.scrollIntoView({ behavior: 'smooth' });
-            setComment('');
+            if (lastComment) {
+                lastComment.scrollIntoView({ behavior: 'smooth' });
+                setComment('');
+            }
+
         }
         setGotime(false);
         setSubmitting(false);
-    }, [addComment, comment, slug, token]);
+    }, [addComment, comment, errors, gotime, slug, submitting, token]);
 
     // First we wait for the recaptcha token to be set, only then will the boolean gotime to be true
     useEffect(() => {
+        console.log("useEffect", comment);
         if (!gotime) {
             return;
         }
@@ -162,11 +164,16 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 name="comment"
                                 rows={6}
                                 className="mt-1 block w-full rounded-md border-gray-400 bg-[#fffefe] px-3 py-2 text-gray-700 placeholder-gray-400 shadow-lg shadow-slate-400 focus:border-[#6b2b6f] focus:ring-[#6b2b6f] sm:text-sm"
-                                placeholder="Feel free to leave a comment between 2 and 500 characters long."
+                                placeholder="Feel free to leave a comment."
                                 aria-label="Comment on blog post"
                                 tabIndex={1}
                                 value={comment}
-                                onChange={e => setComment(e.target.value)}
+                                onChange={e => {
+                                    const commentLength = e.target.value.length;
+                                    if (commentLength <= 500) {
+                                        setComment(e.target.value)
+                                    }
+                                }}
                             />
                             {comment.length ? (
                                 <p className="absolute bottom-0 right-0 mb-2 mr-3 text-sm text-gray-500">
@@ -185,6 +192,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                             tabIndex={2}
                                             aria-label="Submit comment button"
                                             onClick={e => {
+                                                console.log('clicked', gotime);
                                                 e.preventDefault();
                                                 setGotime(true);
                                             }}
@@ -207,7 +215,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                             {errors.length
                                 ? errors.map((error, i) => (
                                       <p key={i} className="text-red-500">
-                                          {error}
+                                          {}
                                       </p>
                                   ))
                                 : null}
@@ -217,9 +225,10 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 <>
                                     <button
                                         type="submit"
-                                        className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        className="mt-4 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
                                         tabIndex={2}
                                         aria-label="Submit comment button"
+                                        disabled={comment.length < 1}
                                     >
                                         Submit
                                     </button>

@@ -7,6 +7,7 @@ import { LangCall } from "~/utils/langCall";
 import { getPostBySlug } from "lib/blogApi";
 import { type NonNullablePostOptions } from "~/interfaces/post";
 import markdownToHtml from "lib/markdownToHtml";
+import BadWordsFilter from "bad-words";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
@@ -21,12 +22,14 @@ export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     },
     createdAt: true,
 });
+export const translateCases = ["none", "spanish", "german", "bruh", "intellegizer"] as const
 
 export const translationRouter = createTRPCRouter({
     translateComment: publicProcedure
-        .input(z.object({ commentId: z.string(), caseType: z.enum(["spanish", "german", "bruh", "intellegizer"]) }))
+        .input(z.object({ commentId: z.string(), caseType: z.enum(translateCases) }))
         .mutation(async ({ ctx, input }) => {
             const { commentId, caseType } = input;
+            const filter = new BadWordsFilter();
 
             const comment = await prisma.comment.findUnique({
                 where: {
@@ -50,6 +53,21 @@ export const translationRouter = createTRPCRouter({
                     message: "You are not the original commenter",
                 });
             }
+
+            const cleanedComment = filter.clean(comment.content.trim());
+
+            if (caseType === "none") {
+                const updatedComment = await prisma.comment.update({
+                    where: {
+                        id: commentId,
+                    },
+                    data: {
+                        content: cleanedComment,
+                    },
+                });
+                return { success: true, comment: updatedComment };
+            }
+
             const curLangTokens = await prisma.user.findUnique({
                 where: {
                     id: loggedInUserId,
@@ -83,9 +101,9 @@ export const translationRouter = createTRPCRouter({
                     });
                 }
                 const contentString = await  markdownToHtml(postData.content || "");
-                newCommentContent = await LangCall(comment.content, caseType, contentString);
+                newCommentContent = await LangCall(cleanedComment, caseType, contentString);
             } else {
-                newCommentContent = await LangCall(comment.content, caseType);
+                newCommentContent = await LangCall(cleanedComment, caseType);
             }
 
             const updatedComment = await prisma.comment.update({

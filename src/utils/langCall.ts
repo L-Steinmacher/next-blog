@@ -47,10 +47,14 @@ MAX character count: ${commentContent.length * 2}
 CONTENT:
 ${commentContent}
 ===
-POST CONTENT:
+POST :
 ${postContent}
 ===
-Please elaborate on the text by adding fillers and attempting to make the text sound more intellegent based on the POST. Make one or two spelling errors and be sure to include one sentence that factually incorrect to the CONTENT. max characters 1000
+The POST is a comment on a blog post HTML for your reference only. do not translate the POST or give an answer using html.
+Please elaborate on the CONTENT  based on the POST. Make one or two spelling errors and be sure to include one sentence that factually incorrect to the CONTENT.
+max characters 500 for your response.
+please respond in a way that is intellegent and seems factually correct.
+respond in the language of the CONTENT.
 `.trim()
             return await langchainCall(intellegizerTranslationPrompt)
 
