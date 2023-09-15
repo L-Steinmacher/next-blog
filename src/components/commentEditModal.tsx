@@ -82,11 +82,11 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
     return (
         <>
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex w-full items-center  justify-center bg-opacity-50 backdrop-blur-sm backdrop-brightness-75 ">
+                <div className="fixed inset-0 z-50 flex w-full items-center  justify-center bg-opacity-50 backdrop-blur-sm backdrop-brightness-75  ">
                     <dialog
                         id="comment-edit-modal"
                         open
-                        className="h-1/2 w-1/2 rounded-lg bg-white p-6"
+                        className="md:h-1/2 h-fit md:w-1/2 w-5/6 rounded-lg bg-white p-6"
                         ref={modalRef}
                     >
                         <div>
@@ -105,7 +105,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                 ></textarea>
                             </form>
                         </div>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between md:flex-row flex-col ">
                             <button
                                 className=""
                                 type="submit"
