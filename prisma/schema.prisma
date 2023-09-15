@@ -47,6 +47,7 @@ model User {
     role              String    @default("MEMBER")
     image             String?
     accounts          Account[]
+    langToken         Int       @default(5)
     sessions          Session[]
     comments          Comment[]
 }
@@ -62,7 +63,6 @@ model VerificationToken {
 model Comment {
   id          String @id @default(cuid())
   createdAt   DateTime @default(now())
-
   postSlug    String
 
   commenter   User @relation(fields: [commenterId], references: [id], onUpdate: Cascade, onDelete: Cascade)

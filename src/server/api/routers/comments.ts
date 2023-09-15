@@ -1,15 +1,17 @@
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import BadWordsFilter from "bad-words";
 import { z } from "zod";
 import {
     createTRPCRouter,
+    protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import { sendEmail } from "~/utils/sendEmail";
 import validateToken from "~/utils/validateToken";
 
-const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
+export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
     content: true,
     postSlug: true,
@@ -45,8 +47,26 @@ export const commentsRouter = createTRPCRouter({
             }
             return comments;
         }),
-    createComment: publicProcedure
-        .input(z.object({ postSlug: z.string(), content: z.string(), token: z.string() }))
+    getCommentData: publicProcedure
+        .input(z.object({ commentId: z.string() }))
+        .query(async ({ input }) => {
+            const { commentId } = input;
+            const comment = await prisma.comment.findUnique({
+                where: {
+                    id: commentId,
+                },
+                select: defaultCommentSelect,
+            });
+            if (!comment) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: `No comment found with id ${commentId}`,
+                });
+            }
+            return comment;
+        }),
+    createComment: protectedProcedure
+        .input(z.object({ postSlug: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy."), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
             const isDev = process.env.NODE_ENV === "development";
@@ -63,21 +83,21 @@ export const commentsRouter = createTRPCRouter({
             }
 
             const isUserLoggedIn = ctx.session?.user;
+
             if (!isUserLoggedIn) {
-                // render a model for the user to log in
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You must be logged in to comment",
                 });
             }
-            // if content is not a string or is empty
+
             if (!input.content || typeof content !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "Comment must have content",
                 });
             }
-            // if slug is not a string or is empty
+
             if (!input.postSlug || typeof postSlug !== "string") {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
@@ -104,7 +124,7 @@ export const commentsRouter = createTRPCRouter({
 
             const comment = await prisma.comment.create({
                 data: {
-                    content: content,
+                    content: content.trim(),
                     postSlug: postSlug,
                     commenterId: isUserLoggedIn.id,
                 },
@@ -131,7 +151,44 @@ export const commentsRouter = createTRPCRouter({
                 return comment;
             }
         }),
-    deleteComment: publicProcedure
+    updateComment: protectedProcedure
+        .input(z.object({ commentId: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy.") }))
+        .mutation(async ({ ctx, input }) => {
+            const { commentId, content } = input;
+            const filter = new BadWordsFilter();
+            const cleanedContent = filter.clean(content.trim());
+            const comment = await prisma.comment.findUnique({
+                where: {
+                    id: commentId,
+                },
+                select: defaultCommentSelect,
+            });
+            if (!comment) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: `No comment found with id ${commentId}`,
+                });
+            }
+
+            const isOwnComment = ctx.session?.user?.id === comment.commenter.id;
+            if (!isOwnComment) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message: "You are not authorized to update this comment!!!",
+                });
+            }
+            const updatedComment = await prisma.comment.update({
+                where: {
+                    id: commentId,
+                },
+                data: {
+                    content: cleanedContent,
+                },
+                select: defaultCommentSelect,
+            });
+            return updatedComment;
+        }),
+    deleteComment: protectedProcedure
         .input(z.object({ commentId: z.string(), }))
         .mutation(async ({ ctx, input }) => {
             const { commentId } = input;
@@ -161,8 +218,6 @@ export const commentsRouter = createTRPCRouter({
 
                 return { success: true };
             } else {
-                console.log("userIsAdmin", userIsAdmin);
-                console.log("isOwnComment", isOwnComment);
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You are not authorized to delete this comment!!!",
