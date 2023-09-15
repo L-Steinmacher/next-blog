@@ -2,8 +2,8 @@ import Image from 'next/image';
 import { type Comment } from '../interfaces/comments';
 import { formatRelativeTime } from '~/utils/miscUtils';
 import CommentEditModal from './commentEditModal';
-import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import CommentDeleteButton from './commentDeleteButton';
 
 interface CommentCardProps {
     comment: Comment;
@@ -37,9 +37,9 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
                     <p className="font-bold">{comment.commenter?.name}</p>
                 </div>
                 {isOwner ? (
-                  <CommentEditModal commentId={comment.id} />
+                  <CommentEditModal comment={comment} />
                   ): isAdmin ? (
-                    <p>deleteButton goes here</p>) : null }
+                    <CommentDeleteButton commentId={comment.id} />) : null }
             </div>
             <p className="text-gray-700">{comment.content}</p>
             <p className="mt-2 text-sm text-gray-500">Created: {displayTime}</p>

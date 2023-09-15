@@ -13,7 +13,6 @@ import { api } from '~/utils/api';
 import { type Comment } from '~/interfaces/comments';
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
-import CommentEditModal from './commentEditModal';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
 const isDev = process.env.NODE_ENV === 'development';
@@ -35,9 +34,6 @@ export function CommentLayout({ slug }: { slug: string }) {
     const { data: sessionData } = useSession();
 
     const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
-
-    const currentUser = sessionData?.user;
-    const userIsAdmin = currentUser?.isAdmin;
     const userIsLoggedIn = !!sessionData;
 
     const utils = api.useContext();
@@ -140,30 +136,30 @@ export function CommentLayout({ slug }: { slug: string }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gotime]);
 
-    const deleteComment = api.comments.deleteComment.useMutation({
-        onSuccess: (data, variables) => {
-            const commentId = variables.commentId;
-            const newComments = allComments.filter(
-                comment => comment.id !== commentId,
-            );
-            setAllComments(newComments);
-            utils.comments.getCommentsForPost.setData({ slug }, newComments);
-        },
-        onError(error) {
-            setErrors(prevErrors => [...prevErrors, error.message]);
-        },
-    });
+    // const deleteComment = api.comments.deleteComment.useMutation({
+    //     onSuccess: async (data, variables) => {
+    //         const commentId = variables.commentId;
+    //         const newComments = allComments.filter(
+    //             comment => comment.id !== commentId,
+    //         );
+    //         setAllComments(newComments);
+    //         await utils.comments.invalidate();
+    //     },
+    //     onError(error) {
+    //         setErrors(prevErrors => [...prevErrors, error.message]);
+    //     },
+    // });
 
-    function handleDeleteComment(commentId: string) {
-        return deleteComment.mutate(
-            { commentId },
-            {
-                onSettled: () => {
-                    console.log('Comment deleted');
-                },
-            },
-        );
-    }
+    // function handleDeleteComment(commentId: string) {
+    //     return deleteComment.mutate(
+    //         { commentId },
+    //         {
+    //             onSettled: () => {
+    //                 console.log('Comment deleted');
+    //             },
+    //         },
+    //     );
+    // }
 
     return (
         <div>
@@ -279,7 +275,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                     className="relative flex flex-row items-center"
                                     key={comment.id}
                                 >
-                                    {(userIsAdmin ||
+                                    {/* {(userIsAdmin ||
                                         comment.commenter.id ===
                                             currentUser?.id) && (
                                         <div className="absolute right-0 mb-20 sm:-mr-14 ">
@@ -295,7 +291,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                                 ❌
                                             </button>
                                         </div>
-                                    )}
+                                    )} */}
                                     <CommentCard
                                         key={comment.id}
                                         comment={comment}
