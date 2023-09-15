@@ -77,4 +77,3 @@ model Comment {
   @@index([postSlug, createdAt])
   @@index([createdAt, commenterId])
 }
-
