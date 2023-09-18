@@ -100,8 +100,9 @@ export const translationRouter = createTRPCRouter({
                         message: "No post found!",
                     });
                 }
-                const contentString = await  markdownToHtml(postData.content || "");
-                newCommentContent = await LangCall(cleanedComment, caseType, contentString);
+
+                console.log(postData.content);
+                newCommentContent = await LangCall(cleanedComment, caseType, postData.content);
             } else {
                 newCommentContent = await LangCall(cleanedComment, caseType);
             }

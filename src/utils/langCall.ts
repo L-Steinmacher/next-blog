@@ -64,7 +64,6 @@ respond in the language of the CONTENT.
 }
 
 async function langchainCall(content: string): Promise<string> {
-    console.log(openAIApiKey)
     if (!openAIApiKey) throw new Error("No OpenAI API key found in env")
 
     const promptTemplate = PromptTemplate.fromTemplate(

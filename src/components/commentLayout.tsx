@@ -78,6 +78,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 { slug },
                                 [...allComments, data],
                             );
+                            setComment('');
                         },
                         onError: error => {
                             console.error('Error adding comment:', error);
