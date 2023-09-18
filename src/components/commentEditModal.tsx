@@ -150,7 +150,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                             </div>
                             <div className="flex flex-grow flex-col items-end justify-between md:flex-row ">
                                 <div className="relative flex h-fit flex-col  ">
-                                    <details className="absolute left-0 top-0 z-50 md:mt-[-1rem] ml-[-6rem]">
+                                    <details className="absolute left-0 top-0 z-50 md:mt-[-1rem] md:ml-0 ml-[-6rem] p-1 ">
                                         <summary className="text-xs">
                                             What is this?
                                         </summary>

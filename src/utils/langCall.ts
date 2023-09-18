@@ -50,11 +50,8 @@ ${commentContent}
 POST :
 ${postContent}
 ===
-The POST is a comment on a blog post HTML for your reference only. do not translate the POST or give an answer using html.
-Please elaborate on the CONTENT  based on the POST. Make one or two spelling errors and be sure to include one sentence that factually incorrect to the CONTENT.
-max characters 500 for your response.
-please respond in a way that is intellegent and seems factually correct.
-respond in the language of the CONTENT.
+The POST is a comment on a blog post for your reference only. do not translate the POST or give an answer using html.
+Please elaborate on the CONTENT  based on the POST.
 `.trim()
             return await langchainCall(intellegizerTranslationPrompt)
 
