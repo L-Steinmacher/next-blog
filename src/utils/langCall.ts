@@ -51,7 +51,8 @@ POST :
 ${postContent}
 ===
 The POST is a comment on a blog post for your reference only. do not translate the POST or give an answer using html.
-Please elaborate on the CONTENT  based on the POST.
+Please elaborate on the CONTENT  based on the POST. I also want you to slightly poke fun of the original commenter by mentioning how you think the comment could only be better by using the INTELLEGIZER.
+max character count:500
 `.trim()
             return await langchainCall(intellegizerTranslationPrompt)
 
@@ -64,7 +65,7 @@ async function langchainCall(content: string): Promise<string> {
     if (!openAIApiKey) throw new Error("No OpenAI API key found in env")
 
     const promptTemplate = PromptTemplate.fromTemplate(
-        "You are a helpful assistant that translates a comment into another language or format as instructed. {input}"
+        "You are a helpful assistant that translates a comment into another language or format as instructed. your reply must be 500 characters or less if the content is over 500 characters abbreviate it to just 500 characters. {input}"
     )
 
     const llm = new ChatOpenAI({
