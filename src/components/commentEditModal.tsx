@@ -150,7 +150,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                             </div>
                             <div className="flex flex-grow flex-col items-end justify-between md:flex-row ">
                                 <div className="relative flex h-fit flex-col  ">
-                                    <details className="absolute left-0 top-0 z-50 md:mt-[-1rem] md:ml-0 ml-[-6rem] p-1 ">
+                                    <details className="absolute left-0 top-0 z-50 md:mt-[-1rem] mt-0 md:ml-0 ml-[-6rem] md:pb-3 pb-0">
                                         <summary className="text-xs">
                                             What is this?
                                         </summary>
@@ -162,6 +162,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                         </p>
                                     </details>
                                     <select
+                                        className="block w-full px-4 py-2 pr-8 leading-tight bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-400"
                                         value={caseType}
                                         disabled={
                                             user && user.isAdmin
@@ -172,19 +173,16 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                             setCaseType(e.target.value)
                                         }
                                     >
-                                        <option key="none" value="none">
-                                            none
-                                        </option>
                                         {translateCases.map(c => (
-                                            <option key={c} value={c}>
+                                            <option className='bg-grey-100'  key={c} value={c}>
                                                 {c}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
-                                <div className="flex ">
+                                <div className="flex space-x-4 ">
                                     <button
-                                        className="rounded-md border border-transparent bg-none px-4  py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none"
+                                        className="rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none"
                                         type="submit"
                                         disabled={isTranslating}
                                         onClick={() => {
@@ -197,7 +195,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                         commentId={commentId}
                                     />
                                     <button
-                                        className="rounded-md border border-transparent bg-none px-4  py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-yellow-100 focus:outline-none"
+                                        className="rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-yellow-100 focus:outline-none"
                                         type="submit"
                                         onClick={() => {
                                             closeModal();
