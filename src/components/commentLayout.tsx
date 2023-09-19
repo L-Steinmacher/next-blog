@@ -1,12 +1,5 @@
 import { signIn, useSession } from 'next-auth/react';
-import BadWordsFilter from 'bad-words';
-import {
-    type RefObject,
-    useRef,
-    useState,
-    useCallback,
-    useEffect,
-} from 'react';
+import { type RefObject, useRef, useState, useEffect } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import { api } from '~/utils/api';
@@ -37,7 +30,7 @@ export function CommentLayout({ slug }: { slug: string }) {
     const userIsLoggedIn = !!sessionData;
 
     const utils = api.useContext();
-    const createCommentMutation = api.comments.createComment.useMutation();
+    // const createCommentMutation = api.comments.createComment.useMutation();
 
     useEffect(() => {
         if (commentsData) {
@@ -45,92 +38,39 @@ export function CommentLayout({ slug }: { slug: string }) {
         }
     }, [commentsData]);
 
-    const addComment = useCallback(
-        ({
-            content,
-            postSlug,
-            token,
-        }: {
-            content: string;
-            postSlug: string;
-            token?: string;
-        }) => {
-            if (!token && !isDev) {
-                console.error('No token found!');
-                return;
-            } else if (!token && isDev) {
-                console.log('In Dev enviroment, using dev token!');
-            }
-            try {
-                const newComment = createCommentMutation.mutate(
-                    {
-                        content,
-                        postSlug,
-                        token: token || 'devToken',
-                    },
-                    {
-                        onSuccess: data => {
-                            setAllComments(prevComments => [
-                                ...prevComments,
-                                data,
-                            ]);
-                            utils.comments.getCommentsForPost.setData(
-                                { slug },
-                                [...allComments, data],
-                            );
-                            setComment('');
-                        },
-                        onError: error => {
-                            console.error('Error adding comment:', error);
-                            setErrors(prevErrors => [
-                                ...prevErrors,
-                                error.message,
-                            ]);
-                        },
-                    },
-                );
-                return newComment;
-            } catch (error) {
-                console.error('Error adding comment:', error);
+    const addComment = api.comments.createComment.useMutation({
+        onSuccess: async () => {
+            await utils.comments.getCommentsForPost.refetch({ slug });
+            const lastComment = commentContainerRef.current
+                ?.lastElementChild as HTMLElement | null;
+            if (lastComment) {
+                lastComment.scrollIntoView({ behavior: 'smooth' });
             }
         },
-        [
-            createCommentMutation,
-            slug,
-            utils.comments.getCommentsForPost,
-            allComments,
-        ],
-    );
+        onError: error => {
+            console.error('Error adding comment:', error);
+            setErrors(prevErrors => [...prevErrors, error.message]);
+        },
+        onSettled: () => {
+            setSubmitting(false);
+            setComment('');
+            setGotime(false);
+        },
+    });
 
-    const submitComment = useCallback(() => {
-
+    const submitComment = () => {
         setErrors([]);
-        const filter = new BadWordsFilter();
 
-
-        const filteredComment = filter.clean(comment);
-        console.log(gotime, submitting)
-        addComment({
-            content: filteredComment,
+        addComment.mutate({
+            content: comment,
             postSlug: slug,
             token: token || '',
         });
-        if (!errors) {
-            const lastComment = commentContainerRef.current
-            ?.lastElementChild as HTMLElement | null;
-            if (lastComment) {
-                lastComment.scrollIntoView({ behavior: 'smooth' });
-                setComment('');
-            }
-
-        }
-        setGotime(false);
-        setSubmitting(false);
-    }, [addComment, comment, errors, gotime, slug, submitting, token]);
+    };
 
     // First we wait for the recaptcha token to be set, only then will the boolean gotime to be true
     useEffect(() => {
-        console.log("useEffect", comment);
+        console.log('useEffect', comment);
         if (!gotime) {
             return;
         }
@@ -172,7 +112,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 onChange={e => {
                                     const commentLength = e.target.value.length;
                                     if (commentLength <= 500) {
-                                        setComment(e.target.value)
+                                        setComment(e.target.value);
                                     }
                                 }}
                             />
@@ -226,7 +166,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                                 <>
                                     <button
                                         type="submit"
-                                        className="mt-4 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none"
+                                        className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-md shadow-slate-400 hover:bg-indigo-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                                         tabIndex={2}
                                         aria-label="Submit comment button"
                                         disabled={comment.length < 1}

@@ -82,9 +82,7 @@ export const commentsRouter = createTRPCRouter({
                 }
             }
 
-            const isUserLoggedIn = ctx.session?.user;
-
-            if (!isUserLoggedIn) {
+            if (!ctx.session?.user) {
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You must be logged in to comment",
@@ -108,7 +106,7 @@ export const commentsRouter = createTRPCRouter({
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
             const recentComments = await prisma.comment.findMany({
                 where: {
-                    commenterId: isUserLoggedIn.id,
+                    commenterId: ctx.session?.user.id,
                     createdAt: {
                         gte: fiveMinutesAgo,
                     },
@@ -121,12 +119,14 @@ export const commentsRouter = createTRPCRouter({
                     message: "You're doing that too much. Try again in 5 minutes."
                 });
             }
+            const filter = new BadWordsFilter();
+            const cleanedContent = filter.clean(content.trim());
 
             const comment = await prisma.comment.create({
                 data: {
-                    content: content.trim(),
+                    content: cleanedContent,
                     postSlug: postSlug,
-                    commenterId: isUserLoggedIn.id,
+                    commenterId: ctx.session?.user.id,
                 },
                 include: {
                     commenter: true,
