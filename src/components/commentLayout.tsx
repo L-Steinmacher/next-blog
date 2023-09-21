@@ -1,83 +1,28 @@
-import { signIn, useSession } from 'next-auth/react';
-import { type RefObject, useRef, useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-import { api } from '~/utils/api';
-import { type Comment } from '~/interfaces/comments';
+
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
+import useController from '~/hooks/useController';
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
-const isDev = process.env.NODE_ENV === 'development';
 
 export function CommentLayout({ slug }: { slug: string }) {
-    const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
-        slug,
-    });
 
-    const [submitting, setSubmitting] = useState<boolean>(false);
-    const [token, setToken] = useState<string | null>('');
-    const [comment, setComment] = useState<string>('');
-    const [allComments, setAllComments] = useState<Comment[]>(
-        commentsData || [],
-    );
-    const [errors, setErrors] = useState<string[]>([]);
-    const [gotime, setGotime] = useState<boolean>(false);
+    const {
+        submitting,
+        setSubmitting,
+        setToken,
+        comment,
+        setComment,
+        allComments,
+        errors,
+        setGotime,
+        commentContainerRef,
+        userIsLoggedIn,
 
-    const { data: sessionData } = useSession();
-
-    const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
-    const userIsLoggedIn = !!sessionData;
-
-    const utils = api.useContext();
-    // const createCommentMutation = api.comments.createComment.useMutation();
-
-    useEffect(() => {
-        if (commentsData) {
-            setAllComments(commentsData);
-        }
-    }, [commentsData]);
-
-    const addComment = api.comments.createComment.useMutation({
-        onSuccess: async () => {
-            await utils.comments.getCommentsForPost.refetch({ slug });
-            const lastComment = commentContainerRef.current
-                ?.lastElementChild as HTMLElement | null;
-            if (lastComment) {
-                lastComment.scrollIntoView({ behavior: 'smooth' });
-            }
-        },
-        onError: error => {
-            console.error('Error adding comment:', error);
-            setErrors(prevErrors => [...prevErrors, error.message]);
-        },
-        onSettled: () => {
-            setSubmitting(false);
-            setComment('');
-            setGotime(false);
-        },
-    });
-
-    const submitComment = () => {
-        setErrors([]);
-
-        addComment.mutate({
-            content: comment,
-            postSlug: slug,
-            token: token || '',
-        });
-    };
-
-    // First we wait for the recaptcha token to be set, only then will the boolean gotime to be true
-    useEffect(() => {
-        console.log('useEffect', comment);
-        if (!gotime) {
-            return;
-        }
-        submitComment();
-        // linkter wants submitComment in dep array but that causes issues.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gotime]);
+    } = useController({ slug })
 
     return (
         <div>
@@ -133,7 +78,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                                             tabIndex={2}
                                             aria-label="Submit comment button"
                                             onClick={e => {
-                                                console.log('clicked', gotime);
                                                 e.preventDefault();
                                                 setGotime(true);
                                             }}
