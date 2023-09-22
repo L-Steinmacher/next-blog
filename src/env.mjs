@@ -36,7 +36,7 @@ export const env = createEnv({
     // VERCEL: z.string().optional(),
     VERCEL_ENV: z.string().optional(),
     GOOGLE_RECATPTCHA_SECRET_KEY: z.string(),
-    NEXT_PUBLIC_RECAPTCHA_KEY: z.string(),
+    GOOGLE_PUBLIC_RECAPTCHA_KEY: z.string(),
     RESEND_API_KEY: z.string().min(1),
     ADMIN_EMAIL: z.string().email(),
   },
@@ -47,7 +47,6 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_RECAPTCHA_KEY: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
   },
 
@@ -75,7 +74,7 @@ export const env = createEnv({
     // VERCEL: process.env.VERCEL,
     VERCEL_ENV: process.env.VERCEL_ENV,
     GOOGLE_RECATPTCHA_SECRET_KEY: process.env.GOOGLE_RECATPTCHA_SECRET_KEY,
-    NEXT_PUBLIC_RECAPTCHA_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_KEY,
+    GOOGLE_PUBLIC_RECAPTCHA_KEY: process.env.GOOGLE_PUBLIC_RECAPTCHA_KEY,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   },
