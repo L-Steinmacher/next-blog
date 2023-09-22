@@ -23,7 +23,6 @@ export default function useController({ slug }: { slug: string}) {
     const userIsLoggedIn = !!sessionData;
 
     const utils = api.useContext();
-    // const createCommentMutation = api.comments.createComment.useMutation();
 
     useEffect(() => {
         if (commentsData) {

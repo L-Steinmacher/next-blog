@@ -1,12 +1,11 @@
 import { signIn } from 'next-auth/react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
 import useController from '~/hooks/useController';
 
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_KEY;
+const RECAPTCHA_SITE_KEY = process.env.GOOGLE_PUBLIC_RECAPTCHA_KEY;
 
 export function CommentLayout({ slug }: { slug: string }) {
 
@@ -21,7 +20,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         setGotime,
         commentContainerRef,
         userIsLoggedIn,
-
     } = useController({ slug })
 
     return (

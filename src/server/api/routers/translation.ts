@@ -6,7 +6,6 @@ import { z } from "zod";
 import { LangCall } from "~/utils/langCall";
 import { getPostBySlug } from "lib/blogApi";
 import { type NonNullablePostOptions } from "~/interfaces/post";
-import markdownToHtml from "lib/markdownToHtml";
 import BadWordsFilter from "bad-words";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
@@ -100,8 +99,6 @@ export const translationRouter = createTRPCRouter({
                         message: "No post found!",
                     });
                 }
-                // parse markdown from postData.content to string utf8
-                const postContent =
 
                 console.log(postData.content);
                 newCommentContent = await LangCall(cleanedComment, caseType, postData.content);

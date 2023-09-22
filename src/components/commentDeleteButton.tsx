@@ -10,6 +10,9 @@ export default function CommentDeleteButton({
         onSuccess: async () => {
             await utils.comments.invalidate();
         },
+        onError: error => {
+            console.log('error deleting comment', error);
+        }
     });
 
     function handleDeleteComment(commentId: string) {

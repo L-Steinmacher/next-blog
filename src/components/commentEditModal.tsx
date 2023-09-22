@@ -20,7 +20,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [commentContent, setCommentContent] = useState<string>(
-        comment?.content,
+        comment.content,
     );
     const [caseType, setCaseType] = useState<string>('none');
     const [isTranslating, setIsTranslating] = useState(false);
@@ -35,9 +35,9 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
     };
 
     useEffect(() => {
-        if (!commentContent) {
-            setCommentContent(comment?.content);
-        }
+        // if (!commentContent) {
+        //     setCommentContent(comment?.content);
+        // }
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 closeModal();
@@ -64,6 +64,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
             window.removeEventListener('keydown', handleKeyDown);
             document.removeEventListener('click', handleOutsideClick);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const utils = api.useContext();

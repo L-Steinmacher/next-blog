@@ -1,5 +1,5 @@
 import remarkHtml from 'remark-html'
-import remarkParse from 'remark-parse/lib'
+import remarkParse from 'remark-parse'
 import { type Plugin, unified } from 'unified'
 
 export default async function markdownToHtml(markdown: string) {
