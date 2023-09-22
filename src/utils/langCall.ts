@@ -4,6 +4,7 @@ import { CallbackManager } from 'langchain/callbacks'
 import { RunnableSequence } from 'langchain/schema/runnable'
 import { StringOutputParser } from 'langchain/schema/output_parser'
 import { env } from '~/env.mjs'
+import useController from '~/hooks/useController'
 
 const openAIApiKey = env.OPENAI_API_KEY;
 

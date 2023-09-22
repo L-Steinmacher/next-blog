@@ -1,7 +1,6 @@
 import { signIn } from 'next-auth/react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-
 import { typedBoolean } from '~/utils/miscUtils';
 import CommentCard from './commentCard';
 import useController from '~/hooks/useController';
@@ -21,7 +20,6 @@ export function CommentLayout({ slug }: { slug: string }) {
         setGotime,
         commentContainerRef,
         userIsLoggedIn,
-
     } = useController({ slug })
 
     return (
