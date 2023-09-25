@@ -79,7 +79,7 @@ async function langchainCall(content: string): Promise<string> {
 The first two are self-explanatory and simply translate your comment into German
 or Spanish. The third, "Bruh," gives you a personality similar to a surfer guy
 who constantly talks about his buddy Chad. Finally, there's the Intelligizer,
-which is supposed to be kind of a joke, which will read the content of the blog
+which is supposed to be kind of a joke[^2], which will read the content of the blog
 post and expand upon your comment's content!
 
 ![Translator in action!](/images/translation_final.gif)
