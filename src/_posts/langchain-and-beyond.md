@@ -24,7 +24,7 @@ using JavaScript and JSX, designed to integrate seamlessly with React-based
 projects.
 
 We trained our app on articles based on preset locations to provide up-to-date
-travel recommendations from Atlas Obscura and Eater.com, utilizing the Google
+travel recommendations from [Atlas Obscura](https://www.atlasobscura.com/) and [Eater](https://seattle.eater.com/), utilizing the Google
 Maps API. The idea was to allow a user to select any location from the Google
 Maps API and receive up-to-date travel information based on the selected sites.
 What we ended up with was more of a proof of concept, in which we had
@@ -75,7 +75,6 @@ async function langchainCall(content: string): Promise<string> {
 }
 ```
 
-
 The first two are self-explanatory and simply translate your comment into German
 or Spanish. The third, "Bruh," gives you a personality similar to a surfer guy
 who constantly talks about his buddy Chad. Finally, there's the Intelligizer,
@@ -94,6 +93,5 @@ LLMs on my site. So stay tuned for more features to come!
 That's it for now! Feel free to leave a comment and try out the translation to
 see how ChatGPT does against Google's translation!
 
-
 [^1]: Results may vary.
-[^2]: Contrary to popular belief, using a feature like this does not actually make you ANY more intelligent. Read more, learn, grow.
+[^2]: Contrary to popular belief, using a feature like this does not actually make you ANY more intelligent. Read more, learn, grow. I'm adding in this silly option of what a call like this could do, what it should do.
