@@ -29,9 +29,25 @@ export default function useController({ slug }: { slug: string}) {
             setAllComments(commentsData);
         }
     }, [commentsData]);
+    let newComment: Comment ;
 
     const addComment = api.comments.createComment.useMutation({
+        onMutate: () => {
+            newComment = {
+                content: comment,
+                createdAt: new Date(),
+                id: '',
+                postSlug: slug,
+                commenter: {
+                    id: sessionData?.user?.id || 'default-id',
+                    name: sessionData?.user?.name || '',
+                    image: sessionData?.user?.image || '',
+                },
+            };
+            setAllComments(prevComments => [...prevComments, newComment]);
+        },
         onSuccess: async () => {
+            setComment('');
             await utils.comments.getCommentsForPost.refetch({ slug });
             const lastComment = commentContainerRef.current
                 ?.lastElementChild as HTMLElement | null;
@@ -42,10 +58,10 @@ export default function useController({ slug }: { slug: string}) {
         onError: error => {
             console.error('Error adding comment:', error);
             setErrors(prevErrors => [...prevErrors, error.message]);
+            setAllComments(allComments.filter(c => c.id !== newComment.id));
         },
         onSettled: () => {
             setSubmitting(false);
-            setComment('');
             setGotime(false);
         },
     });

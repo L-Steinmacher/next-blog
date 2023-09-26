@@ -1,5 +1,5 @@
 .markdown {
-    @apply text-lg leading-relaxed;
+    @apply text-lg leading-relaxed scroll-smooth;
 }
 
 .markdown p {
@@ -66,4 +66,3 @@
 
     @apply my-6 overflow-x-auto rounded-md bg-[--base00] p-4;
 }
-
