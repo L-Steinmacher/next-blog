@@ -3,14 +3,7 @@ import { api } from '~/utils/api';
 import CommentDeleteButton from './commentDeleteButton';
 import { useSession } from 'next-auth/react';
 import { type Comment } from '~/interfaces/comments';
-
-const translateCases = [
-    'none',
-    'spanish',
-    'german',
-    'bruh',
-    'intellegizer',
-] as const;
+import { translateCases, type TranslateCase } from '~/interfaces/translate';
 
 export default function CommentEditModal({ comment }: { comment: Comment }) {
     const commentId = comment?.id;
@@ -110,7 +103,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
         } else {
             translateMutation.mutate({
                 commentId,
-                caseType: caseType as (typeof translateCases)[number],
+                caseType: caseType as TranslateCase,
             });
         }
     }
