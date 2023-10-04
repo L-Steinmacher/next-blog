@@ -14,6 +14,7 @@ const translateCases = [
 
 export default function CommentEditModal({ comment }: { comment: Comment }) {
     const commentId = comment?.id;
+    const initialContent = comment?.content;
 
     const { data: sessionData } = useSession();
     const user = sessionData?.user;
@@ -64,7 +65,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
             window.removeEventListener('keydown', handleKeyDown);
             document.removeEventListener('click', handleOutsideClick);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const utils = api.useContext();
@@ -131,9 +132,17 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                 </p>
                             </div>
                         )}
-                        <div className="container flex h-full flex-col justify-between ">
+                        <div className="container flex h-full flex-col justify-between">
                             <div>
-                                <form className=" ">
+                                <form >
+                                    <div style={{display: 'none'}}>
+                                        <label htmlFor='name_confirm'>Please leave this field blank </label>
+                                        <input
+                                            type="text"
+                                            name="name__confirm"
+                                            id="name__confirm"
+                                        />
+                                    </div>
                                     <label htmlFor="comment">Comment</label>
                                     <textarea
                                         name="comment"
@@ -141,7 +150,10 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                         cols={30}
                                         rows={10}
                                         value={commentContent}
-                                        disabled={commentContent.length > 500 || isTranslating}
+                                        disabled={
+                                            commentContent.length > 500 ||
+                                            isTranslating
+                                        }
                                         onChange={e =>
                                             setCommentContent(e.target.value)
                                         }
@@ -175,13 +187,25 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                         }
                                     >
                                         {translateCases.map(c => (
-                                            <option className='bg-grey-100'  key={c} value={c}>
+                                            <option
+                                                className="bg-grey-100"
+                                                key={c}
+                                                value={c}
+                                            >
                                                 {c}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
-                                <div className="flex space-x-4 ">
+                                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                                    <button
+                                        type="reset"
+                                        className='rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none'
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            setCommentContent(initialContent);
+                                            }}
+                                    >Reset</button>
                                     <button
                                         className="rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none"
                                         type="submit"
@@ -190,7 +214,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                             handleUpdate();
                                         }}
                                     >
-                                        update
+                                        Update
                                     </button>
                                     <CommentDeleteButton
                                         commentId={commentId}
@@ -202,7 +226,7 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
                                             closeModal();
                                         }}
                                     >
-                                        cancel
+                                        Cancel
                                     </button>
                                 </div>
                             </div>

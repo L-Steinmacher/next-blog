@@ -61,6 +61,7 @@ export default function useController({ slug }: { slug: string}) {
             setAllComments(allComments.filter(c => c.id !== newComment.id));
         },
         onSettled: () => {
+            console.log('onSettled', submitting);
             setSubmitting(false);
             setGotime(false);
         },

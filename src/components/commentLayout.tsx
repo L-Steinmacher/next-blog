@@ -98,7 +98,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                             {errors.length
                                 ? errors.map((error, i) => (
                                       <p key={i} className="text-red-500">
-                                          {}
+                                          {errors}
                                       </p>
                                   ))
                                 : null}
