@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 import BadWordsFilter from "bad-words";
 import { z } from "zod";
 import {
@@ -8,6 +7,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
+import { trpcInvariant } from "~/utils/miscUtils";
 import { sendEmail } from "~/utils/sendEmail";
 import validateToken from "~/utils/validateToken";
 
@@ -39,12 +39,7 @@ export const commentsRouter = createTRPCRouter({
                 select: defaultCommentSelect,
             });
 
-            if (!comments) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: `No comments found for post ${slug}`,
-                });
-            }
+            trpcInvariant(comments, "NOT_FOUND", `No comments found for post ${slug}`);
             return comments;
         }),
     getCommentData: publicProcedure
@@ -57,51 +52,26 @@ export const commentsRouter = createTRPCRouter({
                 },
                 select: defaultCommentSelect,
             });
-            if (!comment) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: `No comment found with id ${commentId}`,
-                });
-            }
+            trpcInvariant(comment, "NOT_FOUND", `No comment found with id ${commentId}`);
             return comment;
         }),
     createComment: protectedProcedure
         .input(z.object({ postSlug: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy."), token: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const { postSlug, content, token } = input;
+            const { session } = ctx;
             const isDev = process.env.NODE_ENV === "development";
             if (isDev) {
                 console.log("Recaptcha validation skipped in development");
             } else {
                 const recaptchaResponse = await validateToken(token);
-                if (!recaptchaResponse.success) {
-                    throw new TRPCError({
-                        code: "BAD_REQUEST",
-                        message: "Recaptcha validation failed",
-                    });
-                }
+                trpcInvariant(recaptchaResponse, "BAD_REQUEST", "Recaptcha validation failed");
             }
 
-            if (!ctx.session?.user) {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "You must be logged in to comment",
-                });
-            }
-
-            if (!input.content || typeof content !== "string") {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "Comment must have content",
-                });
-            }
-
-            if (!input.postSlug || typeof postSlug !== "string") {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "Comment must have a post slug. Actually HTF did you get here?",
-                });
-            }
+            trpcInvariant(session?.user, "UNAUTHORIZED", "You must be logged in to comment");
+            trpcInvariant(content, "BAD_REQUEST", "Comment must have content");
+            trpcInvariant(typeof content === "string", "BAD_REQUEST", "Comment must have content");
+            trpcInvariant(postSlug, "BAD_REQUEST", "Comment must have a post slug")
 
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
             const recentComments = await prisma.comment.findMany({
@@ -112,13 +82,9 @@ export const commentsRouter = createTRPCRouter({
                     },
                 },
             });
+            const rateLimited = recentComments.length >= 5;
+            trpcInvariant(!rateLimited, "TOO_MANY_REQUESTS", "You're doing that too much. Try again in 5 minutes.")
 
-            if (recentComments.length >= 5) {
-                throw new TRPCError({
-                    code: "TOO_MANY_REQUESTS",
-                    message: "You're doing that too much. Try again in 5 minutes."
-                });
-            }
             const filter = new BadWordsFilter();
             const cleanedContent = filter.clean(content.trim());
 
@@ -132,24 +98,17 @@ export const commentsRouter = createTRPCRouter({
                     commenter: true,
                 },
             });
-            if (!comment) {
-                throw new TRPCError({
-                    code: "INTERNAL_SERVER_ERROR",
-                    message: "Something went wrong creating your comment",
-                });
-            } else {
-                if (!isDev) {
-                    const res = await sendEmail({
-                        to: admin_email,
-                        subject: `New Comment on ${postSlug}`,
-                        html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
-                        text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
-                    })
-                    console.log("sendEmail res", res);
-                }
-
-                return comment;
+            trpcInvariant(comment, "INTERNAL_SERVER_ERROR", "Something went wrong creating your comment");
+            if (!isDev) {
+                const res = await sendEmail({
+                    to: admin_email,
+                    subject: `New Comment on ${postSlug}`,
+                    html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
+                    text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
+                })
+                console.log("sendEmail res", res);
             }
+            return comment;
         }),
     updateComment: protectedProcedure
         .input(z.object({ commentId: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy.") }))
@@ -163,20 +122,11 @@ export const commentsRouter = createTRPCRouter({
                 },
                 select: defaultCommentSelect,
             });
-            if (!comment) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: `No comment found with id ${commentId}`,
-                });
-            }
+            trpcInvariant(comment, "NOT_FOUND", `No comment found with id ${commentId}`);
 
             const isOwnComment = ctx.session?.user?.id === comment.commenter.id;
-            if (!isOwnComment) {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "You are not authorized to update this comment!!!",
-                });
-            }
+            trpcInvariant(isOwnComment, "UNAUTHORIZED", "You are not authorized to update this comment!!!");
+
             const updatedComment = await prisma.comment.update({
                 where: {
                     id: commentId,
@@ -198,31 +148,22 @@ export const commentsRouter = createTRPCRouter({
                 },
                 select: defaultCommentSelect,
             });
-            if (!comment) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: `No comment found with id ${commentId}`,
-                });
-            }
+            trpcInvariant(comment, "NOT_FOUND", `No comment found with id ${commentId}`);
 
             const userIsAdmin = ctx.session?.user?.isAdmin;
             const loggedInUserId = ctx.session?.user?.id;
             const commentAuthorId = comment.commenter.id;
             const isOwnComment = loggedInUserId === commentAuthorId;
-            if (userIsAdmin || isOwnComment) {
-                await prisma.comment.delete({
-                    where: {
-                        id: commentId,
-                    },
-                });
+            const allowedToDelete = userIsAdmin || isOwnComment;
+            trpcInvariant(allowedToDelete, "UNAUTHORIZED", "You are not authorized to delete this comment!!!");
 
-                return { success: true };
-            } else {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "You are not authorized to delete this comment!!!",
-                });
-            }
+            await prisma.comment.delete({
+                where: {
+                    id: commentId,
+                },
+            });
+
+            return { success: true };
 
         }),
 });

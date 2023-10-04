@@ -1,12 +1,12 @@
 import { prisma } from "~/server/db";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { Prisma } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { LangCall } from "~/utils/langCall";
 import { getPostBySlug } from "lib/blogApi";
 import { type NonNullablePostOptions } from "~/interfaces/post";
 import BadWordsFilter from "bad-words";
+import { trpcInvariant } from "~/utils/miscUtils";
 
 export const defaultCommentSelect = Prisma.validator<Prisma.CommentSelect>()({
     id: true,
@@ -28,6 +28,7 @@ export const translationRouter = createTRPCRouter({
         .input(z.object({ commentId: z.string(), caseType: z.enum(translateCases) }))
         .mutation(async ({ ctx, input }) => {
             const { commentId, caseType } = input;
+
             const filter = new BadWordsFilter();
 
             const comment = await prisma.comment.findUnique({
@@ -36,22 +37,12 @@ export const translationRouter = createTRPCRouter({
                 },
                 select: defaultCommentSelect,
             });
+            trpcInvariant(comment, "NOT_FOUND", "No comment found!");
 
-            if (!comment) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: `No comment found!`,
-                });
-            }
             const loggedInUserId = ctx.session?.user.id;
             const originalCommenterId = comment?.commenter.id;
 
-            if (loggedInUserId !== originalCommenterId) {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "You are not the original commenter",
-                });
-            }
+            trpcInvariant(loggedInUserId !== originalCommenterId, "BAD_REQUEST", "You are not the original commenter");
 
             const cleanedComment = filter.clean(comment.content.trim());
 
@@ -75,30 +66,15 @@ export const translationRouter = createTRPCRouter({
                     langToken: true,
                 },
             });
-            if (!curLangTokens )  {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "No tokens found!",
-                });
-            }
-            if (curLangTokens.langToken <= 0) {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "You don't have enough tokens",
-                });
-            }
+            trpcInvariant(curLangTokens, "BAD_REQUEST", "No tokens found!")
+            trpcInvariant(curLangTokens.langToken > 0, "BAD_REQUEST", "You don't have enough tokens");
 
             curLangTokens.langToken -= 1;
 
             let newCommentContent: string;
             if (caseType === "intellegizer") {
                 const postData: NonNullablePostOptions = await getPostBySlug(comment.postSlug, ["content"]);
-                if (!postData) {
-                    throw new TRPCError({
-                        code: "BAD_REQUEST",
-                        message: "No post found!",
-                    });
-                }
+                trpcInvariant(postData, "BAD_REQUEST", "No post found!");
 
                 console.log(postData.content);
                 newCommentContent = await LangCall(cleanedComment, caseType, postData.content);

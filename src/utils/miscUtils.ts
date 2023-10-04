@@ -1,3 +1,6 @@
+import { TRPCError } from "@trpc/server";
+import { type TRPC_ERROR_CODES_BY_KEY } from "@trpc/server/rpc";
+
 export function typedBoolean<T>(
     value: T
   ): value is Exclude<T, false | null | undefined | "" | 0> {
@@ -19,5 +22,17 @@ export function formatRelativeTime(creationDate: string) {
     return `${timeDifferenceInHours} hours ago.`
   } else {
     return postDate.toLocaleDateString();
+  }
+}
+
+export function trpcInvariant(
+  condition: unknown,
+  code?:  keyof typeof TRPC_ERROR_CODES_BY_KEY,
+  message?: string,
+) : asserts condition {
+  const thrownCode = code && typeof code === "string" ? code : "INTERNAL_SERVER_ERROR";
+  const thrownMessage = message || "An invariant has occurred and no response message provided.";
+  if (!condition) {
+    throw new TRPCError({ code: thrownCode, message:thrownMessage});
   }
 }
