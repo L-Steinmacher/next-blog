@@ -1,33 +1,23 @@
 import { getAllPosts } from 'lib/blogApi';
-import Head from 'next/head';
-import { type NonNullablePostOptions } from '../interfaces/post';
 import Link from 'next/link';
 import Image from 'next/image';
+import { type Metadata } from 'next';
 
-type PromiseType<T extends Promise<unknown>> = T extends Promise<infer R> ? R : never;
+export const metaData: Metadata = {
+    title: 'Lucas Steinmacher - Software Engineering Blog',
+    description:
+        'Explore articles by Lucas Steinmacher, a Seattle-based software engineer, covering various topics in technology and development.',
+    robots: 'index,follow',
+    keywords: 'Lucas Steinmacher, Panz, Panzer, Software Developer, Software Engineer',
+    };
 
-type Props = {
-  latestPosts: PromiseType<ReturnType<typeof getAllPosts>>;
-};
-
-export default function Home({ latestPosts }: Props) {
-  if (!latestPosts || latestPosts.length === 0) {
-    return <p>No posts found!</p>
-  }
-
-  const latestPost = latestPosts[0] as NonNullablePostOptions;
+export default async function Home() {
+  const latestPosts = await getBlogPosts();
+  const latestPost = latestPosts[0];
   const remainingLatestPosts = latestPosts.slice(1);
 
   return (
     <>
-      <Head>
-        <title>Lucas Steinmacher</title>
-        <meta name="description" content="Explore articles by Lucas Steinmacher, a Seattle-based software engineer, covering various topics in technology and development."/>
-        <meta name="keywords" content="Lucas Steinmacher, Panz, Panzer" />
-        <meta charSet="utf-8" />
-        <link rel="icon" href="favicon.ico" />
-        <meta name="robots" content="index,follow" />
-      </Head>
       <main className="flex flex-col items-center max-w-4xl px-4 mx-auto">
         <div className="container flex flex-col items-start justify-center py-16">
           <div className="flex flex-col items-center justify-between sm:flex-row">
@@ -123,13 +113,18 @@ export default function Home({ latestPosts }: Props) {
   );
 }
 
-export async function getStaticProps() {
-  // get the latest blog post
-  const latestPosts = await getAllPosts(['title', 'date', 'slug', 'excerpt']);
-
-  return {
-    props: {
-      latestPosts,
-    },
-  };
+export async function getBlogPosts() {
+  // sort by date in descending order
+  let allPosts = await getAllPosts(['title', 'date', 'slug', 'excerpt']);
+    allPosts = allPosts.sort((a, b) => {
+        if (a.date && b.date) {
+            return b.date.localeCompare(a.date);
+        } else if (a.date) {
+            return -1;
+        } else if (b.date) {
+            return 1;
+        }
+        return 0;
+    });
+    return allPosts;
 }

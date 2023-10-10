@@ -1,16 +1,16 @@
-import Head from "next/head";
+import { type Metadata } from "next";
 import Image from "next/image";
+
+export const metaData: Metadata = {
+  title: 'Experienced Software Engineer | About Me - Lucas',
+  description:
+      'Meet Lucas (Panz), a skilled software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname \'Panz\' and get to know the person behind the code. | Your App Name.',
+};
 
 export default function About() {
   return (
     <div className="mx-auto max-w-2xl px-6 pt-16">
-      <Head>
-        <title>Experienced Software Engineer | About Me - Lucas</title>
-        <meta
-          name="description"
-          content="Meet Lucas (Panz), a skilled software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname 'Panz' and get to know the person behind the code. | Your App Name."
-        />
-      </Head>
+
       <article>
         <section>
           <div>

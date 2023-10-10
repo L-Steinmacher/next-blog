@@ -44,7 +44,9 @@ export const commentsRouter = createTRPCRouter({
         }),
     getCommentData: publicProcedure
         .input(z.object({ commentId: z.string() }))
-        .query(async ({ input }) => {
+        .query(async ({ ctx, input }) => {
+            // TODO: make this a protected procedure
+            // as only a user with a session will be getting a single comment for the edit comment flow.
             const { commentId } = input;
             const comment = await prisma.comment.findUnique({
                 where: {
@@ -99,15 +101,17 @@ export const commentsRouter = createTRPCRouter({
                 },
             });
             trpcInvariant(comment, "INTERNAL_SERVER_ERROR", "Something went wrong creating your comment");
+            const email = {
+                to: admin_email,
+                subject: `New Comment on ${postSlug}`,
+                html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
+                text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
+            };
             if (!isDev) {
-                const res = await sendEmail({
-                    to: admin_email,
-                    subject: `New Comment on ${postSlug}`,
-                    html: `<p>${comment.commenter.name || "Anonymous"} commented on ${postSlug}:</p><p>${comment.content}</p>`,
-                    text: `${comment.commenter.name || "Anonymous"} commented on ${postSlug}:\n${comment.content}`,
-                })
+                const res = await sendEmail(email)
                 console.log("sendEmail res", res);
             }
+            console.log("email", email);
             return comment;
         }),
     updateComment: protectedProcedure
@@ -125,6 +129,7 @@ export const commentsRouter = createTRPCRouter({
             trpcInvariant(comment, "NOT_FOUND", `No comment found with id ${commentId}`);
 
             const isOwnComment = ctx.session?.user?.id === comment.commenter.id;
+            // Todo: log user out if they get this far and are not the author
             trpcInvariant(isOwnComment, "UNAUTHORIZED", "You are not authorized to update this comment!!!");
 
             const updatedComment = await prisma.comment.update({
@@ -155,6 +160,7 @@ export const commentsRouter = createTRPCRouter({
             const commentAuthorId = comment.commenter.id;
             const isOwnComment = loggedInUserId === commentAuthorId;
             const allowedToDelete = userIsAdmin || isOwnComment;
+            // Todo: log user out if they get this far and are not the author
             trpcInvariant(allowedToDelete, "UNAUTHORIZED", "You are not authorized to delete this comment!!!");
 
             await prisma.comment.delete({

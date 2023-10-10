@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Socials from "./socials";
+import Socials from "../components/socials";
 
 export default function Nav() {
    return (
@@ -9,7 +9,6 @@ export default function Nav() {
                     <Link href="/">Home</Link>
                     <Link href="/about">About</Link>
                     <Link href="/contact">Contact</Link>
-
                 </ul>
             <Socials direction="row" />
             </div>

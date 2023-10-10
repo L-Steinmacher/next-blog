@@ -1,5 +1,7 @@
+'use client'
+
 import Link from "next/link";
-import Socials from "./socials";
+import Socials from "../components/socials";
 import { useState } from "react";
 
 export default function Footer() {
