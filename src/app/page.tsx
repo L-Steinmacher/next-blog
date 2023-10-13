@@ -55,7 +55,6 @@ export default async function Home() {
                   className="object-cover rounded-full"
                   width={120}
                   height={100}
-
                   alt="Lucas Steinmacher photo"
                 />
               </div>
