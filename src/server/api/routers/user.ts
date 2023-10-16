@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { prisma } from "~/server/db";
+import { db as prisma } from "~/server/db";
 import { z } from "zod";
 
 export const userRouter = createTRPCRouter({

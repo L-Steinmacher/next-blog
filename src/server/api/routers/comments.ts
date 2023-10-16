@@ -6,7 +6,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
-import { prisma } from "~/server/db";
+import { db as prisma } from "~/server/db";
 import { trpcInvariant } from "~/utils/miscUtils";
 import { sendEmail } from "~/utils/sendEmail";
 import validateToken from "~/utils/validateToken";
@@ -44,7 +44,7 @@ export const commentsRouter = createTRPCRouter({
         }),
     getCommentData: publicProcedure
         .input(z.object({ commentId: z.string() }))
-        .query(async ({ ctx, input }) => {
+        .query(async ({ input }) => {
             // TODO: make this a protected procedure
             // as only a user with a session will be getting a single comment for the edit comment flow.
             const { commentId } = input;
