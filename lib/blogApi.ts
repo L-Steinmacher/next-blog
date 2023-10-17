@@ -25,7 +25,7 @@ export async function getPostBySlug<T extends keyof PostOptions>(slug: string, f
     let fileContents: string
 
     if (cache.has(fullPath)) {
-        fileContents = cache.get(fullPath) || ''
+        fileContents = cache.get(fullPath) ?? ''
     }else {
         try {
             fileContents = await fs.promises.readFile(fullPath, 'utf8')

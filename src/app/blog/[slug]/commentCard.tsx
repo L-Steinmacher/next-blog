@@ -1,5 +1,6 @@
+'use client';
 import Image from 'next/image';
-import { type Comment } from '../interfaces/comments';
+import { type Comment } from '../../../interfaces/comments';
 import { formatRelativeTime } from '~/utils/miscUtils';
 import CommentEditModal from './commentEditModal';
 import { useSession } from 'next-auth/react';

@@ -16,6 +16,7 @@ type Props = {
 };
 
 export default function Post({ post, stats }: Props) {
+
   const router = useRouter();
   if (!post.slug) throw router.push('/404');
 

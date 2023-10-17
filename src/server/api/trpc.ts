@@ -8,12 +8,11 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { type Session } from "next-auth";
+import { type NextRequest } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { getServerAuthSession } from "~/server/auth";
-import { prisma } from "~/server/db";
+import { db } from "~/server/db";
 
 /**
  * 1. CONTEXT
@@ -23,9 +22,9 @@ import { prisma } from "~/server/db";
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
-type CreateContextOptions = {
-  session: Session | null;
-};
+interface CreateContextOptions {
+  headers: Headers;
+}
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -37,10 +36,13 @@ type CreateContextOptions = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (opts: CreateContextOptions) => {
+export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
+  const session = await getServerAuthSession();
+
   return {
-    session: opts.session,
-    prisma,
+    session,
+    headers: opts.headers,
+    db,
   };
 };
 
@@ -50,14 +52,11 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
-  const { req, res } = opts;
+export const createTRPCContext = async (opts: { req: NextRequest }) => {
+  // Fetch stuff that depends on the request
 
-  // Get the session from the server using the getServerSession wrapper function
-  const session = await getServerAuthSession({ req, res });
-
-  return createInnerTRPCContext({
-    session,
+  return await createInnerTRPCContext({
+    headers: opts.req.headers,
   });
 };
 

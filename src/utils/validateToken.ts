@@ -5,11 +5,11 @@ interface RecaptchaResponse {
   "error-codes"?: string[];
 }
 const BASE_URL = process.env.BASE_URL;
+const isDev = process.env.NODE_ENV === 'development';
 
 export default async function validateToken(token: string): Promise<RecaptchaResponse> {
   try {
     const url = BASE_URL || 'http://localhost:3000';
-    const isDev = url === 'http://localhost:3000';
     if (isDev) {
       console.log('Recaptcha validation skipped in development');
       return {
