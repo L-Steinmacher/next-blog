@@ -1,7 +1,7 @@
 import { type Metadata } from "next";
 import Image from "next/image";
 
-export const metaData: Metadata = {
+export const metadata: Metadata = {
   title: 'About Me - Lucas',
   description:
       'Meet Lucas (Panz), a software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname \'Panz\' and get to know the person behind the code.',

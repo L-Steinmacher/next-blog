@@ -7,7 +7,7 @@ type Props = {
 export default function PostBody({ content }: Props) {
   return (
     <div
-      className={markdownStyles['markdown']}
+      className={markdownStyles.markdown}
       role="article"
       aria-label="Post Content"
       dangerouslySetInnerHTML={{ __html: content }}

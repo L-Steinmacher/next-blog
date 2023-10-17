@@ -11,7 +11,7 @@ interface CommentCardProps {
 
 // Create the CommentCard component
 const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
-    const commenterImage = comment.commenter?.image || '/images/user.png';
+    const commenterImage = comment.commenter?.image ?? '/images/user.png';
     const createdAt = comment.createdAt.toISOString();
     const displayTime = formatRelativeTime(createdAt);
 
@@ -30,7 +30,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
                     <Image
                         className="mr-3 h-8 w-8 rounded-full"
                         src={commenterImage}
-                        alt={comment.commenter?.name || 'Commenter Image'}
+                        alt={comment.commenter?.name ?? 'Commenter Image'}
                         width={32}
                         height={32}
                     />

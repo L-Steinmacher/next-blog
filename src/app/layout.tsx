@@ -5,7 +5,7 @@ import Layout from '~/app/pageLayout';
 import { TRPCReactProvider } from '~/trpc/react';
 import { headers } from 'next/headers';
 
-export const metaData: Metadata = {
+export const metadata: Metadata = {
     title: 'Lucas Steinmacher - Software Engineering Blog',
     description:
         'Explore articles by Lucas Steinmacher, a Seattle-based software engineer, covering various topics in technology and development.',
