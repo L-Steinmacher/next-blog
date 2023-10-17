@@ -2,20 +2,19 @@ import { type Metadata } from "next";
 import Image from "next/image";
 
 export const metaData: Metadata = {
-  title: 'Experienced Software Engineer | About Me - Lucas',
+  title: 'About Me - Lucas',
   description:
-      'Meet Lucas (Panz), a skilled software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname \'Panz\' and get to know the person behind the code. | Your App Name.',
+      'Meet Lucas (Panz), a software engineer based in Seattle with 3 years of experience. Formerly a fine dining chef, he brings a client-centric approach to software development. Explore his outdoor passions and culinary delights. Discover the story behind the nickname \'Panz\' and get to know the person behind the code.',
 };
 
 export default function About() {
   return (
     <div className="mx-auto max-w-2xl px-6 pt-16">
-
       <article>
         <section>
           <div>
-            <div className="flex flex-row w-full items-center  pb-8">
-              <h2 className=" text-center pr-10 text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
+            <div className="flex flex-row w-full items-center pb-8">
+              <h2 className="text-center pr-10 text-xl font-bold leading-tight tracking-tighter md:text-left md:text-4xl md:leading-none lg:text-4xl">
               Impatient? TL;DR
             </h2>
             <Image

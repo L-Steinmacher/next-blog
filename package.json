@@ -2,7 +2,7 @@
   "name": "next-blog",
   "version": "0.1.0",
   "private": true,
-  "author": "Lucas Steinmacher (https://www.steinmacher.dev",
+  "author": "Lucas Steinmacher (https://www.steinmacher.dev)",
   "type": "module",
   "scripts": {
     "build": "next build",
