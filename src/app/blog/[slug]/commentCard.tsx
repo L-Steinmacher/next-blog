@@ -1,26 +1,25 @@
-'use client';
+
 import Image from 'next/image';
-import { type Comment } from '../../../interfaces/comments';
 import { formatRelativeTime } from '~/utils/miscUtils';
 import CommentEditModal from './commentEditModal';
-import { useSession } from 'next-auth/react';
-import CommentDeleteButton from './commentDeleteButton';
 
-interface CommentCardProps {
-    comment: Comment;
-}
+import CommentDeleteButton from './commentDeleteButton';
+import { getServerAuthSession } from '~/server/auth';
+import { type Comment } from '~/interfaces/comments';
+
 
 // Create the CommentCard component
-const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
+export default async function CommentCard({ comment }: { comment: Comment }) {
     const commenterImage = comment.commenter?.image ?? '/images/user.png';
     const createdAt = comment.createdAt.toISOString();
     const displayTime = formatRelativeTime(createdAt);
 
-    const { data: sessionData } = useSession();
+    const sessionData = await getServerAuthSession();
     const isOwner = sessionData?.user?.id === comment.commenter?.id;
     const isAdmin = sessionData?.user?.isAdmin;
 
     return (
+
         <div
             key={comment.id}
             className="mx-auto mb-4 w-full max-w-2xl rounded-lg bg-[#fffefe] p-6 shadow-lg"
@@ -47,5 +46,3 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
         </div>
     );
 };
-
-export default CommentCard;

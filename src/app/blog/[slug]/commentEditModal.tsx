@@ -2,16 +2,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '~/utils/api';
 import CommentDeleteButton from './commentDeleteButton';
-import { useSession } from 'next-auth/react';
+
 import { type Comment } from '~/interfaces/comments';
 import { translateCases, type TranslateCase } from '~/interfaces/translate';
+import { useSession } from 'next-auth/react';
 
 export default function CommentEditModal({ comment }: { comment: Comment }) {
+    const user = useSession().data?.user
+
     const commentId = comment?.id;
     const initialContent = comment?.content;
-
-    const { data: sessionData } = useSession();
-    const user = sessionData?.user;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [commentContent, setCommentContent] = useState<string>(
