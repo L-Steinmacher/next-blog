@@ -1,25 +1,24 @@
 
 import Image from 'next/image';
-import { formatRelativeTime } from '~/utils/miscUtils';
-import CommentEditModal from './commentEditModal';
 
+import CommentEditModal from './commentEditModal';
 import CommentDeleteButton from './commentDeleteButton';
-import { getServerAuthSession } from '~/server/auth';
 import { type Comment } from '~/interfaces/comments';
+import { api } from '~/utils/api'
+import { formatRelativeTime } from '~/utils/miscUtils';
 
 
 // Create the CommentCard component
-export default async function CommentCard({ comment }: { comment: Comment }) {
+export default function CommentCard({ comment }: { comment: Comment }) {
     const commenterImage = comment.commenter?.image ?? '/images/user.png';
     const createdAt = comment.createdAt.toISOString();
     const displayTime = formatRelativeTime(createdAt);
 
-    const sessionData = await getServerAuthSession();
-    const isOwner = sessionData?.user?.id === comment.commenter?.id;
-    const isAdmin = sessionData?.user?.isAdmin;
+    const user = api.user.getUserSession.useQuery().data;
+    const isOwner = user?.id === comment.commenter?.id;
+    const isAdmin = user?.isAdmin;
 
     return (
-
         <div
             key={comment.id}
             className="mx-auto mb-4 w-full max-w-2xl rounded-lg bg-[#fffefe] p-6 shadow-lg"
@@ -37,9 +36,11 @@ export default async function CommentCard({ comment }: { comment: Comment }) {
                     <p className="font-bold">{comment.commenter?.name}</p>
                 </div>
                 {isOwner ? (
+
                   <CommentEditModal comment={comment} />
                   ): isAdmin ? (
-                    <CommentDeleteButton commentId={comment.id} />) : null }
+                    <CommentDeleteButton commentId={comment.id} />
+                ) : null }
             </div>
             <p className="text-gray-700">{comment.content}</p>
             <p className="mt-2 text-sm text-gray-500">Created: {displayTime}</p>

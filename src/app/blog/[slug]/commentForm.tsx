@@ -1,21 +1,28 @@
 'use client';
-
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import React, { type RefObject, useEffect, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha'
+import { type Comment } from '~/interfaces/comments';
 import { api } from '~/utils/api';
-
+import CommentCard from './commentCard';
 
 const RECAPTCHA_SITE_KEY = process.env.GOOGLE_PUBLIC_RECAPTCHA_KEY;
 
-export default function CommentForm({ slug, children }: { slug: string, children: React.ReactNode}) {
-    const user = useSession().data?.user;
+export default function CommentForm(
+    { slug, allComments, }:
+    {
+        slug: string,
+        allComments: Comment[]
+    },
+) {
+    const user = api.user.getUserSession.useQuery().data;
+    console.log('user', user);
     const userIsLoggedIn = !!user;
 
+    const [postComments, setPostComments] = useState<Comment[]>(allComments);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [token, setToken] = useState<string | null>('');
     const [comment, setComment] = useState<string>('');
-
 
     const [errors, setErrors] = useState<string[]>([]);
     const [gotime, setGotime] = useState<boolean>(false);
@@ -26,7 +33,16 @@ export default function CommentForm({ slug, children }: { slug: string, children
 
     const addComment = api.comments.createComment.useMutation({
         onMutate: () => {
-
+            setErrors([]);
+            const newComment = {
+                id: Math.random().toString(36).substr(2, 9),
+                createdAt: new Date(),
+                content: comment,
+                postSlug: slug,
+                token: token || '',
+                commenter: user
+            } as Comment;
+            setPostComments([...(postComments ?? []), newComment ])
         },
         onSuccess: async () => {
             setComment('');
@@ -45,6 +61,7 @@ export default function CommentForm({ slug, children }: { slug: string, children
             console.log('onSettled', submitting);
             setSubmitting(false);
             setGotime(false);
+            console.log('onSettled comments', postComments)
         },
     });
 
@@ -143,7 +160,7 @@ export default function CommentForm({ slug, children }: { slug: string, children
                         {errors.length
                             ? errors.map((error, i) => (
                                   <p key={i} className="text-red-500">
-                                      {errors}
+                                      {error}
                                   </p>
                               ))
                             : null}
@@ -182,7 +199,19 @@ export default function CommentForm({ slug, children }: { slug: string, children
                     </div>
                 </form>
             </div>
-            {children}
+            <div className="mt-16">
+            <h2 id="comments-heading" className="sr-only">
+                Comments
+            </h2>
+            {allComments ? (
+                allComments.map(comment => (
+                   <CommentCard key={comment?.id} comment={comment} />
+            ))) : (
+                <p className="text-center text-xl text-gray-500">
+                    Be the first to leave your thoughts!
+                </p>
+            )}
+        </div>
         </>
     );
 }
