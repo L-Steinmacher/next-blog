@@ -7,15 +7,12 @@ import { useState } from 'react';
 
 import { type AppRouter } from '~/server/api/root';
 import { getUrl, transformer } from './shared';
-import { SessionProvider } from 'next-auth/react';
-import { type Session } from 'next-auth';
 
 export const api = createTRPCReact<AppRouter>();
 
 export function TRPCReactProvider(props: {
     children: React.ReactNode;
     headers: Headers;
-    session: Session;
 }) {
     const [queryClient] = useState(() => new QueryClient());
 
@@ -41,12 +38,10 @@ export function TRPCReactProvider(props: {
     );
 
     return (
-        <SessionProvider session={props.session}>
             <QueryClientProvider client={queryClient}>
                 <api.Provider client={trpcClient} queryClient={queryClient}>
                     {props.children}
                 </api.Provider>
             </QueryClientProvider>
-        </SessionProvider>
     );
 }
