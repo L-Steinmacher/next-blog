@@ -37,7 +37,7 @@ export default function CommentCard({ comment }: { comment: Comment }) {
                 </div>
                 {isOwner ? (
 
-                  <CommentEditModal comment={comment} />
+                  <CommentEditModal comment={comment} user={user} />
                   ): isAdmin ? (
                     <CommentDeleteButton commentId={comment.id} />
                 ) : null }

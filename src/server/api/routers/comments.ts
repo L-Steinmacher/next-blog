@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import BadWordsFilter from "bad-words";
 import { z } from "zod";
-import { type CommentSelect } from "~/interfaces/comments";
 import {
     createTRPCRouter,
     protectedProcedure,
@@ -41,7 +40,17 @@ export const commentsRouter = createTRPCRouter({
             });
 
             trpcInvariant(comments, "NOT_FOUND", `No comments found for post ${slug}`);
-            return comments as CommentSelect[];
+
+            comments.sort((a, b) => {
+                if (a.createdAt > b.createdAt) {
+                    return 1;
+                }
+                if (a.createdAt < b.createdAt) {
+                    return -1;
+                }
+                return 0;
+            });
+            return comments ;
         }),
     getCommentData: publicProcedure
         .input(z.object({ commentId: z.string() }))

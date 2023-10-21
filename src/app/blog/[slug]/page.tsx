@@ -6,8 +6,9 @@ import readingTime from 'reading-time';
 import { type NonNullablePostOptions } from '~/interfaces/post';
 import { getPostBySlug, getPostSlugs } from 'lib/blogApi';
 import markdownToHtml from 'lib/markdownToHtml';
-import { CommentLayout } from './commentLayout';
 import PostBody from '~/components/postBody';
+import { api } from '~/trpc/server';
+import CommentForm from './commentForm';
 
 type Params = {
     params: {
@@ -27,7 +28,7 @@ async function getPostData({ params }: Params) {
     const parsedContent = await markdownToHtml(postData.content || '');
     const stats = readingTime(postData.content || '');
     if (!postData.slug) throw new Error('No slug found for post');
-
+    const comments = await api.comments.getCommentsForPost.query({slug: params.slug})
     return {
         post: {
             title: postData.title,
@@ -37,8 +38,11 @@ async function getPostData({ params }: Params) {
             content: parsedContent,
         },
         stats,
+        comments
     };
 }
+
+
 
 export async function generateStaticParams() {
     const slugs = await getPostSlugs();
@@ -61,9 +65,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function Post({ params }: Params) {
-    const { post, stats } = await getPostData({ params });
+    const { post, stats, comments } = await getPostData({ params });
     if (!post.slug) notFound();
-
     return (
         <>
             <div className="py-16">
@@ -97,7 +100,7 @@ export default async function Post({ params }: Params) {
                     </section>
                 ) : null}
                 <hr className="mt-16 h-[3px] bg-gradient-to-r from-[#d68501] to-[#6b2b6f]" />
-                <CommentLayout slug={post.slug} />
+                <CommentForm slug={post.slug} allComments={comments} />
             </div>
         </>
     );
