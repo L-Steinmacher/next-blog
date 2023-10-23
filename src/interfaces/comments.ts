@@ -11,3 +11,15 @@ export type Comment = {
     commenter: Commenter;
     createdAt: Date;
   };
+
+export type CommentSelect = {
+  id: string;
+  content: string;
+  postSlug: string;
+  commenter: {
+      id: string;
+      name: string;
+      image: string;
+  };
+  createdAt: Date;
+} | undefined;

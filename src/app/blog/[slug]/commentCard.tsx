@@ -1,24 +1,22 @@
-'use client';
-import Image from 'next/image';
-import { type Comment } from '../../../interfaces/comments';
-import { formatRelativeTime } from '~/utils/miscUtils';
-import CommentEditModal from './commentEditModal';
-import { useSession } from 'next-auth/react';
-import CommentDeleteButton from './commentDeleteButton';
 
-interface CommentCardProps {
-    comment: Comment;
-}
+import Image from 'next/image';
+
+import CommentEditModal from './commentEditModal';
+import CommentDeleteButton from './commentDeleteButton';
+import { type Comment } from '~/interfaces/comments';
+import { api } from '~/utils/api'
+import { formatRelativeTime } from '~/utils/miscUtils';
+
 
 // Create the CommentCard component
-const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
+export default function CommentCard({ comment }: { comment: Comment }) {
     const commenterImage = comment.commenter?.image ?? '/images/user.png';
     const createdAt = comment.createdAt.toISOString();
     const displayTime = formatRelativeTime(createdAt);
 
-    const { data: sessionData } = useSession();
-    const isOwner = sessionData?.user?.id === comment.commenter?.id;
-    const isAdmin = sessionData?.user?.isAdmin;
+    const user = api.user.getUserSession.useQuery().data;
+    const isOwner = user?.id === comment.commenter?.id;
+    const isAdmin = user?.isAdmin;
 
     return (
         <div
@@ -38,14 +36,14 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment }) => {
                     <p className="font-bold">{comment.commenter?.name}</p>
                 </div>
                 {isOwner ? (
-                  <CommentEditModal comment={comment} />
+
+                  <CommentEditModal comment={comment} user={user} />
                   ): isAdmin ? (
-                    <CommentDeleteButton commentId={comment.id} />) : null }
+                    <CommentDeleteButton commentId={comment.id} />
+                ) : null }
             </div>
             <p className="text-gray-700">{comment.content}</p>
             <p className="mt-2 text-sm text-gray-500">Created: {displayTime}</p>
         </div>
     );
 };
-
-export default CommentCard;

@@ -1,13 +1,16 @@
 import { getAllPosts } from "lib/blogApi"
-import { type PostOptions } from "../../interfaces/post"
 import Link from "next/link"
 import Head from "next/head"
 
-type Props = {
-    allPosts: PostOptions[]
-}
+const getPostList =  async () => {
+    return await getAllPosts([
+      'date',
+      'slug',
+    ])
+  }
 
-export default function Blog({ allPosts } : Props) {
+export default async function Blog() {
+    const allPosts = await getPostList();
     return (
         <>
         <Head>
@@ -40,14 +43,3 @@ export default function Blog({ allPosts } : Props) {
         </>
     )
 }
-
-export const getStaticProps =  async () => {
-    const allPosts = await getAllPosts([
-      'date',
-      'slug',
-    ])
-
-    return {
-      props: { allPosts },
-    }
-  }

@@ -5,6 +5,7 @@ import Layout from '~/app/pageLayout';
 import { TRPCReactProvider } from '~/trpc/react';
 import { headers } from 'next/headers';
 
+
 export const metadata: Metadata = {
     title: 'Lucas Steinmacher - Software Engineering Blog',
     description:
@@ -16,10 +17,11 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
+
     return (
         <html lang="en">
             <body>
-                <TRPCReactProvider headers={headers()}>
+                <TRPCReactProvider  headers={headers()}>
                     <Layout>{children}</Layout>
                 </TRPCReactProvider>
             </body>

@@ -1,29 +1,35 @@
+'use client';
 import { signIn } from 'next-auth/react';
-import ReCAPTCHA from 'react-google-recaptcha';
 
-import { typedBoolean } from '~/utils/miscUtils';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { type Comment } from '~/interfaces/comments';
 import CommentCard from './commentCard';
 import useController from '~/hooks/useController';
 
 const RECAPTCHA_SITE_KEY = process.env.GOOGLE_PUBLIC_RECAPTCHA_KEY;
 
-export function CommentLayout({ slug }: { slug: string }) {
-
+export default function CommentForm({
+    slug,
+    allComments,
+}: {
+    slug: string;
+    allComments: Comment[];
+}) {
     const {
         submitting,
         setSubmitting,
         setToken,
         comment,
         setComment,
-        allComments,
         errors,
         setGotime,
-        commentContainerRef,
         userIsLoggedIn,
-    } = useController({ slug })
+    } = useController({
+        slug,
+    });
 
     return (
-        <div>
+        <>
             <section aria-labelledby="comments-heading" className="pt-16">
                 <div className="w-full">
                     <form
@@ -98,7 +104,7 @@ export function CommentLayout({ slug }: { slug: string }) {
                             {errors.length
                                 ? errors.map((error, i) => (
                                       <p key={i} className="text-red-500">
-                                          {errors}
+                                          {error}
                                       </p>
                                   ))
                                 : null}
@@ -137,24 +143,14 @@ export function CommentLayout({ slug }: { slug: string }) {
                         </div>
                     </form>
                 </div>
-                <div className="mt-16 " ref={commentContainerRef}>
+                <div className="mt-16">
                     <h2 id="comments-heading" className="sr-only">
                         Comments
                     </h2>
-                    {allComments?.length ? (
-                        allComments
-                            .filter(comment => typedBoolean(comment))
-                            .map(comment => (
-                                <div
-                                    className="relative flex flex-row items-center"
-                                    key={comment.id}
-                                >
-                                    <CommentCard
-                                        key={comment.id}
-                                        comment={comment}
-                                    />
-                                </div>
-                            ))
+                    {allComments ? (
+                        allComments.map(comment => (
+                            <CommentCard key={comment?.id} comment={comment} />
+                        ))
                     ) : (
                         <p className="text-center text-xl text-gray-500">
                             Be the first to leave your thoughts!
@@ -162,6 +158,6 @@ export function CommentLayout({ slug }: { slug: string }) {
                     )}
                 </div>
             </section>
-        </div>
+        </>
     );
 }

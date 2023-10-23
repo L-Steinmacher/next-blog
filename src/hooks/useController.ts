@@ -1,67 +1,58 @@
-import { useSession } from "next-auth/react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type RefObject, useRef, useState, useEffect } from "react";
 import { type Comment } from "~/interfaces/comments";
 import { api } from "~/utils/api";
 
-export default function useController({ slug }: { slug: string}) {
-    const { data: commentsData } = api.comments.getCommentsForPost.useQuery({
-        slug,
-    });
-
+export default function useController({ slug }: {
+        slug: string,
+    }) {
+    const allComments = api.comments.getCommentsForPost.useQuery({ slug }).data || [];
+    const router = useRouter();
+    const user = api.user.getUserSession.useQuery().data;
+    const userIsLoggedIn = !!user;
+    const [postComments, setPostComments] = useState<Comment[]>(allComments);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [token, setToken] = useState<string | null>('');
     const [comment, setComment] = useState<string>('');
-    const [allComments, setAllComments] = useState<Comment[]>(
-        commentsData || [],
-    );
+
     const [errors, setErrors] = useState<string[]>([]);
     const [gotime, setGotime] = useState<boolean>(false);
 
-    const { data: sessionData } = useSession();
-
     const commentContainerRef: RefObject<HTMLDivElement> = useRef(null);
-    const userIsLoggedIn = !!sessionData;
 
-    const utils = api.useContext();
-
-    useEffect(() => {
-        if (commentsData) {
-            setAllComments(commentsData);
-        }
-    }, [commentsData]);
-    let newComment: Comment ;
+    let newComment: Comment
 
     const addComment = api.comments.createComment.useMutation({
         onMutate: () => {
+            setErrors([]);
             newComment = {
                 content: comment,
                 createdAt: new Date(),
                 id: '',
                 postSlug: slug,
                 commenter: {
-                    id: sessionData?.user?.id || 'default-id',
-                    name: sessionData?.user?.name || '',
-                    image: sessionData?.user?.image || '',
+                    id: user?.id || 'default-id',
+                    name: user?.name || '',
+                    image: user?.image || '',
                 },
             };
-            setAllComments(prevComments => [...prevComments, newComment]);
+
+            setPostComments(prevComments => [...prevComments, newComment]);
         },
-        onSuccess: async () => {
+        onSuccess:  () => {
             setComment('');
-            await utils.comments.getCommentsForPost.refetch({ slug });
             const lastComment = commentContainerRef.current
-                ?.lastElementChild as HTMLElement | null;
+            ?.lastElementChild as HTMLElement | null;
             if (lastComment) {
                 lastComment.scrollIntoView({ behavior: 'smooth' });
             }
+            router.refresh();
         },
         onError: error => {
-            console.error('Error adding comment:', error);
             setErrors(prevErrors => [...prevErrors, error.message]);
-            setAllComments(allComments.filter(c => c.id !== newComment.id));
+            setPostComments(postComments.filter(comment => comment.id !== newComment.id))
         },
         onSettled: () => {
-            console.log('onSettled', submitting);
             setSubmitting(false);
             setGotime(false);
         },
@@ -75,6 +66,7 @@ export default function useController({ slug }: { slug: string}) {
             postSlug: slug,
             token: token || '',
         });
+        router.refresh();
     };
 
     // First we wait for the recaptcha token to be set, only then will the boolean gotime to be true
@@ -87,19 +79,23 @@ export default function useController({ slug }: { slug: string}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gotime]);
 
+
+
     return {
-        addComment,
-        allComments,
-        comment,
         commentContainerRef,
-        errors,
-        gotime,
-        setComment,
-        setGotime,
-        setToken,
-        setSubmitting,
+        postComments,
+        setPostComments,
         submitting,
+        setSubmitting,
         token,
+        setToken,
+        comment,
+        setComment,
+        errors,
+        setErrors,
+        gotime,
+        setGotime,
+        user,
         userIsLoggedIn,
     };
 }

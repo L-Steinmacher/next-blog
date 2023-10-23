@@ -2,16 +2,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '~/utils/api';
 import CommentDeleteButton from './commentDeleteButton';
-import { useSession } from 'next-auth/react';
+
 import { type Comment } from '~/interfaces/comments';
 import { translateCases, type TranslateCase } from '~/interfaces/translate';
+import { type Session } from 'next-auth';
+import { useRouter } from 'next/navigation';
+import useController from '~/hooks/useController';
 
-export default function CommentEditModal({ comment }: { comment: Comment }) {
+export default function CommentEditModal({ comment, user }: { comment: Comment, user: Session["user"] }) {
     const commentId = comment?.id;
     const initialContent = comment?.content;
-
-    const { data: sessionData } = useSession();
-    const user = sessionData?.user;
+    const router = useRouter();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [commentContent, setCommentContent] = useState<string>(
@@ -28,11 +29,11 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
     const closeModal = () => {
         setIsModalOpen(false);
     };
+    const {
+        postComments,
+    } = useController({ slug: comment.postSlug })
 
     useEffect(() => {
-        // if (!commentContent) {
-        //     setCommentContent(comment?.content);
-        // }
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 closeModal();
@@ -62,16 +63,16 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const utils = api.useContext();
+
     const translateMutation = api.translations.translateComment.useMutation({
         async onSuccess(res) {
             async function close() {
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
+            router.refresh();
             await close();
             const { comment } = res;
             setCommentContent(comment.content);
-            await utils.comments.invalidate();
             closeModal();
         },
         onError(error) {
@@ -82,13 +83,23 @@ export default function CommentEditModal({ comment }: { comment: Comment }) {
             setIsTranslating(false);
         },
     });
+    const commentToUpdate = postComments?.find(c => c.id === commentId);
 
     const updateMutation = api.comments.updateComment.useMutation({
-        async onSuccess() {
-            await utils.comments.invalidate();
+        onMutate() {
+            if (commentToUpdate) {
+                commentToUpdate.content = commentContent;
+            }
+
+        },
+        onSuccess() {
+            router.refresh();
             closeModal();
         },
         onError(error) {
+            if (commentToUpdate) {
+                commentToUpdate.content = initialContent;
+            }
             console.log('error updating comment', error);
         },
         onSettled() {

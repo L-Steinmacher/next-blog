@@ -40,7 +40,17 @@ export const commentsRouter = createTRPCRouter({
             });
 
             trpcInvariant(comments, "NOT_FOUND", `No comments found for post ${slug}`);
-            return comments;
+
+            comments.sort((a, b) => {
+                if (a.createdAt > b.createdAt) {
+                    return 1;
+                }
+                if (a.createdAt < b.createdAt) {
+                    return -1;
+                }
+                return 0;
+            });
+            return comments ;
         }),
     getCommentData: publicProcedure
         .input(z.object({ commentId: z.string() }))
