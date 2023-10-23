@@ -9,7 +9,13 @@ import { type Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import useController from '~/hooks/useController';
 
-export default function CommentEditModal({ comment, user }: { comment: Comment, user: Session["user"] }) {
+export default function CommentEditModal({
+    comment,
+    user,
+}: {
+    comment: Comment;
+    user: Session['user'];
+}) {
     const commentId = comment?.id;
     const initialContent = comment?.content;
     const router = useRouter();
@@ -29,9 +35,7 @@ export default function CommentEditModal({ comment, user }: { comment: Comment, 
     const closeModal = () => {
         setIsModalOpen(false);
     };
-    const {
-        postComments,
-    } = useController({ slug: comment.postSlug })
+    const { postComments } = useController({ slug: comment.postSlug });
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -63,26 +67,6 @@ export default function CommentEditModal({ comment, user }: { comment: Comment, 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-
-    const translateMutation = api.translations.translateComment.useMutation({
-        async onSuccess(res) {
-            async function close() {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-            router.refresh();
-            await close();
-            const { comment } = res;
-            setCommentContent(comment.content);
-            closeModal();
-        },
-        onError(error) {
-            console.log('error translating comment', error);
-        },
-        onSettled() {
-            console.log('settled');
-            setIsTranslating(false);
-        },
-    });
     const commentToUpdate = postComments?.find(c => c.id === commentId);
 
     const updateMutation = api.comments.updateComment.useMutation({
@@ -90,7 +74,6 @@ export default function CommentEditModal({ comment, user }: { comment: Comment, 
             if (commentToUpdate) {
                 commentToUpdate.content = commentContent;
             }
-
         },
         onSuccess() {
             router.refresh();
@@ -110,14 +93,12 @@ export default function CommentEditModal({ comment, user }: { comment: Comment, 
 
     function handleUpdate() {
         setIsTranslating(true);
-        if (caseType === 'none') {
-            updateMutation.mutate({ commentId, content: commentContent });
-        } else {
-            translateMutation.mutate({
-                commentId,
-                caseType: caseType as TranslateCase,
-            });
-        }
+
+        updateMutation.mutate({
+            commentId,
+            content: commentContent,
+            caseType: caseType as TranslateCase,
+        });
     }
 
     return (
@@ -139,9 +120,11 @@ export default function CommentEditModal({ comment, user }: { comment: Comment, 
                         )}
                         <div className="container flex h-full flex-col justify-between">
                             <div>
-                                <form >
-                                    <div style={{display: 'none'}}>
-                                        <label htmlFor='name_confirm'>Please leave this field blank </label>
+                                <form>
+                                    <div style={{ display: 'none' }}>
+                                        <label htmlFor="name_confirm">
+                                            Please leave this field blank{' '}
+                                        </label>
                                         <input
                                             type="text"
                                             name="name__confirm"
@@ -205,12 +188,14 @@ export default function CommentEditModal({ comment, user }: { comment: Comment, 
                                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                                     <button
                                         type="reset"
-                                        className='rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none'
+                                        className="rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none"
                                         onClick={e => {
                                             e.preventDefault();
                                             setCommentContent(initialContent);
-                                            }}
-                                    >Reset</button>
+                                        }}
+                                    >
+                                        Reset
+                                    </button>
                                     <button
                                         className="rounded-md border border-transparent bg-none px-4 py-2 text-base font-medium shadow-sm shadow-slate-400 hover:bg-slate-100 focus:outline-none"
                                         type="submit"

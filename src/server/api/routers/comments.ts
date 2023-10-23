@@ -1,12 +1,16 @@
 import { Prisma } from "@prisma/client";
 import BadWordsFilter from "bad-words";
+import { getPostBySlug } from "lib/blogApi";
 import { z } from "zod";
+import { type NonNullablePostOptions } from "~/interfaces/post";
+import { translateCases } from "~/interfaces/translate";
 import {
     createTRPCRouter,
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
 import { db as prisma } from "~/server/db";
+import { LangCall } from "~/utils/langCall";
 import { trpcInvariant } from "~/utils/miscUtils";
 import { sendEmail } from "~/utils/sendEmail";
 import validateToken from "~/utils/validateToken";
@@ -50,7 +54,7 @@ export const commentsRouter = createTRPCRouter({
                 }
                 return 0;
             });
-            return comments ;
+            return comments;
         }),
     getCommentData: publicProcedure
         .input(z.object({ commentId: z.string() }))
@@ -125,33 +129,89 @@ export const commentsRouter = createTRPCRouter({
             return comment;
         }),
     updateComment: protectedProcedure
-        .input(z.object({ commentId: z.string(), content: z.string().min(2, "Common', you can figure out something longer than 2 characters").max(500, "Keep it under 500 characters cowboy.") }))
+        .input(z.object({
+            commentId: z.string(),
+            caseType: z.enum(translateCases),
+            content: z.string(),
+        }))
         .mutation(async ({ ctx, input }) => {
-            const { commentId, content } = input;
+            const { commentId, caseType, content } = input;
+
             const filter = new BadWordsFilter();
-            const cleanedContent = filter.clean(content.trim());
+
             const comment = await prisma.comment.findUnique({
                 where: {
                     id: commentId,
                 },
-                select: defaultCommentSelect,
+                select: {
+                    commenter: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    postSlug: true,
+                }
             });
-            trpcInvariant(comment, "NOT_FOUND", `No comment found with id ${commentId}`);
+            trpcInvariant(comment, "NOT_FOUND", "No comment found!");
 
-            const isOwnComment = ctx.session?.user?.id === comment.commenter.id;
-            // Todo: log user out if they get this far and are not the author
-            trpcInvariant(isOwnComment, "UNAUTHORIZED", "You are not authorized to update this comment!!!");
+            const loggedInUserId = ctx.session?.user.id;
+            const originalCommenterId = comment?.commenter.id;
+            const allowedToEdit = loggedInUserId === originalCommenterId;
 
-            const updatedComment = await prisma.comment.update({
-                where: {
-                    id: commentId,
-                },
-                data: {
-                    content: cleanedContent,
-                },
-                select: defaultCommentSelect,
-            });
-            return updatedComment;
+            trpcInvariant(allowedToEdit, "BAD_REQUEST", "Issue with the comment update!");
+
+            const cleanedComment = filter.clean(content);
+
+            if (caseType === "none") {
+                const updatedComment = await prisma.comment.update({
+                    where: {
+                        id: commentId,
+                    },
+                    data: {
+                        content: cleanedComment,
+                    },
+                });
+                return { success: true, comment: updatedComment };
+            } else {
+                const curLangTokens = await prisma.user.findUnique({
+                    where: {
+                        id: loggedInUserId,
+                    },
+                    select: {
+                        langToken: true,
+                    },
+                });
+                const hasTokens = curLangTokens && curLangTokens?.langToken;
+                trpcInvariant(hasTokens, "BAD_REQUEST", "Not enough tokens!")
+
+                let newCommentContent: string;
+                if (caseType === "intellegizer") {
+                    const postData: NonNullablePostOptions = await getPostBySlug(comment.postSlug, ["content"]);
+                    trpcInvariant(postData, "BAD_REQUEST", "No post found!");
+
+                    newCommentContent = await LangCall(cleanedComment, caseType, postData.content);
+                } else {
+                    newCommentContent = await LangCall(cleanedComment, caseType);
+                }
+
+                const updatedComment = await prisma.comment.update({
+                    where: {
+                        id: commentId,
+                    },
+                    data: {
+                        content: newCommentContent,
+                        commenter: {
+                            update: {
+                                langToken: {
+                                    decrement: 1,
+                                },
+                            },
+                        },
+                    },
+                });
+
+                return { success: true, comment: updatedComment };
+            }
         }),
     deleteComment: protectedProcedure
         .input(z.object({ commentId: z.string(), }))
