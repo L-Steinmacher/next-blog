@@ -28,7 +28,9 @@ async function getPostData({ params }: Params) {
     const parsedContent = await markdownToHtml(postData.content || '');
     const stats = readingTime(postData.content || '');
     if (!postData.slug) throw new Error('No slug found for post');
-    const comments = await api.comments.getCommentsForPost.query({slug: params.slug})
+    const comments = await api.comments.getCommentsForPost.query({
+        slug: params.slug,
+    });
     return {
         post: {
             title: postData.title,
@@ -38,11 +40,9 @@ async function getPostData({ params }: Params) {
             content: parsedContent,
         },
         stats,
-        comments
+        comments,
     };
 }
-
-
 
 export async function generateStaticParams() {
     const slugs = await getPostSlugs();

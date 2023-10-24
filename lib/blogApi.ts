@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
-import { type PostOptions } from '../src/interfaces/post'
+import { NonNullablePostOptions, type PostOptions } from '../src/interfaces/post'
 import { LRUCache } from 'lru-cache'
 
 const postsDirectory = join(process.cwd(), '/src/_posts')
@@ -26,7 +26,7 @@ export async function getPostBySlug<T extends keyof PostOptions>(slug: string, f
 
     if (cache.has(fullPath)) {
         fileContents = cache.get(fullPath) ?? ''
-    }else {
+    } else {
         try {
             fileContents = await fs.promises.readFile(fullPath, 'utf8')
             cache.set(fullPath, fileContents)
@@ -36,9 +36,9 @@ export async function getPostBySlug<T extends keyof PostOptions>(slug: string, f
         }
     }
 
-    const { data, content } =  matter(fileContents)
+    const { data, content } = matter(fileContents)
 
-    const items: Partial<PostOptions> = {slug: realSlug}
+    const items: Partial<PostOptions> = { slug: realSlug }
 
     fields.forEach((field) => {
         if (fields.length === 0 || fields.includes(field)) {
@@ -52,7 +52,7 @@ export async function getPostBySlug<T extends keyof PostOptions>(slug: string, f
     return items as Pick<PostOptions, T>
 }
 
-export async function getAllPosts <T extends keyof PostOptions> (fields: T[] = []) : Promise<Array<Pick<PostOptions, T>>> {
+export async function getAllPosts<T extends keyof NonNullablePostOptions>(fields: T[] = []): Promise<Array<Pick<NonNullablePostOptions, T>>> {
     const slugs = await getPostSlugs()
     if (slugs.length === 0) {
         return []
@@ -61,11 +61,11 @@ export async function getAllPosts <T extends keyof PostOptions> (fields: T[] = [
     const posts = await Promise.all(
         slugs.map(async (slug) => {
             const post = await getPostBySlug(slug, fields);
-            return post ;
+            return post;
         })
     );
 
-    if((fields as Array<keyof PostOptions>).includes('date')) {
+    if ((fields as Array<keyof PostOptions>).includes('date')) {
         posts.sort((post1, post2) => {
             const date1 = (post1 as Pick<PostOptions, 'date'>).date;
             const date2 = (post2 as Pick<PostOptions, 'date'>).date;
@@ -82,5 +82,5 @@ export async function getAllPosts <T extends keyof PostOptions> (fields: T[] = [
         })
     }
 
-    return posts as Array<Pick<PostOptions, T>>
+    return posts as Array<Pick<NonNullablePostOptions, T>>
 }

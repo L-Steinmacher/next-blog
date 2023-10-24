@@ -96,19 +96,15 @@ export default async function Home() {
                                             {latestPost?.title}
                                         </Link>
                                         <span className="px-2 text-xs">
-                                            {latestPost.date
-                                                ? latestPost.date.split('T')[0]
-                                                : ''}
+                                            {latestPost.date?.split('T')[0]}
                                         </span>
                                         <p className="text-lg text-justify">
                                             {' '}
-                                            {latestPost?.excerpt}
+                                            {latestPost.excerpt}
                                         </p>
                                         <Link
                                             className="text-lg text-[#d68501] transition-colors hover:text-[#d68401bb] hover:underline"
-                                            href={`/blog/${
-                                                latestPost.slug ?? ''
-                                            }`}
+                                            href={`/blog/${latestPost.slug}`}
                                         >
                                             Continue Reading →
                                         </Link>
@@ -124,7 +120,7 @@ export default async function Home() {
                                     <div key={slug} className="w-full">
                                         <Link
                                             className="text-[#d68501] transition-colors hover:text-[#d68401bb] hover:underline"
-                                            href={`/blog/${slug ?? ''}`}
+                                            href={`/blog/${slug}`}
                                         >
                                             {title}
                                         </Link>

@@ -47,22 +47,47 @@
 }
 
 .markdown pre {
-    --base00: #f3f3f3; /* editor background */
-    --base01: #e0e0e0; /* unused (currently) */
-    --base02: #d6d6d6; /* unused (currently) */
-    --base03: #989fb1; /* code comments */
-    --base04: #969896; /* unused (currently) */
-    --base05: #2e3039; /* fallback font color */
-    --base06: #282a2e; /* unused (currently) */
-    --base07: #1d1f21; /* unused (currently) */
-    --base08: #0c969b; /* variable references */
-    --base09: #aa0982; /* numbers */
-    --base0A: #994cc3; /* keywords */
-    --base0B: #c96765; /* strings */
-    --base0C: #aa0982; /* escape characters in strings */
-    --base0D: #4876d6; /* function calls */
-    --base0E: #994cc3; /* operators */
-    --base0F: #d3423e; /* "Embedded" (whatever that means) */
+    @apply my-6 overflow-x-auto rounded-md bg-[#f3f3f3] p-4;
+}
 
-    @apply my-6 overflow-x-auto rounded-md bg-[--base00] p-4;
+.markdown pre .hljs-keyword {
+    @apply text-[#0c969b]; /* Variable References */
+}
+.markdown .hljs-title.function_ {
+    @apply text-[#994cc3]; /* Keywords */
+}
+.markdown .hljs-params {
+    @apply text-[#0c969b]; /* Variable References */
+}
+.markdown .hljs-property {
+    @apply text-[#aa0982]; /* Numbers */
+}
+.markdown .hljs-string {
+    @apply text-[#c96765]; /* Strings */
+}
+.markdown .hljs-attr {
+    @apply text-[#994cc3]; /* Keywords */
+}
+.markdown .hljs-xml {
+    @apply text-base; /* Default text color */
+}
+.markdown .hljs-tag {
+    @apply text-base; /* Default text color */
+}
+.markdown .hljs-name {
+    @apply text-[#0c969b]; /* Variable References */
+}
+.markdown .hljs-comment {
+    @apply text-[#989fb1]; /*code Comments */
+}
+
+.markdown .hljs-markdown {
+    @apply text-[#2e3039]; /* Fallback font color */
+}
+
+.markdown .hljs-blockquote {
+    @apply border-l-2 border-gray-400 bg-gray-100 p-2 italic;
+}
+.markdown pre > code > .hljs-keyword {
+    @apply text-[#0c969b]; /* Variable References */
 }

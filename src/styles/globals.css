@@ -20,3 +20,55 @@
     background-color: #8f4d91;
     background-image: linear-gradient(to bottom, #d68501 #8f4d91);
 }
+
+.hljs-keyword {
+    @apply text-[#994cc3]; /* Variable References */
+}
+
+.hljs-title {
+    @apply text-[#e64553]; /* Title*/
+}
+
+.hljs-built_in {
+    @apply text-[#0c969b]; /* Variable References */
+}
+
+.hljs-title.function_ {
+    @apply text-[#4876d6]; /* Keywords */
+}
+
+.hljs-params {
+    @apply text-[#dc8a78]; /* Variable References */
+}
+
+.hljs-property {
+    @apply text-[#aa0982]; /* Numbers */
+}
+
+.hljs-string {
+    @apply text-[#0c969b]; /* Strings */
+}
+
+.hljs-attr {
+    @apply text-[#aa0982]; /* Keywords */
+}
+
+.hljs-xml {
+    @apply text-base; /* Default text color */
+}
+
+.hljs-tag {
+    @apply text-[#d68501]; /* Default text color */
+}
+
+.hljs-name {
+    @apply text-[#4876d6]; /* Variable References */
+}
+
+.hljs-comment {
+    @apply text-[#989fb1]; /*code Comments */
+}
+
+.hljs-markdown {
+    @apply text-[#2e3039]; /* Fallback font color */
+}
