@@ -14,11 +14,16 @@
 ::-webkit-scrollbar-thumb {
     background-color: #6b2b6f;
     background-image: linear-gradient(to bottom, #d68501, #6b2b6f);
+    border-radius: 0 0 0.375rem 0.375rem;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: #8f4d91;
     background-image: linear-gradient(to bottom, #d68501 #8f4d91);
+}
+
+code {
+    @apply text-[#f3f3f3]; /* Code */
 }
 
 .hljs-keyword {
@@ -54,7 +59,7 @@
 }
 
 .hljs-xml {
-    @apply text-base; /* Default text color */
+    @apply text-gray-100; /* Default text color */
 }
 
 .hljs-tag {
@@ -70,5 +75,5 @@
 }
 
 .hljs-markdown {
-    @apply text-[#2e3039]; /* Fallback font color */
+    @apply text-[#f3f3f3]; /* Fallback font color */
 }

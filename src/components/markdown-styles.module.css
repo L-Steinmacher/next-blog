@@ -47,47 +47,5 @@
 }
 
 .markdown pre {
-    @apply my-6 overflow-x-auto rounded-md bg-[#f3f3f3] p-4;
-}
-
-.markdown pre .hljs-keyword {
-    @apply text-[#0c969b]; /* Variable References */
-}
-.markdown .hljs-title.function_ {
-    @apply text-[#994cc3]; /* Keywords */
-}
-.markdown .hljs-params {
-    @apply text-[#0c969b]; /* Variable References */
-}
-.markdown .hljs-property {
-    @apply text-[#aa0982]; /* Numbers */
-}
-.markdown .hljs-string {
-    @apply text-[#c96765]; /* Strings */
-}
-.markdown .hljs-attr {
-    @apply text-[#994cc3]; /* Keywords */
-}
-.markdown .hljs-xml {
-    @apply text-base; /* Default text color */
-}
-.markdown .hljs-tag {
-    @apply text-base; /* Default text color */
-}
-.markdown .hljs-name {
-    @apply text-[#0c969b]; /* Variable References */
-}
-.markdown .hljs-comment {
-    @apply text-[#989fb1]; /*code Comments */
-}
-
-.markdown .hljs-markdown {
-    @apply text-[#2e3039]; /* Fallback font color */
-}
-
-.markdown .hljs-blockquote {
-    @apply border-l-2 border-gray-400 bg-gray-100 p-2 italic;
-}
-.markdown pre > code > .hljs-keyword {
-    @apply text-[#0c969b]; /* Variable References */
+    @apply my-6 overflow-x-auto rounded-md bg-[#011627] p-4;
 }
