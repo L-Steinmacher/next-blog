@@ -23,6 +23,7 @@ async function getPostData({ params }: Params) {
         'slug',
         'author',
         'content',
+        'updatedAt',
     ]);
 
     const parsedContent = await markdownToHtml(postData.content || '');
@@ -38,6 +39,7 @@ async function getPostData({ params }: Params) {
             slug: postData.slug,
             author: postData.author,
             content: parsedContent,
+            updatedAt: postData.updatedAt,
         },
         stats,
         comments,
@@ -94,6 +96,11 @@ export default async function Post({ params }: Params) {
                                 // When post.author is an Author object
                                 <p>Written by: {post.author?.name}</p>
                             )}
+                            {post.updatedAt ? (
+                                <p className="text-body-md ">
+                                    Updated on: {post.updatedAt.split('T')[0]} *
+                                </p>
+                            ) : null}
                             <PostBody content={post.content} />
                             <Link href="/blog">Back to blogs →</Link>
                         </div>

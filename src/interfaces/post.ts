@@ -8,6 +8,7 @@ export type PostOptions = {
     author?: string | Author,
     coverImage?: string,
     excerpt?: string,
+    updatedAt?: string,
 }
 
 export type NonNullablePostOptions = NonNullable<PostOptions>;
